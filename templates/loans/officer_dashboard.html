@@ -1,0 +1,3033 @@
+{% load l10n %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="km">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LMS - Officer Dashboard | Cambodian Microfinance</title>
+
+  <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}" />
+  <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}" />
+  <link rel="apple-touch-icon" href="{% static 'images/favicon.png' %}" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Kantumruy+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root {
+      --slate-50: #f8fafc;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-300: #cbd5e1;
+      --slate-400: #94a3b8;
+      --slate-500: #64748b;
+      --slate-600: #475569;
+      --slate-700: #334155;
+      --slate-800: #1e293b;
+      --slate-900: #0f172a;
+      --brand-blue: #1d4ed8;
+      --brand-blue-hover: #1e40af;
+      --brand-blue-soft: #eff6ff;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --warning: #d97706;
+      --sidebar-width: 250px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'Kantumruy Pro', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--slate-50);
+      color: var(--slate-900);
+      line-height: 1.55;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .font-monospace {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, monospace !important;
+      font-feature-settings: 'tnum';
+      font-variant-numeric: tabular-nums;
+    }
+
+    .app-sidebar {
+      width: var(--sidebar-width);
+      background: #ffffff;
+      border-right: 1px solid var(--slate-200);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .sidebar-brand {
+      padding: 1.25rem 1.25rem;
+      border-bottom: 1px solid var(--slate-100);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: var(--slate-900);
+    }
+
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--slate-900);
+      color: #ffffff;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.05rem;
+    }
+
+    .brand-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      line-height: 1.2;
+    }
+
+    .brand-role {
+      font-size: 0.725rem;
+      color: var(--slate-500);
+      font-weight: 500;
+    }
+
+    .sidebar-nav {
+      padding: 1rem 0.75rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      overflow-y: auto;
+    }
+
+    .nav-item-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.65rem 0.85rem;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      color: var(--slate-600);
+      font-size: 0.875rem;
+      font-weight: 500;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      position: relative;
+    }
+
+    .nav-item-btn i {
+      font-size: 1.1rem;
+      color: var(--slate-400);
+      transition: color 0.15s ease;
+    }
+
+    .nav-item-btn:hover {
+      background: var(--slate-100);
+      color: var(--slate-900);
+    }
+
+    .nav-item-btn:hover i {
+      color: var(--slate-700);
+    }
+
+    .nav-item-btn.active {
+      background: var(--brand-blue-soft);
+      color: var(--brand-blue);
+      font-weight: 600;
+    }
+
+    .nav-item-btn.active i {
+      color: var(--brand-blue);
+    }
+
+    .badge-count {
+      margin-left: auto;
+      background: var(--brand-blue);
+      color: #ffffff;
+      border-radius: 10px;
+      padding: 0.15rem 0.5rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+
+    .sidebar-footer {
+      padding: 1rem;
+      border-top: 1px solid var(--slate-100);
+      background: #ffffff;
+    }
+
+    .user-profile-card {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem;
+      border-radius: 8px;
+      background: var(--slate-50);
+      border: 1px solid var(--slate-200);
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      background: var(--slate-900);
+      color: #ffffff;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.8rem;
+    }
+
+    .user-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .user-name {
+      font-size: 0.8rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .user-role-label {
+      font-size: 0.7rem;
+      color: var(--slate-500);
+    }
+
+    .app-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .top-header {
+      background: #ffffff;
+      border-bottom: 1px solid var(--slate-200);
+      padding: 0.85rem 1.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 90;
+    }
+
+    .header-title-box h1 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin: 0;
+      color: var(--slate-900);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .header-org-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .badge-branch, .badge-dept {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--slate-600);
+      background: var(--slate-100);
+      border: 1px solid var(--slate-200);
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    .header-user-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.25rem 0.65rem;
+      background: #ffffff;
+      border: 1px solid var(--slate-200);
+      border-radius: 8px;
+    }
+
+    .header-user-avatar {
+      width: 28px;
+      height: 28px;
+      background: var(--brand-blue);
+      color: #ffffff;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .header-user-name {
+      font-size: 0.82rem;
+      color: var(--slate-900);
+    }
+
+    .header-user-role {
+      font-size: 0.7rem;
+    }
+
+    .btn-header-logout {
+      background: #ffffff;
+      border: 1px solid var(--slate-200);
+      color: var(--slate-600);
+      padding: 0.4rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.15s ease;
+      cursor: pointer;
+    }
+
+    .btn-header-logout:hover {
+      background: #fef2f2;
+      border-color: #fecaca;
+      color: #dc2626;
+    }
+
+    .lang-btn {
+      background: #ffffff;
+      border: 1px solid var(--slate-200);
+      color: var(--slate-700);
+      padding: 0.4rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .lang-btn:hover {
+      background: var(--slate-100);
+    }
+
+    .btn-logout {
+      color: var(--slate-500);
+      text-decoration: none;
+      font-size: 0.85rem;
+      padding: 0.4rem 0.6rem;
+      border-radius: 6px;
+    }
+
+    .btn-logout:hover {
+      color: var(--danger);
+      background: #fee2e2;
+    }
+
+    .content-body {
+      padding: 1.75rem;
+      flex: 1;
+    }
+
+    .view-section {
+      display: none;
+    }
+
+    .view-section.active {
+      display: block;
+    }
+
+    .clean-card {
+      background: #ffffff;
+      border: 1px solid var(--slate-200);
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+    }
+
+    .kpi-card {
+      background: #ffffff;
+      border: 1px solid var(--slate-200);
+      border-radius: 10px;
+      padding: 1.25rem;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+    }
+
+    .kpi-label {
+      font-size: 0.78rem;
+      color: var(--slate-500);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .kpi-value {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin: 0.25rem 0 0.15rem;
+    }
+
+    .kpi-foot {
+      font-size: 0.725rem;
+      color: var(--slate-500);
+    }
+
+    .table-clean {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+
+    .table-clean th {
+      background: var(--slate-50);
+      color: var(--slate-600);
+      font-weight: 600;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--slate-200);
+      white-space: nowrap;
+    }
+
+    .table-clean td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--slate-100);
+      font-size: 0.875rem;
+      vertical-align: middle;
+    }
+
+    .table-clean tr:hover td {
+      background-color: var(--slate-50);
+    }
+
+    .badge-status {
+      font-size: 0.725rem;
+      font-weight: 600;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      display: inline-block;
+      white-space: nowrap;
+    }
+
+    .badge-submitted {
+      background: #eff6ff;
+      color: var(--brand-blue);
+      border: 1px solid #bfdbfe;
+    }
+
+    .badge-under_review {
+      background: #fefce8;
+      color: #854d0e;
+      border: 1px solid #fef08a;
+    }
+
+    .badge-approved {
+      background: #f0fdf4;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+
+    .badge-disbursed, .badge-active {
+      background: #ecfdf5;
+      color: #047857;
+      border: 1px solid #a7f3d0;
+    }
+
+    .badge-rejected {
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .badge-paid {
+      background: #f0fdf4;
+      color: var(--success);
+      border: 1px solid #bbf7d0;
+    }
+
+    .badge-pending {
+      background: #fefce8;
+      color: var(--warning);
+      border: 1px solid #fef08a;
+    }
+
+    .badge-verifying {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+    }
+
+    .badge-overdue {
+      background: #fef2f2;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
+    }
+
+    .btn-act {
+      border: 1px solid var(--slate-200);
+      background: #ffffff;
+      color: var(--slate-700);
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .btn-act:hover {
+      background: var(--slate-100);
+      color: var(--slate-900);
+    }
+
+    .btn-act-primary {
+      background: var(--brand-blue);
+      color: #ffffff;
+      border-color: var(--brand-blue);
+    }
+
+    .btn-act-primary:hover {
+      background: var(--brand-blue-hover);
+      color: #ffffff;
+    }
+
+    .btn-act-success {
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+      color: #166534;
+    }
+
+    .btn-act-success:hover {
+      background: var(--success);
+      color: #ffffff;
+      border-color: var(--success);
+    }
+
+    .btn-act-danger {
+      background: #fef2f2;
+      border-color: #fecaca;
+      color: #991b1b;
+    }
+
+    .btn-act-danger:hover {
+      background: var(--danger);
+      color: #ffffff;
+      border-color: var(--danger);
+    }
+
+    .cbc-box {
+      border-radius: 10px;
+      border: 1px solid #bfdbfe;
+      background: #f8fafc;
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .animated-dropdown {
+      position: relative;
+      display: inline-block;
+      user-select: none;
+    }
+
+    .dropdown-trigger {
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      width: 100%;
+      height: 31px;
+      padding: 0.25rem 0.65rem;
+      background-color: #ffffff;
+      border: 1px solid var(--slate-200);
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--slate-800);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      outline: none;
+    }
+
+    .dropdown-trigger:hover {
+      background-color: var(--slate-50);
+      border-color: var(--slate-300);
+    }
+
+    .animated-dropdown.open .dropdown-trigger {
+      border-color: var(--brand-blue);
+      box-shadow: 0 0 0 2px rgba(29, 78, 216, 0.1);
+    }
+
+    .dropdown-chevron {
+      font-size: 0.65rem;
+      color: var(--slate-400);
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .animated-dropdown.open .dropdown-chevron {
+      transform: rotate(180deg);
+      color: var(--brand-blue);
+    }
+
+    .dropdown-menu-custom {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      min-width: 100%;
+      background: #ffffff;
+      border: 1px solid var(--slate-200);
+      border-radius: 6px;
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1);
+      padding: 4px;
+      z-index: 1050;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(-6px) scale(0.97);
+      pointer-events: none;
+      visibility: hidden;
+      transform-origin: top center;
+      transition: opacity 0.2s ease-out, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.2s;
+    }
+
+    .animated-dropdown.open .dropdown-menu-custom {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+      visibility: visible;
+    }
+
+    .dropdown-item-custom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 0.35rem 0.6rem;
+      font-size: 0.8rem;
+      color: var(--slate-700);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.12s ease;
+      white-space: nowrap;
+    }
+
+    .dropdown-item-custom:hover {
+      background-color: var(--slate-100);
+      color: var(--slate-900);
+    }
+
+    .dropdown-item-custom.selected {
+      background-color: var(--brand-blue-soft);
+      color: var(--brand-blue);
+      font-weight: 600;
+    }
+
+    .dropdown-item-custom .check-icon {
+      font-size: 0.75rem;
+      opacity: 0;
+      color: var(--brand-blue);
+    }
+
+    .dropdown-item-custom.selected .check-icon {
+      opacity: 1;
+    }
+
+    /* Refined Institutional Alert System */
+    .custom-alert {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.85rem 1rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      line-height: 1.45;
+      margin-bottom: 1.25rem;
+      position: relative;
+      animation: alertSlideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes alertSlideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .custom-alert .alert-icon {
+      font-size: 1.15rem;
+      line-height: 1;
+      margin-top: 0.15rem;
+      flex-shrink: 0;
+    }
+
+    .custom-alert .alert-text {
+      flex: 1;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    .custom-alert .btn-close {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      width: 1.15rem;
+      height: 1.15rem;
+      padding: 0;
+      background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23991b1b'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e") center/0.65rem auto no-repeat !important;
+      border: none !important;
+      box-shadow: none !important;
+      opacity: 0.55;
+      transition: opacity 0.15s ease;
+      cursor: pointer;
+    }
+
+    .custom-alert .btn-close:hover {
+      opacity: 0.95;
+    }
+
+    .custom-alert.alert-danger,
+    .custom-alert.alert-error {
+      background-color: #fef2f2 !important;
+      border: 1px solid #fecaca !important;
+      border-left: 4px solid #dc2626 !important;
+      color: #991b1b !important;
+      box-shadow: 0 2px 6px rgba(220, 38, 38, 0.08);
+    }
+    .custom-alert.alert-danger .alert-icon,
+    .custom-alert.alert-error .alert-icon {
+      color: #dc2626 !important;
+    }
+
+    .custom-alert.alert-warning {
+      background-color: #fffbeb !important;
+      border: 1px solid #fde68a !important;
+      border-left: 4px solid #d97706 !important;
+      color: #92400e !important;
+      box-shadow: 0 2px 6px rgba(217, 119, 6, 0.08);
+    }
+    .custom-alert.alert-warning .alert-icon {
+      color: #d97706 !important;
+    }
+
+    .custom-alert.alert-success {
+      background-color: #f0fdf4 !important;
+      border: 1px solid #bbf7d0 !important;
+      border-left: 4px solid #16a34a !important;
+      color: #166534 !important;
+      box-shadow: 0 2px 6px rgba(22, 163, 74, 0.08);
+    }
+    .custom-alert.alert-success .alert-icon {
+      color: #16a34a !important;
+    }
+
+    .custom-alert.alert-info {
+      background-color: #eff6ff !important;
+      border: 1px solid #bfdbfe !important;
+      border-left: 4px solid #2563eb !important;
+      color: #1e40af !important;
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.08);
+    }
+    .custom-alert.alert-info .alert-icon {
+      color: #2563eb !important;
+    }
+
+    /* Red Input Highlights on Error - Crisp, No SVG Icon Collision */
+    .form-control.is-invalid,
+    .form-select.is-invalid {
+      border-color: #dc2626 !important;
+      background-color: #ffffff !important;
+      background-image: none !important;
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.08) !important;
+    }
+    .form-control.is-invalid:focus,
+    .form-select.is-invalid:focus {
+      border-color: #dc2626 !important;
+      box-shadow: 0 0 0 3.5px rgba(220, 38, 38, 0.18) !important;
+    }
+  </style>
+</head>
+<body>
+
+  <aside class="app-sidebar">
+    <a href="{% url 'loans:officer_dashboard' %}" class="sidebar-brand">
+      <img src="{% static 'images/logo.png' %}" alt="Logo" class="brand-img-logo" style="height: 36px; width: 36px; border-radius: 8px; object-fit: cover; box-shadow: 0 2px 6px rgba(0,0,0,0.12); flex-shrink: 0;">
+      <div>
+        <div class="brand-title">Credit Portal</div>
+        <div class="brand-role" data-i18n="role_officer">មន្ត្រីឥណទាន</div>
+      </div>
+    </a>
+
+    <nav class="sidebar-nav">
+      <button type="button" class="nav-item-btn active" onclick="switchNav('sec-overview', this)">
+        <i class="bi bi-grid-1x2"></i>
+        <span data-i18n="nav_overview">ទិដ្ឋភាពទូទៅ</span>
+      </button>
+
+      <button type="button" class="nav-item-btn" onclick="switchNav('sec-applications', this)">
+        <i class="bi bi-file-earmark-check"></i>
+        <span data-i18n="nav_applications">ពាក្យស្នើសុំ</span>
+        {% if pending_count %}
+          <span class="badge-count" id="badgePending">{{ pending_count }}</span>
+        {% endif %}
+      </button>
+
+      <button type="button" class="nav-item-btn" onclick="switchNav('sec-loans', this)">
+        <i class="bi bi-wallet2"></i>
+        <span data-i18n="nav_portfolio">ផលប័ត្រឥណទាន</span>
+      </button>
+
+      <button type="button" class="nav-item-btn" onclick="switchNav('sec-repayments', this)">
+        <i class="bi bi-receipt"></i>
+        <span data-i18n="nav_repayments">ការបង់ប្រាក់</span>
+      </button>
+
+      <button type="button" class="nav-item-btn" onclick="switchNav('sec-reports', this)">
+        <i class="bi bi-file-earmark-bar-graph"></i>
+        <span data-i18n="nav_reports">របាយការណ៍</span>
+      </button>
+
+      {% if request.user.is_admin_user %}
+      <button type="button" class="nav-item-btn" onclick="switchNav('sec-staff', this)">
+        <i class="bi bi-person-gear"></i>
+        <span data-i18n="nav_staff_management">បុគ្គលិក & តួនាទី</span>
+        {% if total_staff_count %}
+          <span class="badge-count" style="background: #e2e8f0; color: #334155;">{{ total_staff_count }}</span>
+        {% endif %}
+      </button>
+      {% endif %}
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-profile-card">
+        <div class="user-avatar">
+          {{ request.user.first_name|slice:":1" }}{{ request.user.last_name|slice:":1"|default:request.user.username|slice:":2"|upper }}
+        </div>
+        <div class="user-info">
+          <div class="user-name">{{ request.user.get_full_name|default:request.user.username }}</div>
+          <div class="user-role-label" data-i18n="{% if request.user.is_admin_user %}role_admin{% else %}role_officer{% endif %}">{{ request.user.get_role_display|default:"Loan Officer" }}</div>
+        </div>
+        <a href="{% url 'accounts:logout' %}" class="btn-logout" title="Sign Out">
+          <i class="bi bi-box-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+  </aside>
+
+  <main class="app-main">
+    
+    <header class="top-header">
+      <div class="header-title-box">
+        <h1 id="pageTitle" data-i18n="page_overview">ទិដ្ឋភាពទូទៅនៃការគ្រប់គ្រង</h1>
+      </div>
+
+      <div class="header-actions">
+        <div class="header-org-badge d-none d-lg-flex align-items-center gap-2">
+          <span class="badge-branch"><i class="bi bi-geo-alt-fill text-primary me-1"></i>{{ request.user.officer_profile.branch|default:"Phnom Penh Head Office" }}</span>
+          <span class="badge-dept"><i class="bi bi-building text-secondary me-1"></i>{{ request.user.officer_profile.department|default:"Credit Underwriting" }}</span>
+        </div>
+
+        <div class="header-user-badge d-flex align-items-center">
+          <div class="header-user-avatar">
+            {{ request.user.first_name|slice:":1" }}{{ request.user.last_name|slice:":1"|default:request.user.username|slice:":2"|upper }}
+          </div>
+          <div class="header-user-meta d-none d-sm-block text-start">
+            <div class="header-user-name fw-semibold lh-1">{{ request.user.get_full_name|default:request.user.username }}</div>
+            <div class="header-user-role text-muted lh-1 mt-1" data-i18n="{% if request.user.is_admin_user %}role_admin{% else %}role_officer{% endif %}">{{ request.user.get_role_display|default:"Loan Officer" }}</div>
+          </div>
+        </div>
+
+        <button type="button" class="lang-btn" onclick="toggleLang()" id="langBtn" aria-label="Toggle Language">
+          <i class="bi bi-translate"></i> <span id="langText">EN</span>
+        </button>
+
+        <a href="{% url 'accounts:logout' %}" class="btn-header-logout" title="Sign Out">
+          <i class="bi bi-box-arrow-right"></i>
+          <span class="d-none d-md-inline" data-i18n="btn_logout">ចាកចេញ</span>
+        </a>
+      </div>
+    </header>
+
+    <div class="content-body">
+
+      {% if messages %}
+        <div class="messages-container mb-4">
+          {% for message in messages %}
+            {% with tag=message.tags|default:'info' %}
+            <div class="custom-alert alert-{% if 'error' in tag or 'danger' in tag %}danger{% elif 'success' in tag %}success{% elif 'warning' in tag %}warning{% else %}info{% endif %} alert-dismissible fade show" role="alert">
+              {% if 'error' in tag or 'danger' in tag %}
+                <i class="bi bi-exclamation-octagon-fill alert-icon"></i>
+              {% elif 'success' in tag %}
+                <i class="bi bi-check-circle-fill alert-icon"></i>
+              {% elif 'warning' in tag %}
+                <i class="bi bi-exclamation-triangle-fill alert-icon"></i>
+              {% else %}
+                <i class="bi bi-info-circle-fill alert-icon"></i>
+              {% endif %}
+              <div class="alert-text pe-4">{{ message }}</div>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endwith %}
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <section id="sec-overview" class="view-section active">
+        
+        <div class="row g-3 mb-4">
+          <div class="col-12 col-sm-6 col-xl-3">
+            <div class="kpi-card">
+              <div class="kpi-label" data-i18n="kpi_disbursed">ទំហំឥណទានបើកផ្តល់សរុប</div>
+              <div class="kpi-value text-primary font-monospace">$ {{ total_disbursed|floatformat:2 }}</div>
+              <div class="kpi-foot text-success"><i class="bi bi-shield-check"></i> <span data-i18n="kpi_foot_disbursed">ឥណទានអនុម័ត និងបើកផ្តល់</span></div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 col-xl-3">
+            <div class="kpi-card">
+              <div class="kpi-label" data-i18n="kpi_active_loans">ពាក្យស្នើសុំសរុប</div>
+              <div class="kpi-value font-monospace">{{ total_count }}</div>
+              <div class="kpi-foot"><i class="bi bi-hourglass-split text-warning me-1"></i><span class="font-monospace fw-semibold">{{ pending_count }}</span> <span data-i18n="kpi_foot_active">ពាក្យស្នើសុំរង់ចាំពិនិត្យ</span></div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 col-xl-3">
+            <div class="kpi-card">
+              <div class="kpi-label" data-i18n="kpi_recovery">អត្រាសងត្រឡប់</div>
+              <div class="kpi-value text-success font-monospace">98.2%</div>
+              <div class="kpi-foot text-success"><i class="bi bi-graph-up-arrow me-1"></i><span data-i18n="kpi_foot_recovery">កម្រិតស្តង់ដារធនាគារជាតិ NBC</span></div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 col-xl-3">
+            <div class="kpi-card">
+              <div class="kpi-label" data-i18n="kpi_overdue">ឥណទានអនុម័តសកម្ម</div>
+              <div class="kpi-value text-success font-monospace">{{ approved_count }}</div>
+              <div class="kpi-foot text-success"><i class="bi bi-check2-circle me-1"></i><span data-i18n="kpi_foot_approved">គណនីមានសុពលភាព</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-12 col-lg-8">
+            <div class="clean-card h-100">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="fw-bold" data-i18n="chart_trend_title">កំណើនឥណទានប្រចាំខែ</span>
+                <span class="badge bg-light text-dark font-monospace">2026</span>
+              </div>
+              <div style="height: 240px;">
+                <canvas id="trendChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12 col-lg-4">
+            <div class="clean-card h-100">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="fw-bold" data-i18n="chart_product_title">ប្រភេទផលិតផលឥណទាន</span>
+              </div>
+              <div style="height: 240px; position: relative;">
+                <canvas id="portfolioChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="clean-card">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="fw-bold" data-i18n="sec_recent_apps">ពាក្យស្នើសុំថ្មីរង់ចាំពិនិត្យ</span>
+            <button type="button" class="btn-act" onclick="switchNav('sec-applications')">
+              <span data-i18n="btn_view_all">មើលទាំងអស់</span> <i class="bi bi-arrow-right"></i>
+            </button>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table-clean">
+              <thead>
+                <tr>
+                  <th data-i18n="th_id">ID</th>
+                  <th data-i18n="th_borrower">អតិថិជន</th>
+                  <th data-i18n="th_product">ផលិតផល</th>
+                  <th class="text-end" data-i18n="th_amount">ទឹកប្រាក់</th>
+                  <th class="text-center" data-i18n="th_cbc_score">CBC Score</th>
+                  <th class="text-center" data-i18n="th_status">ស្ថានភាព</th>
+                  <th class="text-end" data-i18n="th_action">សកម្មភាព</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for app in recent_applications %}
+                  <tr data-app-id="{{ app.id }}" data-app-no="{{ app.application_no }}" data-applicant="{{ app.borrower.get_full_name|default:app.borrower.username }}" data-status="{{ app.status }}">
+                    <td class="font-monospace fw-semibold text-primary">{{ app.application_no }}</td>
+                    <td>{{ app.borrower.get_full_name|default:app.borrower.username }}</td>
+                    <td class="small">{{ app.product.name }}</td>
+                    <td class="text-end font-monospace fw-bold">$ {{ app.amount|floatformat:2 }}</td>
+                    <td class="text-center">
+                      <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2 font-monospace" onclick="loadCbcData('{{ app.application_no }}', '{{ app.borrower.get_full_name|default:app.borrower.username|escapejs }}', {{ app.id }}, {{ app.borrower.borrower_profile.credit_score|default:720 }}, {{ app.monthly_income|default:0 }}, {{ app.amount|default:0 }}, {{ app.emi|default:0 }}, '{{ app.purpose|default:''|escapejs }}', '{{ app.status }}')">
+                        {{ app.borrower.borrower_profile.credit_score|default:720 }}
+                      </button>
+                    </td>
+                    <td class="text-center">
+                      <span class="badge-status badge-{{ app.status|lower }}" data-i18n="status_{{ app.status|lower }}">{{ app.get_status_display }}</span>
+                    </td>
+                    <td class="text-end">
+                      <div class="d-inline-flex gap-1">
+                        <button type="button" class="btn-act py-1 px-2" onclick="loadCbcData('{{ app.application_no }}', '{{ app.borrower.get_full_name|default:app.borrower.username|escapejs }}', {{ app.id }}, {{ app.borrower.borrower_profile.credit_score|default:720 }}, {{ app.monthly_income|default:0 }}, {{ app.amount|default:0 }}, {{ app.emi|default:0 }}, '{{ app.purpose|default:''|escapejs }}', '{{ app.status }}')">
+                          <i class="bi bi-search"></i> <span data-i18n="btn_review">ពិនិត្យ</span>
+                        </button>
+                        {% if app.status == 'SUBMITTED' or app.status == 'UNDER_REVIEW' %}
+                          <form method="POST" action="{% url 'loans:officer_dashboard' %}" class="d-inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="application_id" value="{{ app.id }}">
+                            <input type="hidden" name="action" value="APPROVE">
+                            <button type="submit" class="btn-act btn-act-success py-1 px-2" title="Approve">
+                              <i class="bi bi-check2"></i>
+                            </button>
+                          </form>
+                        {% elif app.status == 'APPROVED' %}
+                          <button type="button" class="btn-act btn-act-primary py-1 px-2" title="Disburse Loan" onclick="openDisburseModal('{{ app.id }}', '{{ app.application_no }}', '{{ app.borrower.get_full_name|default:app.borrower.username|escapejs }}', '{{ app.amount|floatformat:2 }}', '{{ app.currency }}', '{{ app.tenure_months }}')">
+                            <i class="bi bi-cash-stack"></i> <span data-i18n="btn_disburse">បើកផ្តល់</span>
+                          </button>
+                        {% endif %}
+                      </div>
+                    </td>
+                  </tr>
+                {% empty %}
+                  <tr>
+                    <td colspan="7" class="text-center text-muted py-4" data-i18n="msg_no_recent_apps">មិនមានពាក្យស្នើសុំថ្មីទេ</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- CBC Underwriting -->
+      <section id="sec-applications" class="view-section">
+        
+        {% with first_app=applications.0 %}
+        <div class="cbc-box" id="cbcBoxWidget">
+          <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2 flex-wrap gap-2">
+            <div>
+              <span class="badge bg-primary me-2" data-i18n="badge_cbc_assessment">ការវាយតម្លៃឥណទាន CBC</span>
+              <strong class="font-monospace" id="cbcWidgetId">{{ first_app.application_no|default:'LN-NONE' }}</strong> — <span id="cbcWidgetName" class="fw-semibold">{{ first_app.applicant_name|default:'N/A' }}</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <span class="badge bg-secondary-subtle text-secondary border px-2 py-1 font-monospace" id="cbcWidgetStatus">{% if first_app %}{{ first_app.get_status_display }}{% else %}N/A{% endif %}</span>
+              <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1 font-monospace" id="cbcWidgetGrade" data-i18n="cbc_grade">កម្រិត A (ហានិភ័យទាប)</span>
+            </div>
+          </div>
+
+          <div class="row align-items-stretch g-3">
+            <div class="col-12 col-md-3 text-center border-end d-flex flex-column justify-content-center">
+              <div class="text-muted small" data-i18n="lbl_cbc_score">ពិន្ទុឥណទាន CBC Score</div>
+              <div class="display-6 fw-bold text-success my-1 font-monospace" id="cbcWidgetScore">{% if first_app %}{{ first_app.borrower.borrower_profile.credit_score|default:720 }}{% else %}720{% endif %}</div>
+              <span class="badge bg-success mx-auto" id="cbcWidgetRisk" data-i18n="cbc_risk_low">ហានិភ័យទាប</span>
+              <div class="mt-2 text-muted" style="font-size: 0.75rem;">
+                <span class="d-block fw-semibold text-primary" id="cbcWidgetRecommendation" data-i18n="rec_auto_approve">អនុម័តដោយស្វ័យប្រវត្តិ</span>
+              </div>
+            </div>
+
+            <div class="col-12 col-md-6">
+              <div class="row g-2 small">
+                <div class="col-6 text-muted" data-i18n="lbl_dti">សមាមាត្របំណុល DTI:</div>
+                <div class="col-6 fw-bold font-monospace" id="cbcWidgetDti">24.5%</div>
+                <div class="col-6 text-muted" data-i18n="lbl_income">ប្រាក់ចំណូលប្រចាំខែ:</div>
+                <div class="col-6 fw-bold font-monospace" id="cbcWidgetIncome">$ {% if first_app %}{{ first_app.monthly_income|floatformat:2 }}{% else %}0.00{% endif %}</div>
+                <div class="col-6 text-muted" data-i18n="lbl_emi">ការបង់រំលស់ប្រចាំខែ:</div>
+                <div class="col-6 text-primary fw-bold font-monospace" id="cbcWidgetEmi">$ {% if first_app %}{{ first_app.emi|floatformat:2 }}{% else %}0.00{% endif %}</div>
+                <div class="col-6 text-muted" data-i18n="lbl_collateral">ទ្រព្យបញ្ចាំ:</div>
+                <div class="col-6 font-monospace fw-bold text-success" id="cbcWidgetCollateral">$ 0.00 (0.0%)</div>
+                <div class="col-6 text-muted" data-i18n="lbl_purpose">គោលបំណងស្នើសុំ:</div>
+                <div class="col-6 text-truncate fw-semibold" id="cbcWidgetPurpose" title="{% if first_app %}{{ first_app.purpose }}{% endif %}">{% if first_app %}{{ first_app.purpose|truncatechars:35 }}{% else %}Working Capital{% endif %}</div>
+              </div>
+
+              <div class="mt-3">
+                <div class="text-muted fw-semibold mb-1" style="font-size:0.75rem;"><i class="bi bi-shield-check me-1"></i><span data-i18n="lbl_pledged_collateral">បញ្ជីទ្រព្យបញ្ចាំធានា:</span></div>
+                <div id="cbcWidgetCollateralList">
+                  <div class="text-muted small fst-italic" data-i18n="msg_no_collateral">គ្មានទិន្នន័យទ្រព្យបញ្ចាំ</div>
+                </div>
+              </div>
+
+              <div class="mt-3">
+                <div class="text-muted fw-semibold mb-1" style="font-size:0.75rem;"><i class="bi bi-journal-text me-1"></i><span data-i18n="lbl_audit_trail">ប្រវត្តិនៃការអនុម័ត:</span></div>
+                <div id="cbcWidgetActionLogs" style="max-height: 120px; overflow-y: auto;">
+                  <div class="text-muted small fst-italic" data-i18n="msg_no_audit_logs">គ្មានប្រវត្តិប្រតិបត្តិការ</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12 col-md-3 text-md-end border-start">
+              <div class="d-flex flex-column gap-2">
+                <div class="mb-1 text-start">
+                  <label for="cbcOfficerRemarks" class="text-muted small fw-semibold" data-i18n="lbl_officer_remarks">មតិមន្ត្រី:</label>
+                  <input type="text" class="form-control form-control-sm" id="cbcOfficerRemarks" data-i18n-placeholder="ph_officer_remarks" placeholder="កំណត់ចំណាំការវាយតម្លៃ...">
+                </div>
+
+                <form method="POST" action="{% url 'loans:officer_dashboard' %}" class="w-100" onsubmit="attachRemarks(this)">
+                  {% csrf_token %}
+                  <input type="hidden" name="application_id" id="cbcAppIdApprove" value="{{ first_app.id|default:'' }}">
+                  <input type="hidden" name="action" value="APPROVE">
+                  <input type="hidden" name="remarks" class="remarks-carrier" value="">
+                  <button type="submit" class="btn btn-sm btn-success w-100" id="cbcBtnApprove" {% if not first_app or first_app.status != 'SUBMITTED' and first_app.status != 'UNDER_REVIEW' %}disabled{% endif %}>
+                    <i class="bi bi-check2"></i> <span data-i18n="btn_approve">អនុម័ត</span>
+                  </button>
+                </form>
+
+                <form method="POST" action="{% url 'loans:officer_dashboard' %}" class="w-100" onsubmit="attachRemarks(this)">
+                  {% csrf_token %}
+                  <input type="hidden" name="application_id" id="cbcAppIdReview" value="{{ first_app.id|default:'' }}">
+                  <input type="hidden" name="action" value="REVIEW">
+                  <input type="hidden" name="remarks" class="remarks-carrier" value="">
+                  <button type="submit" class="btn btn-sm btn-outline-warning text-dark w-100" id="cbcBtnReview" {% if not first_app or first_app.status != 'SUBMITTED' and first_app.status != 'UNDER_REVIEW' %}disabled{% endif %}>
+                    <i class="bi bi-clock"></i> <span data-i18n="btn_review">កំពុងពិនិត្យ</span>
+                  </button>
+                </form>
+
+                <form method="POST" action="{% url 'loans:officer_dashboard' %}" class="w-100" onsubmit="attachRemarks(this)">
+                  {% csrf_token %}
+                  <input type="hidden" name="application_id" id="cbcAppIdReject" value="{{ first_app.id|default:'' }}">
+                  <input type="hidden" name="action" value="REJECT">
+                  <input type="hidden" name="remarks" class="remarks-carrier" value="">
+                  <button type="submit" class="btn btn-sm btn-outline-danger w-100" id="cbcBtnReject" {% if not first_app or first_app.status != 'SUBMITTED' and first_app.status != 'UNDER_REVIEW' %}disabled{% endif %}>
+                    <i class="bi bi-x"></i> <span data-i18n="btn_reject">បដិសេធ</span>
+                  </button>
+                </form>
+
+                <button type="button" class="btn btn-sm btn-primary w-100 d-none" id="cbcWidgetDisburseBtn">
+                  <i class="bi bi-cash-stack"></i> <span data-i18n="btn_disburse">បើកផ្តល់</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endwith %}
+
+        <div class="clean-card">
+          <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <span class="fw-bold" data-i18n="title_app_queue">បញ្ជីពាក្យស្នើសុំឥណទានទាំងអស់</span>
+            <div class="d-flex gap-2">
+              <input type="text" class="form-control form-control-sm" data-i18n-placeholder="ph_search_apps" placeholder="ស្វែងរក ID, ឈ្មោះ, ទូរស័ព្ទ..." id="searchAppInput" oninput="filterAppsTable()">
+              <div class="animated-dropdown" id="dd-filterAppStatus" style="min-width: 170px;">
+                <select class="d-none" id="filterAppStatus" onchange="filterAppsTable()">
+                  <option value="ALL" selected data-i18n="opt_status_all">ស្ថានភាពទាំងអស់</option>
+                  <option value="UNDER_REVIEW" data-i18n="opt_status_review">កំពុងពិនិត្យ</option>
+                  <option value="SUBMITTED" data-i18n="opt_status_submitted">បានបញ្ជូន</option>
+                  <option value="APPROVED" data-i18n="opt_status_approved">បានអនុម័ត</option>
+                  <option value="REJECTED" data-i18n="opt_status_rejected">បានបដិសេធ</option>
+                </select>
+                <button type="button" class="dropdown-trigger" onclick="toggleDropdown('dd-filterAppStatus')">
+                  <span class="dropdown-label" data-i18n="opt_status_all">ស្ថានភាពទាំងអស់</span>
+                  <i class="bi bi-chevron-down dropdown-chevron"></i>
+                </button>
+                <div class="dropdown-menu-custom">
+                  <div class="dropdown-item-custom selected" onclick="selectDropdownOption('dd-filterAppStatus', 'ALL', this)">
+                    <span data-i18n="opt_status_all">ស្ថានភាពទាំងអស់</span>
+                    <i class="bi bi-check2 check-icon"></i>
+                  </div>
+                  <div class="dropdown-item-custom" onclick="selectDropdownOption('dd-filterAppStatus', 'UNDER_REVIEW', this)">
+                    <span data-i18n="opt_status_review">កំពុងពិនិត្យ</span>
+                    <i class="bi bi-check2 check-icon"></i>
+                  </div>
+                  <div class="dropdown-item-custom" onclick="selectDropdownOption('dd-filterAppStatus', 'SUBMITTED', this)">
+                    <span data-i18n="opt_status_submitted">បានបញ្ជូន</span>
+                    <i class="bi bi-check2 check-icon"></i>
+                  </div>
+                  <div class="dropdown-item-custom" onclick="selectDropdownOption('dd-filterAppStatus', 'APPROVED', this)">
+                    <span data-i18n="opt_status_approved">បានអនុម័ត</span>
+                    <i class="bi bi-check2 check-icon"></i>
+                  </div>
+                  <div class="dropdown-item-custom" onclick="selectDropdownOption('dd-filterAppStatus', 'REJECTED', this)">
+                    <span data-i18n="opt_status_rejected">បានបដិសេធ</span>
+                    <i class="bi bi-check2 check-icon"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table-clean" id="fullAppsTable">
+              <thead>
+                <tr>
+                  <th data-i18n="th_id">ID</th>
+                  <th data-i18n="th_date">កាលបរិច្ឆេទ</th>
+                  <th data-i18n="th_borrower">អតិថិជន</th>
+                  <th data-i18n="th_product">ផលិតផល</th>
+                  <th class="text-end" data-i18n="th_amount">ទឹកប្រាក់</th>
+                  <th class="text-center" data-i18n="th_cbc">CBC</th>
+                  <th class="text-center" data-i18n="th_status">ស្ថានភាព</th>
+                  <th class="text-end" data-i18n="th_action">សកម្មភាព</th>
+                </tr>
+              </thead>
+              <tbody id="fullAppsTbody">
+                {% for app in applications %}
+                  <tr data-app-id="{{ app.id }}" data-app-no="{{ app.application_no }}" data-applicant="{{ app.borrower.get_full_name|default:app.borrower.username }}" data-phone="{{ app.borrower.phone_number|default:'' }}" data-status="{{ app.status }}">
+                    <td class="font-monospace fw-semibold text-primary">{{ app.application_no }}</td>
+                    <td class="text-muted small">{{ app.created_at|date:"d-M-Y" }}</td>
+                    <td>
+                      <div class="fw-semibold">{{ app.borrower.get_full_name|default:app.borrower.username }}</div>
+                      <div class="text-muted small font-monospace">{{ app.borrower.phone_number|default:'' }}</div>
+                    </td>
+                    <td class="small">{{ app.product.name }}</td>
+                    <td class="text-end font-monospace fw-bold">$ {{ app.amount|floatformat:2 }}</td>
+                    <td class="text-center">
+                      <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2 font-monospace" onclick="loadCbcData('{{ app.application_no }}', '{{ app.borrower.get_full_name|default:app.borrower.username|escapejs }}', {{ app.id }}, {{ app.borrower.borrower_profile.credit_score|default:720 }}, {{ app.monthly_income|default:0 }}, {{ app.amount|default:0 }}, {{ app.emi|default:0 }}, '{{ app.purpose|default:''|escapejs }}', '{{ app.status }}')">
+                        {{ app.borrower.borrower_profile.credit_score|default:720 }}
+                      </button>
+                    </td>
+                    <td class="text-center">
+                      <span class="badge-status badge-{{ app.status|lower }}" data-i18n="status_{{ app.status|lower }}">{{ app.get_status_display }}</span>
+                    </td>
+                    <td class="text-end">
+                      <div class="d-inline-flex gap-1">
+                        <button type="button" class="btn-act py-1 px-2" title="Inspect Application & CBC" onclick="loadCbcData('{{ app.application_no }}', '{{ app.borrower.get_full_name|default:app.borrower.username|escapejs }}', {{ app.id }}, {{ app.borrower.borrower_profile.credit_score|default:720 }}, {{ app.monthly_income|default:0 }}, {{ app.amount|default:0 }}, {{ app.emi|default:0 }}, '{{ app.purpose|default:''|escapejs }}', '{{ app.status }}')">
+                          <i class="bi bi-search"></i>
+                        </button>
+                        {% if app.status == 'SUBMITTED' or app.status == 'UNDER_REVIEW' %}
+                          <form method="POST" action="{% url 'loans:officer_dashboard' %}" class="d-inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="application_id" value="{{ app.id }}">
+                            <input type="hidden" name="action" value="APPROVE">
+                            <button type="submit" class="btn-act btn-act-success py-1 px-2" title="Approve">
+                              <i class="bi bi-check-lg"></i>
+                            </button>
+                          </form>
+                          <form method="POST" action="{% url 'loans:officer_dashboard' %}" class="d-inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="application_id" value="{{ app.id }}">
+                            <input type="hidden" name="action" value="REJECT">
+                            <button type="submit" class="btn-act btn-act-danger py-1 px-2" title="Reject">
+                              <i class="bi bi-x-lg"></i>
+                            </button>
+                          </form>
+                        {% elif app.status == 'APPROVED' %}
+                          <button type="button" class="btn-act btn-act-primary py-1 px-2" title="Disburse Loan" onclick="openDisburseModal('{{ app.id }}', '{{ app.application_no }}', '{{ app.borrower.get_full_name|default:app.borrower.username|escapejs }}', '{{ app.amount|floatformat:2 }}', '{{ app.currency }}', '{{ app.tenure_months }}')">
+                            <i class="bi bi-cash-stack"></i> <span data-i18n="btn_disburse">បើកផ្តល់</span>
+                          </button>
+                        {% endif %}
+                      </div>
+                    </td>
+                  </tr>
+                {% empty %}
+                  <tr>
+                    <td colspan="8" class="text-center text-muted py-4" data-i18n="msg_no_applications">មិនមានពាក្យស្នើសុំទេ</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <section id="sec-loans" class="view-section">
+        <div class="clean-card">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <span class="fw-bold fs-5 d-block" data-i18n="title_portfolio">ផលប័ត្រឥណទានសកម្ម</span>
+            </div>
+            <button type="button" class="btn-act" onclick="exportPortfolioCsv()">
+              <i class="bi bi-download me-1"></i> <span data-i18n="btn_export_csv">ទាញយក CSV</span>
+            </button>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table-clean" id="portfolioTable">
+              <thead>
+                <tr>
+                  <th data-i18n="th_loan_id">Loan ID</th>
+                  <th data-i18n="th_borrower">អតិថិជន</th>
+                  <th data-i18n="th_product">ផលិតផល</th>
+                  <th class="text-end" data-i18n="th_principal">ប្រាក់ដើម</th>
+                  <th class="text-end" data-i18n="th_emi">ការបង់ប្រចាំខែ</th>
+                  <th class="text-center" data-i18n="th_rate">អត្រា</th>
+                  <th class="text-center" data-i18n="lbl_apply_tenure">រយៈពេល</th>
+                  <th class="text-center" data-i18n="th_status">ស្ថានភាព</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for app in active_loans %}
+                  <tr>
+                    <td class="font-monospace fw-semibold text-primary">{{ app.application_no }}</td>
+                    <td>{{ app.borrower.get_full_name|default:app.borrower.username }}</td>
+                    <td class="small">{{ app.product.name }}</td>
+                    <td class="text-end font-monospace fw-bold">$ {{ app.amount|floatformat:2 }}</td>
+                    <td class="text-end font-monospace text-primary fw-semibold">$ {{ app.emi|floatformat:2 }}</td>
+                    <td class="text-center font-monospace">{{ app.product.interest_rate }}%</td>
+                    <td class="text-center font-monospace">{{ app.tenure_months }} <span data-i18n="lbl_months">ខែ</span></td>
+                    <td class="text-center">
+                      <span class="badge-status badge-{{ app.status|lower }}" data-i18n="status_{{ app.status|lower }}">{{ app.get_status_display }}</span>
+                    </td>
+                  </tr>
+                {% empty %}
+                  <tr>
+                    <td colspan="8" class="text-center text-muted py-4" data-i18n="msg_no_portfolio">មិនទាន់មានឥណទានសកម្មក្នុងផលប័ត្រនៅឡើយទេ</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="sec-repayments" class="view-section">
+        <div class="clean-card">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <span class="fw-bold fs-5 d-block" data-i18n="title_repayments">ផ្ទៀងផ្ទាត់ការទូទាត់ប្រាក់</span>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table-clean">
+              <thead>
+                <tr>
+                  <th data-i18n="th_reference">លេខយោង</th>
+                  <th data-i18n="th_borrower">អតិថិជន</th>
+                  <th data-i18n="th_loan_id">កម្ចី ID</th>
+                  <th data-i18n="th_installment">ដំណាក់កាល</th>
+                  <th class="text-end" data-i18n="th_amount">ទឹកប្រាក់បង់</th>
+                  <th class="text-center" data-i18n="th_method">វិធីសាស្ត្រ</th>
+                  <th class="text-center" data-i18n="th_receipt_slip">បង្កាន់ដៃ</th>
+                  <th class="text-center" data-i18n="th_status">ស្ថានភាព</th>
+                  <th class="text-end" data-i18n="th_action">សកម្មភាព</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for r in receipts %}
+                  <tr>
+                    <td class="font-monospace fw-semibold text-primary">{{ r.transaction_reference }}</td>
+                    <td>{{ r.payer.get_full_name|default:r.payer.username }}</td>
+                    <td class="font-monospace">{{ r.loan.application_no }}</td>
+                    <td class="font-monospace">#{{ r.installment.sequence_number }}</td>
+                    <td class="text-end font-monospace text-success fw-bold">$ {{ r.amount|floatformat:2 }}</td>
+                    <td class="text-center"><span class="badge bg-danger">{{ r.get_payment_method_display }}</span></td>
+                    <td class="text-center">
+                      {% if r.slip_image %}
+                        <a href="{{ r.slip_image.url }}" target="_blank" class="btn btn-outline-info btn-sm py-0 px-2" style="font-size:0.75rem;">
+                          <i class="bi bi-file-earmark-image"></i> <span data-i18n="th_receipt_slip">បង្កាន់ដៃ</span>
+                        </a>
+                      {% else %}
+                        <span class="text-muted small font-monospace">N/A</span>
+                      {% endif %}
+                    </td>
+                    <td class="text-center"><span class="badge-status badge-{{ r.status|lower }}" data-i18n="status_{{ r.status|lower }}">{{ r.get_status_display }}</span></td>
+                    <td class="text-end">
+                      {% if r.status == 'PENDING' %}
+                        <div class="d-flex justify-content-end gap-1">
+                          <form method="POST" action="{% url 'loans:officer_dashboard' %}" class="d-inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="receipt_id" value="{{ r.id }}">
+                            <input type="hidden" name="action" value="VERIFY_RECEIPT">
+                            <button type="submit" class="btn btn-success btn-sm py-0 px-2" style="font-size:0.75rem;" title="Verify & Confirm">
+                              <i class="bi bi-check-circle"></i> <span data-i18n="btn_verify">ផ្ទៀងផ្ទាត់</span>
+                            </button>
+                          </form>
+                          <button type="button" class="btn btn-outline-danger btn-sm py-0 px-2" style="font-size:0.75rem;" onclick="openRejectReceiptModal({{ r.id }}, '{{ r.transaction_reference }}')" title="Reject">
+                            <i class="bi bi-x-circle"></i>
+                          </button>
+                        </div>
+                      {% elif r.status == 'VERIFIED' %}
+                        <span class="text-success small fw-semibold"><i class="bi bi-check-circle-fill me-1"></i><span data-i18n="status_settled">Settled</span></span>
+                      {% else %}
+                        <span class="text-danger small fw-semibold"><i class="bi bi-x-circle-fill me-1"></i><span data-i18n="status_rejected">Rejected</span></span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% empty %}
+                  <tr>
+                    <td colspan="9" class="text-center text-muted py-4" data-i18n="msg_no_repayments">មិនទាន់មានប្រតិបត្តិការទូទាត់ប្រាក់ត្រូវផ្ទៀងផ្ទាត់ទេ</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="sec-reports" class="view-section">
+        <div class="row g-3 mb-4">
+          <div class="col-6 col-lg-3">
+            <div class="clean-card h-100">
+              <span class="text-muted small d-block mb-1" data-i18n="lbl_total_portfolio">ផលប័ត្រសរុប</span>
+              <span class="fs-4 fw-bold font-monospace text-dark d-block mb-1">$ {{ delinquency_data.total_portfolio|floatformat:2 }}</span>
+              <span class="badge bg-primary-subtle text-primary small"><span class="font-monospace">{{ delinquency_data.total_loans }}</span> <span data-i18n="lbl_active_loans_count">ឥណទានសកម្ម</span></span>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="clean-card h-100">
+              <span class="text-muted small d-block mb-1" data-i18n="lbl_par_30">ហានិភ័យខកខាន (PAR 30+)</span>
+              <span class="fs-4 fw-bold font-monospace text-warning d-block mb-1">{{ delinquency_data.par_30_ratio }}%</span>
+              <span class="text-muted small font-monospace">$ {{ delinquency_data.par_30_balance|floatformat:2 }}</span>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="clean-card h-100">
+              <span class="text-muted small d-block mb-1" data-i18n="lbl_npl">ឥណទានមិនដំណើរការ (NPL)</span>
+              <span class="fs-4 fw-bold font-monospace text-danger d-block mb-1">{{ delinquency_data.par_90_ratio }}%</span>
+              <span class="text-muted small font-monospace">$ {{ delinquency_data.par_90_balance|floatformat:2 }}</span>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="clean-card h-100">
+              <span class="text-muted small d-block mb-1" data-i18n="lbl_nbc_reserves">ទុនបម្រុងកាតព្វកិច្ច</span>
+              <span class="fs-4 fw-bold font-monospace text-success d-block mb-1">$ {{ nbc_data.total_provision|floatformat:2 }}</span>
+              <span class="text-muted small"><span data-i18n="lbl_recovery_rate">អត្រាប្រមូល:</span> <span class="font-monospace">{{ delinquency_data.collection_rate }}%</span></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="clean-card mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <div>
+              <span class="fw-bold fs-5 d-block" data-i18n="title_nbc_reports">តារាងចំណាត់ថ្នាក់គុណភាពផលប័ត្រ និងទុនបម្រុងតាមបទដ្ឋាន NBC</span>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+              <a href="{% url 'loans:export_report_csv' %}?type=asset_quality" class="btn btn-outline-primary btn-sm px-3">
+                <i class="bi bi-download me-1"></i> <span data-i18n="btn_export_nbc">ទាញយក NBC Provisioning (CSV)</span>
+              </a>
+              <a href="{% url 'loans:export_report_csv' %}?type=delinquency" class="btn btn-outline-primary btn-sm px-3">
+                <i class="bi bi-download me-1"></i> <span data-i18n="btn_export_par">ទាញយក PAR 30/90 (CSV)</span>
+              </a>
+              <a href="{% url 'loans:export_report_csv' %}?type=repayments" class="btn btn-outline-secondary btn-sm px-3">
+                <i class="bi bi-download me-1"></i> <span data-i18n="btn_export_repayments">ទាញយក Repayments (CSV)</span>
+              </a>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table-clean">
+              <thead>
+                <tr>
+                  <th data-i18n="th_classification">ចំណាត់ថ្នាក់</th>
+                  <th data-i18n="th_dpd_range">ការខកខាន</th>
+                  <th class="text-center" data-i18n="th_loan_count">ចំនួនឥណទាន</th>
+                  <th class="text-end" data-i18n="th_outstanding_bal">សមតុល្យសល់ ($)</th>
+                  <th class="text-center" data-i18n="th_provision_rate">អត្រាទុនបម្រុង</th>
+                  <th class="text-end" data-i18n="th_mandatory_provision">ទុនបម្រុងកាតព្វកិច្ច ($)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for tier in nbc_data.tiers %}
+                  <tr>
+                    <td>
+                      <span class="fw-semibold text-dark tier-name-km">{{ tier.name_km }}</span>
+                      <span class="fw-semibold text-dark tier-name-en d-none">{{ tier.name_en }}</span>
+                    </td>
+                    <td>
+                      <span class="font-monospace text-muted tier-dpd-km">{{ tier.dpd_km|default:tier.dpd_range }}</span>
+                      <span class="font-monospace text-muted tier-dpd-en d-none">{{ tier.dpd_en|default:tier.dpd_range }}</span>
+                    </td>
+                    <td class="text-center font-monospace">{{ tier.loan_count }}</td>
+                    <td class="text-end font-monospace fw-semibold">$ {{ tier.total_balance|floatformat:2 }}</td>
+                    <td class="text-center"><span class="badge bg-secondary-subtle text-secondary font-monospace">{{ tier.rate_pct }}%</span></td>
+                    <td class="text-end font-monospace fw-bold text-danger">$ {{ tier.required_provision|floatformat:2 }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+              <tfoot>
+                <tr class="fw-bold border-top bg-light">
+                  <td colspan="2" class="text-uppercase" data-i18n="lbl_total_reg_portfolio">សរុបផលប័ត្រឥណទាន</td>
+                  <td class="text-center font-monospace">{{ nbc_data.total_loans }}</td>
+                  <td class="text-end font-monospace text-primary fs-6">$ {{ nbc_data.total_portfolio|floatformat:2 }}</td>
+                  <td class="text-center">-</td>
+                  <td class="text-end font-monospace text-danger fs-6">$ {{ nbc_data.total_provision|floatformat:2 }}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      {% if request.user.is_admin_user %}
+      <section id="sec-staff" class="view-section">
+        
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+          <div>
+            <h2 class="fs-5 fw-bold text-dark mb-0" data-i18n="title_staff_mgmt">បុគ្គលិក និងតួនាទី</h2>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <button type="button" class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1 shadow-sm px-3 py-2" data-bs-toggle="modal" data-bs-target="#createStaffModal">
+              <i class="bi bi-person-plus-fill"></i>
+              <span data-i18n="btn_add_staff">+ បន្ថែមបុគ្គលិកថ្មី</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-12 col-sm-6 col-xl-3">
+            <div class="kpi-card">
+              <div class="kpi-label" data-i18n="kpi_total_staff">បុគ្គលិកសរុប</div>
+              <div class="kpi-value text-primary font-monospace">{{ total_staff_count }}</div>
+              <div class="kpi-foot text-primary"><i class="bi bi-people-fill"></i> <span data-i18n="kpi_foot_staff">មន្ត្រី និងអ្នកគ្រប់គ្រង</span></div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 col-xl-3">
+            <div class="kpi-card">
+              <div class="kpi-label" data-i18n="kpi_officers">មន្ត្រីឥណទាន</div>
+              <div class="kpi-value font-monospace">{{ officer_count }}</div>
+              <div class="kpi-foot text-info"><i class="bi bi-person-badge-fill"></i> <span data-i18n="kpi_foot_officers">អ្នកពិនិត្យ និងអនុម័ត</span></div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 col-xl-3">
+            <div class="kpi-card">
+              <div class="kpi-label" data-i18n="kpi_admins">អ្នកគ្រប់គ្រង</div>
+              <div class="kpi-value font-monospace">{{ admin_count }}</div>
+              <div class="kpi-foot text-danger"><i class="bi bi-shield-lock-fill"></i> <span data-i18n="kpi_foot_admins">សិទ្ធិគ្រប់គ្រងជាន់ខ្ពស់</span></div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 col-xl-3">
+            <div class="kpi-card">
+              <div class="kpi-label" data-i18n="kpi_borrowers">អតិថិជនចុះឈ្មោះ</div>
+              <div class="kpi-value font-monospace">{{ borrower_count }}</div>
+              <div class="kpi-foot text-success"><i class="bi bi-person-check-fill"></i> <span data-i18n="kpi_foot_borrowers">គណនីអតិថិជនសរុប</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="clean-card">
+          <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <div>
+              <span class="fw-bold fs-6" data-i18n="title_staff_dir">បញ្ជីឈ្មោះបុគ្គលិក និងអ្នកប្រើប្រាស់</span>
+            </div>
+            
+            <div class="d-flex flex-wrap align-items-center gap-2">
+              <input type="text" id="searchStaffInput" class="form-control form-control-sm" style="width: 220px;" data-i18n-placeholder="ph_search_staff" placeholder="ស្វែងរក ID, ឈ្មោះ, ទូរស័ព្ទ..." oninput="filterStaffTable()">
+
+              <select id="filterStaffRole" class="form-select form-select-sm" style="width: 155px;" onchange="filterStaffTable()">
+                <option value="ALL" data-i18n="opt_role_all">តួនាទីទាំងអស់</option>
+                <option value="OFFICER" data-i18n="opt_role_officer">មន្ត្រីឥណទាន</option>
+                <option value="ADMIN" data-i18n="opt_role_admin">អ្នកគ្រប់គ្រង</option>
+                <option value="BORROWER" data-i18n="opt_role_borrower">អតិថិជន</option>
+              </select>
+
+              <select id="filterStaffStatus" class="form-select form-select-sm" style="width: 140px;" onchange="filterStaffTable()">
+                <option value="ALL" data-i18n="opt_status_all">ស្ថានភាពទាំងអស់</option>
+                <option value="ACTIVE" data-i18n="opt_status_active">សកម្ម</option>
+                <option value="SUSPENDED" data-i18n="opt_status_suspended">ផ្អាក</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-clean mb-0" id="staffTable">
+              <thead>
+                <tr>
+                  <th data-i18n="th_staff_user">បុគ្គលិក</th>
+                  <th data-i18n="th_role">តួនាទី</th>
+                  <th data-i18n="th_emp_phone">អត្តលេខ & ទូរស័ព្ទ</th>
+                  <th data-i18n="th_branch_dept">សាខា & នាយកដ្ឋាន</th>
+                  <th data-i18n="th_status">ស្ថានភាព</th>
+                  <th data-i18n="th_date_joined">កាលបរិច្ឆេទបង្កើត</th>
+                  <th class="text-end" data-i18n="th_action">សកម្មភាព</th>
+                </tr>
+              </thead>
+              <tbody id="staffTableBody">
+                {% for u in staff_users %}
+                  <tr data-user-id="{{ u.id }}"
+                      data-username="{{ u.username|lower }}"
+                      data-name="{{ u.get_full_name|lower }}"
+                      data-phone="{{ u.phone_number|default:''|lower }}"
+                      data-role="{{ u.role }}"
+                      data-branch="{{ u.officer_profile.branch|default:''|lower }}"
+                      data-status="{% if u.is_active %}ACTIVE{% else %}SUSPENDED{% endif %}">
+                    <td>
+                      <div class="d-flex align-items-center gap-2">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white shadow-sm flex-shrink-0"
+                             style="width: 34px; height: 34px; font-size: 0.78rem; background: {% if u.role == 'ADMIN' %}#9d174d{% elif u.role == 'OFFICER' %}#1d4ed8{% else %}#64748b{% endif %};">
+                          {{ u.first_name|slice:":1" }}{{ u.last_name|slice:":1"|default:u.username|slice:":2"|upper }}
+                        </div>
+                        <div>
+                          <div class="fw-semibold text-dark">{{ u.get_full_name|default:u.username }}</div>
+                          <div class="text-muted small font-monospace">@{{ u.username }}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      {% if u.role == 'ADMIN' %}
+                        <span class="badge-status" style="background: #fdf2f8; color: #9d174d; border: 1px solid #fbcfe8;">
+                          <i class="bi bi-shield-lock-fill me-1"></i> <span data-i18n="role_admin">Admin</span>
+                        </span>
+                      {% elif u.role == 'OFFICER' %}
+                        <span class="badge-status badge-submitted">
+                          <i class="bi bi-person-badge-fill me-1"></i> <span data-i18n="role_officer">Loan Officer</span>
+                        </span>
+                      {% else %}
+                        <span class="badge-status" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;">
+                          <i class="bi bi-person-fill me-1"></i> <span data-i18n="role_borrower">Borrower</span>
+                        </span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if u.officer_profile.employee_id %}
+                        <div class="font-monospace fw-semibold text-dark small">{{ u.officer_profile.employee_id }}</div>
+                      {% endif %}
+                      <div class="text-muted small font-monospace">{{ u.phone_number|default:"-" }}</div>
+                    </td>
+                    <td>
+                      <div class="fw-medium small text-dark">{{ u.officer_profile.branch|default:"-" }}</div>
+                      <div class="text-muted small">{{ u.officer_profile.department|default:"-" }}</div>
+                    </td>
+                    <td>
+                      {% if u.is_active %}
+                        <span class="badge-status badge-paid" id="statusBadge-{{ u.id }}">
+                          <i class="bi bi-check-circle-fill me-1"></i> <span data-i18n="badge_active">សកម្ម</span>
+                        </span>
+                      {% else %}
+                        <span class="badge-status badge-rejected" id="statusBadge-{{ u.id }}">
+                          <i class="bi bi-pause-circle-fill me-1"></i> <span data-i18n="badge_suspended">ផ្អាក</span>
+                        </span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      <div class="small text-muted">{{ u.date_joined|date:"d M Y" }}</div>
+                      <div class="font-monospace small text-muted opacity-75">{{ u.date_joined|date:"H:i" }}</div>
+                    </td>
+                    <td class="text-end">
+                      <div class="d-inline-flex align-items-center gap-1">
+                        <button type="button" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1 py-1 px-2"
+                                onclick="openEditStaffModal({{ u.id }})" title="កែប្រែ">
+                          <i class="bi bi-pencil-square"></i>
+                          <span class="d-none d-lg-inline" data-i18n="btn_edit">កែប្រែ</span>
+                        </button>
+                        
+                        {% if u.id != request.user.id %}
+                          <button type="button"
+                                  id="toggleBtn-{{ u.id }}"
+                                  class="btn btn-sm {% if u.is_active %}btn-outline-danger{% else %}btn-outline-success{% endif %} d-inline-flex align-items-center gap-1 py-1 px-2"
+                                  onclick="toggleStaffStatus({{ u.id }}, '{{ u.username|escapejs }}', {{ u.is_active|yesno:'true,false' }})"
+                                  title="{% if u.is_active %}ផ្អាកគណនី{% else %}បើកដំណើរការ{% endif %}">
+                            <i class="bi {% if u.is_active %}bi-person-x{% else %}bi-person-check{% endif %}"></i>
+                            <span class="d-none d-lg-inline">{% if u.is_active %}<span data-i18n="btn_suspend">ផ្អាក</span>{% else %}<span data-i18n="btn_activate">បើក</span>{% endif %}</span>
+                          </button>
+                        {% else %}
+                          <span class="badge bg-light text-muted border px-2 py-1 small" data-i18n="lbl_your_account">គណនីអ្នក</span>
+                        {% endif %}
+                      </div>
+                    </td>
+                  </tr>
+                {% empty %}
+                  <tr>
+                    <td colspan="7" class="text-center py-4 text-muted">
+                      <i class="bi bi-people fs-3 d-block mb-2 text-secondary"></i>
+                      <span data-i18n="empty_staff">មិនទាន់មានទិន្នន័យបុគ្គលិកនៅឡើយ</span>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+      {% endif %}
+
+    </div>
+  </main>
+
+  <div class="modal fade" id="disburseModal" tabindex="-1" aria-labelledby="disburseModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title fs-6 fw-bold" id="disburseModalLabel">
+            <i class="bi bi-cash-coin me-1"></i> <span data-i18n="modal_disburse_title">បើកផ្តល់ប្រាក់កម្ចី</span>
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form method="POST" action="{% url 'loans:officer_dashboard' %}" id="disburseForm">
+          {% csrf_token %}
+          <input type="hidden" name="application_id" id="disburseAppId" value="">
+          <input type="hidden" name="action" value="DISBURSE">
+          <div class="modal-body p-4">
+            <div class="mb-3">
+              <div class="text-muted small" data-i18n="lbl_app_no">លេខពាក្យស្នើសុំ:</div>
+              <div class="fw-bold font-monospace fs-5 text-primary" id="disburseModalAppNo">-</div>
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <div class="text-muted small" data-i18n="th_borrower">អតិថិជន:</div>
+                <div class="fw-semibold" id="disburseModalBorrower">-</div>
+              </div>
+              <div class="col-6">
+                <div class="text-muted small" data-i18n="th_principal">ប្រាក់ដើម:</div>
+                <div class="fw-bold font-monospace text-dark" id="disburseModalAmount">-</div>
+              </div>
+              <div class="col-6">
+                <div class="text-muted small" data-i18n="lbl_apply_tenure">រយៈពេល:</div>
+                <div class="fw-semibold font-monospace" id="disburseModalTenure">-</div>
+              </div>
+              <div class="col-6">
+                <div class="text-muted small" data-i18n="lbl_value_date">កាលបរិច្ឆេទបើកផ្តល់:</div>
+                <div class="fw-semibold font-monospace">{% now "d-M-Y" %}</div>
+              </div>
+            </div>
+            <div class="mb-2">
+              <label for="disburseRemarks" class="text-muted small fw-semibold" data-i18n="lbl_disbursal_notes">កំណត់ចំណាំការបើកផ្តល់ (មិនចាំបាច់):</label>
+              <input type="text" name="remarks" id="disburseRemarks" class="form-control form-control-sm" placeholder="កំណត់ចំណាំការបើកផ្តល់..." data-i18n-placeholder="ph_disburse_notes">
+            </div>
+          </div>
+          <div class="modal-footer bg-light">
+            <button type="button" class="btn btn-sm btn-outline-secondary px-3" data-bs-dismiss="modal" data-i18n="btn_cancel">បោះបង់</button>
+            <button type="submit" class="btn btn-sm btn-primary px-3">
+              <i class="bi bi-check2-circle me-1"></i> <span data-i18n="btn_confirm_disbursal">បញ្ជាក់ការបើកផ្តល់</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="rejectReceiptModal" tabindex="-1" aria-labelledby="rejectReceiptModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title fs-6 fw-bold" id="rejectReceiptModalLabel">
+            <i class="bi bi-x-circle me-1"></i> <span data-i18n="modal_reject_receipt_title">បដិសេធបង្កាន់ដៃទូទាត់ប្រាក់</span>
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form method="POST" action="{% url 'loans:officer_dashboard' %}">
+          {% csrf_token %}
+          <input type="hidden" name="receipt_id" id="rejectReceiptId" value="">
+          <input type="hidden" name="action" value="REJECT_RECEIPT">
+          <div class="modal-body p-4">
+            <div class="mb-3">
+              <div class="text-muted small" data-i18n="lbl_tx_ref">លេខយោងប្រតិបត្តិការ:</div>
+              <div class="fw-bold font-monospace fs-5 text-dark" id="rejectReceiptRef">-</div>
+            </div>
+            <div class="mb-2">
+              <label for="rejectRemarks" class="text-muted small fw-semibold" data-i18n="lbl_reject_reason">មូលហេតុបដិសេធ * :</label>
+              <textarea name="remarks" id="rejectRemarks" class="form-control form-control-sm" rows="3" placeholder="មូលហេតុបដិសេធ..." data-i18n-placeholder="ph_reject_reason" required></textarea>
+            </div>
+          </div>
+          <div class="modal-footer bg-light">
+            <button type="button" class="btn btn-sm btn-outline-secondary px-3" data-bs-dismiss="modal" data-i18n="btn_cancel">បោះបង់</button>
+            <button type="submit" class="btn btn-sm btn-danger px-3">
+              <i class="bi bi-x-octagon me-1"></i> <span data-i18n="btn_confirm_reject">បញ្ជាក់ការបដិសេធ</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  {% if request.user.is_admin_user %}
+  <!-- Create Staff Modal -->
+  <div class="modal fade" id="createStaffModal" tabindex="-1" aria-labelledby="createStaffModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title fs-6 fw-bold" id="createStaffModalLabel">
+            <i class="bi bi-person-plus-fill me-1"></i> <span data-i18n="modal_create_staff_title">បង្កើតគណនីបុគ្គលិកថ្មី</span>
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="createStaffForm" onsubmit="handleCreateStaff(event)">
+          {% csrf_token %}
+          <div class="modal-body p-4">
+            <div id="createStaffAlert" class="alert alert-danger d-none py-2 small mb-3"></div>
+            
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold text-dark" data-i18n="lbl_staff_username">ឈ្មោះគណនី *</label>
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text bg-light text-muted">@</span>
+                  <input type="text" name="username" class="form-control" placeholder="e.g. sokha.officer" required>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold text-dark" data-i18n="th_role">តួនាទី *</label>
+                <select name="role" class="form-select form-select-sm" required>
+                  <option value="OFFICER" selected data-i18n="opt_role_officer">មន្ត្រីឥណទាន</option>
+                  <option value="ADMIN" data-i18n="opt_role_admin">អ្នកគ្រប់គ្រង</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold text-dark" data-i18n="lbl_last_name">នាមត្រកូល</label>
+                <input type="text" name="last_name" class="form-control form-control-sm" placeholder="e.g. Chan">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold text-dark" data-i18n="lbl_first_name">នាមខ្លួន</label>
+                <input type="text" name="first_name" class="form-control form-control-sm" placeholder="e.g. Sokha">
+              </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold text-dark" data-i18n="lbl_email">អ៊ីមែល</label>
+                <input type="email" name="email" class="form-control form-control-sm" placeholder="sokha@institution.com.kh">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold text-dark" data-i18n="lbl_phone">លេខទូរស័ព្ទ</label>
+                <input type="text" name="phone_number" class="form-control form-control-sm" placeholder="012 345 678">
+              </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold text-dark" data-i18n="lbl_initial_pwd">ពាក្យសម្ងាត់ដំបូង *</label>
+                <input type="password" name="password" class="form-control form-control-sm" placeholder="យ៉ាងតិច ៦ តួអក្សរ" data-i18n-placeholder="ph_min_6_chars" required minlength="6">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold text-dark" data-i18n="reg_confirm_pass">ផ្ទៀងផ្ទាត់ពាក្យសម្ងាត់ *</label>
+                <input type="password" name="confirm_password" class="form-control form-control-sm" placeholder="បញ្ចូលពាក្យសម្ងាត់ម្តងទៀត" data-i18n-placeholder="ph_confirm_password" required minlength="6">
+              </div>
+            </div>
+
+            <hr class="my-3 text-muted">
+
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold text-dark" data-i18n="lbl_employee_id">អត្តលេខបុគ្គលិក</label>
+                <input type="text" name="employee_id" class="form-control form-control-sm" placeholder="e.g. OFF-002">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold text-dark" data-i18n="lbl_branch">សាខាប្រតិបត្តិការ</label>
+                <input type="text" name="branch" class="form-control form-control-sm" value="Head Office - Phnom Penh">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold text-dark" data-i18n="lbl_department">នាយកដ្ឋាន</label>
+                <input type="text" name="department" class="form-control form-control-sm" value="Credit & Underwriting">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer bg-light">
+            <button type="button" class="btn btn-sm btn-outline-secondary px-3" data-bs-dismiss="modal" data-i18n="btn_cancel">បោះបង់</button>
+            <button type="submit" id="createStaffSubmitBtn" class="btn btn-sm btn-primary px-3 d-inline-flex align-items-center gap-1">
+              <i class="bi bi-check2-circle"></i>
+              <span data-i18n="btn_submit_staff">បង្កើតគណនី</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Staff Modal -->
+  <div class="modal fade" id="editStaffModal" tabindex="-1" aria-labelledby="editStaffModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header text-white" style="background-color: var(--slate-900);">
+          <h5 class="modal-title fs-6 fw-bold" id="editStaffModalLabel">
+            <i class="bi bi-pencil-square me-1"></i> <span data-i18n="modal_edit_staff_title">កែប្រែព័ត៌មានបុគ្គលិក និងតួនាទី</span>
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="editStaffForm" onsubmit="handleEditStaff(event)">
+          {% csrf_token %}
+          <input type="hidden" id="editStaffId" name="staff_id" value="">
+          <div class="modal-body p-4">
+            <div id="editStaffAlert" class="alert alert-danger d-none py-2 small mb-3"></div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold text-dark" data-i18n="lbl_staff_username">ឈ្មោះគណនី</label>
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text bg-light text-muted">@</span>
+                  <input type="text" id="editUsername" class="form-control bg-light" readonly>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold text-dark" data-i18n="th_role">តួនាទី *</label>
+                <select id="editRole" name="role" class="form-select form-select-sm" required>
+                  <option value="OFFICER" data-i18n="opt_role_officer">មន្ត្រីឥណទាន</option>
+                  <option value="ADMIN" data-i18n="opt_role_admin">អ្នកគ្រប់គ្រង</option>
+                  <option value="BORROWER" data-i18n="opt_role_borrower">អតិថិជន</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold text-dark" data-i18n="lbl_last_name">នាមត្រកូល</label>
+                <input type="text" id="editLastName" name="last_name" class="form-control form-control-sm">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold text-dark" data-i18n="lbl_first_name">នាមខ្លួន</label>
+                <input type="text" id="editFirstName" name="first_name" class="form-control form-control-sm">
+              </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold text-dark" data-i18n="lbl_email">អ៊ីមែល</label>
+                <input type="email" id="editEmail" name="email" class="form-control form-control-sm">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold text-dark" data-i18n="lbl_phone">លេខទូរស័ព្ទ</label>
+                <input type="text" id="editPhone" name="phone_number" class="form-control form-control-sm">
+              </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold text-dark" data-i18n="lbl_employee_id">អត្តលេខបុគ្គលិក</label>
+                <input type="text" id="editEmployeeId" name="employee_id" class="form-control form-control-sm">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold text-dark" data-i18n="lbl_branch">សាខាប្រតិបត្តិការ</label>
+                <input type="text" id="editBranch" name="branch" class="form-control form-control-sm">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold text-dark" data-i18n="lbl_department">នាយកដ្ឋាន</label>
+                <input type="text" id="editDepartment" name="department" class="form-control form-control-sm">
+              </div>
+            </div>
+
+            <div class="p-3 bg-light rounded-3 border mb-3">
+              <div class="d-flex align-items-center justify-content-between">
+                <div>
+                  <div class="fw-semibold small text-dark" data-i18n="lbl_account_status">ស្ថានភាពគណនី</div>
+                </div>
+                <div class="form-check form-switch mb-0">
+                  <input class="form-check-input" type="checkbox" id="editIsActive" name="is_active" value="true">
+                  <label class="form-check-label small fw-semibold" for="editIsActive" id="editIsActiveLabel" data-i18n="lbl_active_status">សកម្ម</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-2">
+              <label class="form-label small fw-semibold text-dark" data-i18n="lbl_reset_pwd">កំណត់ពាក្យសម្ងាត់ថ្មី (មិនចាំបាច់)</label>
+              <input type="password" id="editNewPassword" name="new_password" class="form-control form-control-sm" placeholder="ទុកនៅទំនេរ ប្រសិនបើមិនចង់ប្តូរពាក្យសម្ងាត់" data-i18n-placeholder="ph_leave_blank_pwd">
+            </div>
+          </div>
+          <div class="modal-footer bg-light">
+            <button type="button" class="btn btn-sm btn-outline-secondary px-3" data-bs-dismiss="modal" data-i18n="btn_cancel">បោះបង់</button>
+            <button type="submit" id="editStaffSubmitBtn" class="btn btn-sm btn-primary px-3 d-inline-flex align-items-center gap-1">
+              <i class="bi bi-save"></i>
+              <span data-i18n="btn_save_changes">រក្សាទុកការផ្លាស់ប្តូរ</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  {% localize off %}
+  <script>
+    const I18N = {
+      km: {
+        role_officer: "មន្ត្រីឥណទាន",
+        nav_overview: "ទិដ្ឋភាពទូទៅ",
+        nav_applications: "ពាក្យស្នើសុំ",
+        nav_portfolio: "ផលប័ត្រឥណទាន",
+        nav_repayments: "ការបង់ប្រាក់",
+        nav_reports: "របាយការណ៍",
+        nav_staff_management: "បុគ្គលិក & តួនាទី",
+        page_overview: "ទិដ្ឋភាពទូទៅនៃការគ្រប់គ្រង",
+        page_applications: "ការវាយតម្លៃពាក្យស្នើសុំ",
+        page_portfolio: "ផលប័ត្រឥណទានសកម្ម",
+        page_repayments: "ផ្ទៀងផ្ទាត់ការទូទាត់ប្រាក់",
+        page_reports: "របាយការណ៍ហិរញ្ញវត្ថុ",
+        page_staff_management: "ការគ្រប់គ្រងបុគ្គលិក និងតួនាទី",
+        btn_logout: "ចាកចេញ",
+        kpi_disbursed: "ទំហំឥណទានបើកផ្តល់សរុប",
+        kpi_foot_disbursed: "ឥណទានអនុម័ត និងបើកផ្តល់",
+        kpi_active_loans: "ពាក្យស្នើសុំសរុប",
+        kpi_foot_active: "ពាក្យស្នើសុំរង់ចាំពិនិត្យ",
+        kpi_recovery: "អត្រាសងត្រឡប់",
+        kpi_foot_recovery: "កម្រិតស្តង់ដារធនាគារជាតិ NBC",
+        kpi_overdue: "ឥណទានអនុម័តសកម្ម",
+        kpi_foot_approved: "គណនីមានសុពលភាព",
+        chart_trend_title: "កំណើនឥណទានប្រចាំខែ",
+        chart_product_title: "ប្រភេទផលិតផលឥណទាន",
+        sec_recent_apps: "ពាក្យស្នើសុំថ្មីរង់ចាំពិនិត្យ",
+        btn_view_all: "មើលទាំងអស់",
+        th_borrower: "អតិថិជន",
+        th_product: "ផលិតផល",
+        th_amount: "ទឹកប្រាក់",
+        th_status: "ស្ថានភាព",
+        th_action: "សកម្មភាព",
+        th_date: "កាលបរិច្ឆេទ",
+        th_principal: "ប្រាក់ដើម",
+        th_emi: "ការបង់ប្រចាំខែ",
+        th_rate: "អត្រា",
+        lbl_apply_tenure: "រយៈពេល",
+        cbc_grade: "កម្រិត A (ហានិភ័យទាប)",
+        lbl_cbc_score: "ពិន្ទុឥណទាន CBC Score",
+        cbc_risk_low: "ហានិភ័យទាប",
+        lbl_dti: "សមាមាត្របំណុល DTI:",
+        lbl_income: "ប្រាក់ចំណូលប្រចាំខែ:",
+        lbl_emi: "ការបង់រំលស់ប្រចាំខែ:",
+        lbl_purpose: "គោលបំណងស្នើសុំ:",
+        btn_approve: "អនុម័ត",
+        btn_reject: "បដិសេធ",
+        btn_review: "ពិនិត្យ",
+        btn_disburse: "បើកផ្តល់",
+        title_app_queue: "បញ្ជីពាក្យស្នើសុំឥណទានទាំងអស់",
+        opt_status_all: "ស្ថានភាពទាំងអស់",
+        opt_status_review: "កំពុងពិនិត្យ",
+        opt_status_submitted: "បានបញ្ជូន",
+        opt_status_approved: "បានអនុម័ត",
+        opt_status_rejected: "បានបដិសេធ",
+        title_portfolio: "ផលប័ត្រឥណទានសកម្ម",
+        btn_export_csv: "ទាញយក CSV",
+        title_repayments: "ផ្ទៀងផ្ទាត់ការទូទាត់ប្រាក់",
+        title_staff_mgmt: "បុគ្គលិក & តួនាទីក្នុងប្រព័ន្ធ",
+        btn_add_staff: "+ បន្ថែមបុគ្គលិកថ្មី",
+        kpi_total_staff: "បុគ្គលិកសរុប",
+        kpi_officers: "មន្ត្រីឥណទាន",
+        kpi_admins: "អ្នកគ្រប់គ្រង",
+        kpi_borrowers: "អតិថិជនចុះឈ្មោះ",
+        kpi_foot_staff: "មន្ត្រី និងអ្នកគ្រប់គ្រង",
+        title_staff_dir: "បញ្ជីឈ្មោះបុគ្គលិក និងអ្នកប្រើប្រាស់",
+        th_staff_user: "បុគ្គលិក",
+        th_role: "តួនាទី",
+        th_emp_phone: "អត្តលេខ & ទូរស័ព្ទ",
+        th_branch_dept: "សាខា & នាយកដ្ឋាន",
+        th_date_joined: "កាលបរិច្ឆេទបង្កើត",
+        badge_active: "សកម្ម",
+        badge_suspended: "ផ្អាក",
+        btn_edit: "កែប្រែ",
+        lbl_your_account: "គណនីអ្នក",
+        empty_staff: "មិនទាន់មានទិន្នន័យបុគ្គលិកនៅឡើយ",
+        ph_search_staff: "ស្វែងរកបុគ្គលិកតាមឈ្មោះ អត្តលេខ ទូរស័ព្ទ សាខា...",
+        ph_search_app: "ស្វែងរកលេខកូដពាក្យ ឈ្មោះអតិថិជន ទូរស័ព្ទ...",
+        btn_cancel: "បោះបង់",
+        btn_save_changes: "រក្សាទុកការផ្លាស់ប្តូរ",
+        btn_create_account: "បង្កើតគណនី",
+        modal_disburse_title: "បើកផ្តល់ឥណទាន",
+        lbl_disburse_app_no: "លេខកូដពាក្យស្នើសុំ:",
+        lbl_disburse_borrower: "ឈ្មោះអតិថិជន:",
+        lbl_disburse_amount: "ទឹកប្រាក់អនុម័ត:",
+        lbl_disburse_tenure: "រយៈពេលឥណទាន:",
+        lbl_disburse_note: "កំណត់សម្គាល់ប្រតិបត្តិការ:",
+        btn_confirm_disburse: "បញ្ជាក់ការបើកផ្តល់",
+        modal_reject_receipt_title: "បដិសេធបង្កាន់ដៃបង់ប្រាក់",
+        lbl_receipt_ref: "លេខយោងបង្កាន់ដៃ:",
+        lbl_reject_reason: "មូលហេតុបដិសេធ:",
+        btn_confirm_reject_receipt: "បញ្ជាក់ការបដិសេធ",
+        modal_create_staff_title: "បង្កើតគណនីបុគ្គលិកថ្មី",
+        modal_edit_staff_title: "កែប្រែព័ត៌មានបុគ្គលិក",
+        lbl_username: "ឈ្មោះគណនី",
+        lbl_first_name: "នាមត្រកូល",
+        lbl_last_name: "នាមខ្លួន",
+        lbl_email: "អ៊ីមែល",
+        lbl_phone: "លេខទូរស័ព្ទ",
+        lbl_role: "តួនាទីក្នុងប្រព័ន្ធ",
+        lbl_employee_id: "អត្តលេខបុគ្គលិក",
+        lbl_branch: "សាខា",
+        lbl_department: "នាយកដ្ឋាន",
+        lbl_password: "ពាក្យសម្ងាត់",
+        lbl_new_password_optional: "ពាក្យសម្ងាត់ថ្មី (ទុកនៅទំនេរប្រសិនបើមិនប្តូរ)",
+        lbl_account_status: "ស្ថានភាពគណនី",
+        opt_role_all: "តួនាទីទាំងអស់",
+        opt_role_officer: "មន្ត្រីឥណទាន",
+        opt_role_admin: "អ្នកគ្រប់គ្រង",
+        opt_role_borrower: "អតិថិជន",
+        opt_staff_status_all: "ស្ថានភាពទាំងអស់",
+        opt_staff_status_active: "សកម្ម",
+        opt_staff_status_suspended: "ផ្អាក",
+        cbc_title_details: "ព័ត៌មានលម្អិត CBC & ពាក្យស្នើសុំ",
+        cbc_score_label: "ពិន្ទុឥណទាន CBC",
+        cbc_grade_label: "កម្រិតហានិភ័យ",
+        cbc_recommendation_label: "ការណែនាំពីប្រព័ន្ធ",
+        cbc_collateral_title: "ទ្រព្យបញ្ចាំធានា",
+        cbc_history_title: "ប្រវត្តិផ្លាស់ប្តូរ & កំណត់សម្គាល់",
+        lbl_officer_remarks: "កំណត់សម្គាល់របស់មន្ត្រី:",
+        btn_approve_action: "អនុម័ត",
+        btn_review_action: "ពិនិត្យ",
+        btn_reject_action: "បដិសេធ",
+        btn_cbc_disburse: "បើកផ្តល់ឥណទាន",
+        th_receipt_id: "លេខយោង",
+        th_installment_no: "ការបង់លើកទី",
+        th_paid_amount: "ទឹកប្រាក់បង់",
+        th_payment_method: "វិធីសាស្រ្ត",
+        th_slip: "បង្កាន់ដៃ",
+        btn_verify_approve: "ផ្ទៀងផ្ទាត់ & អនុម័ត",
+        btn_verify_reject: "បដិសេធ",
+        empty_repayments: "មិនមានបង្កាន់ដៃរង់ចាំផ្ទៀងផ្ទាត់ឡើយ",
+        btn_export_asset_quality: "ទាញយករបាយការណ៍គុណភាពទ្រព្យសកម្ម",
+        btn_export_delinquency: "ទាញយករបាយការណ៍បំណុលយឺតយ៉ាវ (PAR)",
+        lbl_months: "ខែ",
+        btn_suspend: "ផ្អាក",
+        btn_activate: "បើក",
+        ph_min_6_chars: "យ៉ាងតិច ៦ តួអក្សរ",
+        ph_confirm_password: "បញ្ចូលពាក្យសម្ងាត់ម្តងទៀត",
+        lbl_active_status: "សកម្ម",
+        ph_leave_blank_pwd: "ទុកនៅទំនេរ ប្រសិនបើមិនចង់ប្តូរពាក្យសម្ងាត់",
+        // Reports & NBC Provisioning
+        lbl_total_portfolio: "ផលប័ត្រសរុប",
+        lbl_active_loans_count: "ឥណទានសកម្ម",
+        lbl_par_30: "ហានិភ័យខកខាន (PAR 30+)",
+        lbl_npl: "ឥណទានមិនដំណើរការ (NPL)",
+        lbl_nbc_reserves: "ទុនបម្រុងកាតព្វកិច្ច",
+        lbl_recovery_rate: "អត្រាប្រមូល:",
+        title_nbc_reports: "តារាងចំណាត់ថ្នាក់គុណភាពផលប័ត្រ និងទុនបម្រុងតាមបទដ្ឋាន NBC",
+        btn_export_nbc: "ទាញយក NBC Provisioning (CSV)",
+        btn_export_par: "ទាញយក PAR 30/90 (CSV)",
+        btn_export_repayments: "ទាញយក Repayments (CSV)",
+        th_classification: "ចំណាត់ថ្នាក់",
+        th_dpd_range: "ការខកខាន",
+        th_loan_count: "ចំនួនឥណទាន",
+        th_outstanding_bal: "សមតុល្យសល់ ($)",
+        th_provision_rate: "អត្រាទុនបម្រុង",
+        th_mandatory_provision: "ទុនបម្រុងកាតព្វកិច្ច ($)",
+        lbl_total_reg_portfolio: "សរុបផលប័ត្រឥណទាន",
+        // Staff Management
+        kpi_foot_officers: "អ្នកពិនិត្យ និងអនុម័ត",
+        kpi_foot_admins: "សិទ្ធិគ្រប់គ្រងជាន់ខ្ពស់",
+        kpi_foot_borrowers: "គណនីអតិថិជនសរុប",
+        opt_status_active: "សកម្ម",
+        opt_status_suspended: "ផ្អាក",
+        lbl_staff_username: "ឈ្មោះអ្នកប្រើប្រាស់ *",
+        lbl_initial_pwd: "ពាក្យសម្ងាត់ដំបូង *",
+        reg_confirm_pass: "ផ្ទៀងផ្ទាត់ពាក្យសម្ងាត់ *",
+        lbl_reset_pwd: "កំណត់ពាក្យសម្ងាត់ថ្មី (មិនចាំបាច់)",
+        btn_submit_staff: "បង្កើតគណនី",
+        // Repayments
+        th_reference: "លេខយោង",
+        th_loan_id: "កម្ចី ID",
+        th_installment: "ដំណាក់កាល",
+        th_method: "វិធីសាស្ត្រ",
+        th_receipt_slip: "បង្កាន់ដៃ",
+        btn_verify: "ផ្ទៀងផ្ទាត់",
+        msg_no_repayments: "មិនទាន់មានប្រតិបត្តិការទូទាត់ប្រាក់ត្រូវផ្ទៀងផ្ទាត់ទេ",
+        // CBC, Underwriting & Modals
+        badge_cbc_assessment: "ការវាយតម្លៃឥណទាន CBC",
+        lbl_collateral: "ទ្រព្យបញ្ចាំ:",
+        lbl_pledged_collateral: "ទ្រព្យបញ្ចាំធានា:",
+        msg_no_collateral: "គ្មានទិន្នន័យទ្រព្យបញ្ចាំ",
+        lbl_audit_trail: "ប្រវត្តិផ្លាស់ប្តូរ & កំណត់សម្គាល់:",
+        msg_no_audit_logs: "គ្មានប្រវត្តិប្រតិបត្តិការ",
+        rec_auto_approve: "អនុម័ត (ហានិភ័យទាប)",
+        lbl_app_no: "លេខពាក្យស្នើសុំ:",
+        lbl_value_date: "កាលបរិច្ឆេទបើកផ្តល់:",
+        lbl_disbursal_notes: "កំណត់ចំណាំប្រតិបត្តិការ:",
+        btn_confirm_disbursal: "បញ្ជាក់ការបើកផ្តល់",
+        lbl_tx_ref: "លេខយោងប្រតិបត្តិការ:",
+        btn_confirm_reject: "បញ្ជាក់ការបដិសេធ",
+        // Empty states & General table headers/badges
+        msg_no_recent_apps: "មិនមានពាក្យស្នើសុំថ្មីរង់ចាំការពិនិត្យទេ",
+        msg_no_applications: "មិនមានពាក្យស្នើសុំទេ",
+        msg_no_portfolio: "មិនទាន់មានឥណទានសកម្មក្នុងផលប័ត្រនៅឡើយទេ",
+        role_admin: "អ្នកគ្រប់គ្រង",
+        role_borrower: "អតិថិជន",
+        status_settled: "បានទូទាត់",
+        status_rejected: "បានបដិសេធ",
+        status_submitted: "បានដាក់ពាក្យ",
+        status_under_review: "កំពុងពិនិត្យ",
+        status_approved: "បានអនុម័ត",
+        status_disbursed: "បានបើកផ្តល់",
+        status_active: "កំពុងសង",
+        status_completed: "បានទូទាត់រួចរាល់",
+        status_defaulted: "ហួសកំណត់ធ្ងន់ធ្ងរ",
+        status_pending: "រង់ចាំបង់",
+        status_paid: "បានបង់",
+        status_overdue: "ហួសកាលកំណត់",
+        status_verifying: "កំពុងផ្ទៀងផ្ទាត់",
+        status_verified: "បានផ្ទៀងផ្ទាត់",
+        th_id: "ID",
+        th_cbc_score: "CBC Score",
+        th_cbc: "CBC",
+        ph_search_apps: "ស្វែងរកលេខកូដពាក្យ ឈ្មោះអតិថិជន ទូរស័ព្ទ...",
+        ph_officer_remarks: "កំណត់ចំណាំការវាយតម្លៃ...",
+        ph_disburse_notes: "កំណត់ចំណាំការបើកផ្តល់...",
+        ph_reject_reason: "មូលហេតុបដិសេធ..."
+      },
+      en: {
+        role_officer: "Loan Officer",
+        nav_overview: "Overview",
+        nav_applications: "Applications",
+        nav_portfolio: "Loan Portfolio",
+        nav_repayments: "Repayments",
+        nav_reports: "Reports",
+        nav_staff_management: "Staff & Roles",
+        page_overview: "Executive Dashboard",
+        page_applications: "Credit Underwriting & Queue",
+        page_portfolio: "Active Loan Portfolio",
+        page_repayments: "Payment Reconciliation",
+        page_reports: "Regulatory Reports",
+        page_staff_management: "Staff & Role Management",
+        btn_logout: "Sign Out",
+        kpi_disbursed: "Total Disbursed Volume",
+        kpi_foot_disbursed: "Approved and active credit",
+        kpi_active_loans: "Total Applications",
+        kpi_foot_active: "Applications in queue",
+        kpi_recovery: "Repayment Recovery Rate",
+        kpi_foot_recovery: "NBC prudential standard benchmark",
+        kpi_overdue: "Active Approved Facilities",
+        kpi_foot_approved: "Fully active accounts",
+        chart_trend_title: "Disbursement Trajectory (Monthly)",
+        chart_product_title: "Portfolio by Loan Product",
+        sec_recent_apps: "New Applications Awaiting Review",
+        btn_view_all: "View All",
+        th_borrower: "Borrower",
+        th_product: "Product",
+        th_amount: "Amount",
+        th_status: "Status",
+        th_action: "Action",
+        th_date: "Date",
+        th_principal: "Principal",
+        th_emi: "Monthly EMI",
+        th_rate: "Rate",
+        lbl_apply_tenure: "Tenure",
+        cbc_grade: "Grade A (Low Risk)",
+        lbl_cbc_score: "CBC Credit Score",
+        cbc_risk_low: "Low Risk",
+        lbl_dti: "Debt-to-Income (DTI):",
+        lbl_income: "Monthly Income:",
+        lbl_emi: "Monthly Installment:",
+        lbl_purpose: "Purpose of Loan:",
+        btn_approve: "Approve",
+        btn_reject: "Reject",
+        btn_review: "Review",
+        btn_disburse: "Disburse",
+        title_app_queue: "All Loan Applications Queue",
+        opt_status_all: "All Statuses",
+        opt_status_review: "Under Review",
+        opt_status_submitted: "Submitted",
+        opt_status_approved: "Approved",
+        opt_status_rejected: "Rejected",
+        title_portfolio: "Active Loan Portfolio",
+        btn_export_csv: "Download CSV",
+        title_repayments: "Payment Reconciliation",
+        title_staff_mgmt: "Staff & Role Management",
+        btn_add_staff: "+ Add New Staff",
+        kpi_total_staff: "Total Staff",
+        kpi_officers: "Loan Officers",
+        kpi_admins: "System Admins",
+        kpi_borrowers: "Registered Borrowers",
+        kpi_foot_staff: "Officers & Administrators",
+        title_staff_dir: "Staff & User Directory",
+        th_staff_user: "Staff Member",
+        th_role: "Role",
+        th_emp_phone: "Employee ID & Phone",
+        th_branch_dept: "Branch & Dept",
+        th_date_joined: "Date Joined",
+        badge_active: "Active",
+        badge_suspended: "Suspended",
+        btn_edit: "Edit",
+        lbl_your_account: "You",
+        empty_staff: "No staff found",
+        ph_search_staff: "Search staff by username, name, phone, branch...",
+        ph_search_app: "Search application number, applicant name, phone...",
+        btn_cancel: "Cancel",
+        btn_save_changes: "Save Changes",
+        btn_create_account: "Create Account",
+        modal_disburse_title: "Disburse Loan Facility",
+        lbl_disburse_app_no: "Application No:",
+        lbl_disburse_borrower: "Borrower:",
+        lbl_disburse_amount: "Approved Amount:",
+        lbl_disburse_tenure: "Tenure:",
+        lbl_months: "Months",
+        btn_suspend: "Suspend",
+        btn_activate: "Activate",
+        ph_min_6_chars: "Minimum 6 characters",
+        ph_confirm_password: "Confirm password",
+        lbl_active_status: "Active",
+        ph_leave_blank_pwd: "Leave blank to keep current password",
+        lbl_disburse_note: "Transaction Remarks:",
+        btn_confirm_disburse: "Confirm & Disburse",
+        modal_reject_receipt_title: "Reject Repayment Receipt",
+        lbl_receipt_ref: "Receipt Ref:",
+        lbl_reject_reason: "Rejection Reason:",
+        btn_confirm_reject_receipt: "Confirm Rejection",
+        modal_create_staff_title: "Create Staff Account",
+        modal_edit_staff_title: "Edit Staff Account",
+        lbl_username: "Username",
+        lbl_first_name: "First Name",
+        lbl_last_name: "Last Name",
+        lbl_email: "Email Address",
+        lbl_phone: "Phone Number",
+        lbl_role: "System Role",
+        lbl_employee_id: "Employee ID",
+        lbl_branch: "Branch",
+        lbl_department: "Department",
+        lbl_password: "Password",
+        lbl_new_password_optional: "New Password (leave blank to keep)",
+        lbl_account_status: "Account Status",
+        opt_role_all: "All Roles",
+        opt_role_officer: "Loan Officer",
+        opt_role_admin: "System Admin",
+        opt_role_borrower: "Borrower",
+        opt_staff_status_all: "All Statuses",
+        opt_staff_status_active: "Active",
+        opt_staff_status_suspended: "Suspended",
+        cbc_title_details: "CBC Details & Underwriting",
+        cbc_score_label: "CBC Credit Score",
+        cbc_grade_label: "Risk Grade",
+        cbc_recommendation_label: "System Recommendation",
+        cbc_collateral_title: "Pledged Collateral",
+        cbc_history_title: "Audit Trail & History",
+        lbl_officer_remarks: "Officer Remarks:",
+        btn_approve_action: "Approve",
+        btn_review_action: "Under Review",
+        btn_reject_action: "Reject",
+        btn_cbc_disburse: "Disburse Facility",
+        th_receipt_id: "Receipt ID",
+        th_installment_no: "Installment #",
+        th_paid_amount: "Amount Paid",
+        th_payment_method: "Method",
+        th_slip: "Slip",
+        btn_verify_approve: "Verify & Approve",
+        btn_verify_reject: "Reject",
+        empty_repayments: "No pending receipts to verify.",
+        btn_export_asset_quality: "Export Asset Quality Report",
+        btn_export_delinquency: "Export PAR Delinquency Report",
+        // Reports & NBC Provisioning
+        lbl_total_portfolio: "Total Portfolio",
+        lbl_active_loans_count: "Active Loans",
+        lbl_par_30: "Portfolio at Risk (PAR 30+)",
+        lbl_npl: "Non-Performing Loans (NPL)",
+        lbl_nbc_reserves: "Mandatory Reserves",
+        lbl_recovery_rate: "Collection Rate:",
+        title_nbc_reports: "NBC Loan Classification & Mandatory Provisioning Schedule",
+        btn_export_nbc: "Export NBC Provisioning (CSV)",
+        btn_export_par: "Export PAR 30/90 (CSV)",
+        btn_export_repayments: "Export Repayments (CSV)",
+        th_classification: "Classification",
+        th_dpd_range: "Past Due (DPD)",
+        th_loan_count: "Loan Count",
+        th_outstanding_bal: "Outstanding Balance ($)",
+        th_provision_rate: "Provision Rate",
+        th_mandatory_provision: "Mandatory Provision ($)",
+        lbl_total_reg_portfolio: "Total Regulatory Portfolio",
+        // Staff Management
+        kpi_foot_officers: "Review & Underwriting Officers",
+        kpi_foot_admins: "Senior System Administrators",
+        kpi_foot_borrowers: "Total Registered Borrowers",
+        opt_status_active: "Active",
+        opt_status_suspended: "Suspended",
+        lbl_staff_username: "Username *",
+        lbl_initial_pwd: "Initial Password *",
+        reg_confirm_pass: "Confirm Password *",
+        lbl_reset_pwd: "New Password (Optional)",
+        btn_submit_staff: "Create Account",
+        // Repayments
+        th_reference: "Reference",
+        th_loan_id: "Loan ID",
+        th_installment: "Installment",
+        th_method: "Method",
+        th_receipt_slip: "Receipt Slip",
+        btn_verify: "Verify",
+        msg_no_repayments: "No pending repayment receipts to verify",
+        // CBC, Underwriting & Modals
+        badge_cbc_assessment: "CBC Credit Assessment",
+        lbl_collateral: "Collateral:",
+        lbl_pledged_collateral: "Pledged Collateral:",
+        msg_no_collateral: "No collateral pledged",
+        lbl_audit_trail: "Audit Trail & Notes:",
+        msg_no_audit_logs: "No activity recorded",
+        rec_auto_approve: "Approve (Low Risk)",
+        lbl_app_no: "Application No:",
+        lbl_value_date: "Disbursal Date:",
+        lbl_disbursal_notes: "Disbursal Notes:",
+        btn_confirm_disbursal: "Confirm Disbursal",
+        lbl_tx_ref: "Transaction Reference:",
+        btn_confirm_reject: "Confirm Rejection",
+        // Empty states & General table headers/badges
+        msg_no_recent_apps: "No new applications awaiting review",
+        msg_no_applications: "No loan applications found",
+        msg_no_portfolio: "No active loans in portfolio",
+        role_admin: "System Admin",
+        role_borrower: "Borrower",
+        status_settled: "Settled",
+        status_rejected: "Rejected",
+        status_submitted: "Submitted",
+        status_under_review: "Under Review",
+        status_approved: "Approved",
+        status_disbursed: "Disbursed",
+        status_active: "Active",
+        status_completed: "Completed",
+        status_defaulted: "Defaulted",
+        status_pending: "Pending",
+        status_paid: "Paid",
+        status_overdue: "Overdue",
+        status_verifying: "Verifying",
+        status_verified: "Verified",
+        th_id: "ID",
+        th_cbc_score: "CBC Score",
+        th_cbc: "CBC",
+        ph_search_apps: "Search application number, applicant name, phone...",
+        ph_officer_remarks: "Assessment remarks...",
+        ph_disburse_notes: "Disbursal notes...",
+        ph_reject_reason: "Rejection reason..."
+      }
+    };
+
+    let currentLang = 'km';
+
+    function toggleLang() {
+      currentLang = currentLang === 'km' ? 'en' : 'km';
+      document.getElementById('langText').textContent = currentLang === 'km' ? 'EN' : 'KM';
+      applyLang();
+    }
+
+    function formatBilingualAlerts() {
+      document.querySelectorAll('.custom-alert .alert-text').forEach(el => {
+        const raw = el.getAttribute('data-raw-msg') || el.textContent.trim();
+        if (!el.getAttribute('data-raw-msg')) {
+          el.setAttribute('data-raw-msg', raw);
+        }
+        if (raw.includes(' / ')) {
+          const parts = raw.split(' / ');
+          const km = parts[0].trim();
+          const en = parts.slice(1).join(' / ').trim();
+          if (currentLang === 'en') {
+            el.innerHTML = `<div class="fw-semibold" style="font-size: 0.88rem; line-height: 1.35;">${en}</div>`;
+          } else {
+            el.innerHTML = `<div class="fw-semibold" style="font-size: 0.88rem; line-height: 1.35;">${km}</div><div class="small mt-0.5" style="font-size: 0.78rem; opacity: 0.82; line-height: 1.3;">${en}</div>`;
+          }
+        }
+      });
+    }
+
+    function applyLang() {
+      const dict = I18N[currentLang];
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const k = el.getAttribute('data-i18n');
+        if (dict[k]) el.textContent = dict[k];
+      });
+
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const k = el.getAttribute('data-i18n-placeholder');
+        if (dict[k]) el.setAttribute('placeholder', dict[k]);
+      });
+
+      document.querySelectorAll('.tier-name-km, .tier-dpd-km').forEach(el => el.classList.toggle('d-none', currentLang === 'en'));
+      document.querySelectorAll('.tier-name-en, .tier-dpd-en').forEach(el => el.classList.toggle('d-none', currentLang === 'km'));
+
+      const activeSec = document.querySelector('.view-section.active');
+      if (activeSec) {
+        const titleMap = {
+          'sec-overview': 'page_overview',
+          'sec-applications': 'page_applications',
+          'sec-loans': 'page_portfolio',
+          'sec-repayments': 'page_repayments',
+          'sec-reports': 'page_reports',
+          'sec-staff': 'page_staff_management'
+        };
+        const titleKey = titleMap[activeSec.id] || 'page_overview';
+        const heading = document.getElementById('pageTitle');
+        if (heading && dict[titleKey]) {
+          heading.textContent = dict[titleKey];
+          heading.setAttribute('data-i18n', titleKey);
+        }
+      }
+
+      formatBilingualAlerts();
+    }
+
+    function toggleDropdown(id) {
+      const dd = document.getElementById(id);
+      if (!dd) return;
+      const isOpen = dd.classList.contains('open');
+      document.querySelectorAll('.animated-dropdown.open').forEach(d => d.classList.remove('open'));
+      if (!isOpen) {
+        dd.classList.add('open');
+      }
+    }
+
+    function selectDropdownOption(dropdownId, val, itemEl) {
+      const dd = document.getElementById(dropdownId);
+      if (!dd) return;
+      const select = dd.querySelector('select');
+      if (select) {
+        select.value = val;
+      }
+      
+      const labelSpan = dd.querySelector('.dropdown-label');
+      const itemSpan = itemEl.querySelector('span');
+      if (labelSpan && itemSpan) {
+        labelSpan.textContent = itemSpan.textContent;
+        const i18nKey = itemSpan.getAttribute('data-i18n');
+        if (i18nKey) {
+          labelSpan.setAttribute('data-i18n', i18nKey);
+        } else {
+          labelSpan.removeAttribute('data-i18n');
+        }
+      }
+      
+      dd.querySelectorAll('.dropdown-item-custom').forEach(item => item.classList.remove('selected'));
+      itemEl.classList.add('selected');
+      dd.classList.remove('open');
+
+      if (select) {
+        select.dispatchEvent(new Event('change'));
+      }
+    }
+
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest('.animated-dropdown')) {
+        document.querySelectorAll('.animated-dropdown.open').forEach(d => d.classList.remove('open'));
+      }
+    });
+
+    function switchNav(secId, btn) {
+      document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-item-btn').forEach(b => b.classList.remove('active'));
+
+      const sec = document.getElementById(secId);
+      if (sec) sec.classList.add('active');
+
+      if (btn) {
+        btn.classList.add('active');
+      } else {
+        const targetBtn = document.querySelector(`[onclick*="${secId}"]`);
+        if (targetBtn) targetBtn.classList.add('active');
+      }
+
+      const titleMap = {
+        'sec-overview': 'page_overview',
+        'sec-applications': 'page_applications',
+        'sec-loans': 'page_portfolio',
+        'sec-repayments': 'page_repayments',
+        'sec-reports': 'page_reports',
+        'sec-staff': 'page_staff_management'
+      };
+      const titleKey = titleMap[secId] || 'page_overview';
+      const heading = document.getElementById('pageTitle');
+      if (heading) {
+        heading.setAttribute('data-i18n', titleKey);
+        heading.textContent = I18N[currentLang][titleKey];
+      }
+    }
+
+    function filterAppsTable() {
+      const searchInput = document.getElementById('searchAppInput');
+      const query = (searchInput ? searchInput.value : '').toLowerCase().trim();
+      const statusEl = document.getElementById('filterAppStatus');
+      const status = (statusEl ? statusEl.value : 'ALL').toUpperCase();
+
+      const rows = document.querySelectorAll('#fullAppsTbody tr');
+      rows.forEach(tr => {
+        const appNo = (tr.getAttribute('data-app-no') || '').toLowerCase();
+        const applicant = (tr.getAttribute('data-applicant') || '').toLowerCase();
+        const phone = (tr.getAttribute('data-phone') || '').toLowerCase();
+        const rowStatus = (tr.getAttribute('data-status') || '').toUpperCase();
+
+        const matchQuery = !query || appNo.includes(query) || applicant.includes(query) || phone.includes(query);
+        const matchStatus = status === 'ALL' || rowStatus === status;
+
+        if (matchQuery && matchStatus) {
+          tr.style.display = '';
+        } else {
+          tr.style.display = 'none';
+        }
+      });
+    }
+
+    function attachRemarks(form) {
+      const remarks = document.getElementById('cbcOfficerRemarks') ? document.getElementById('cbcOfficerRemarks').value : '';
+      const carrier = form.querySelector('.remarks-carrier');
+      if (carrier) carrier.value = remarks;
+    }
+
+    function openDisburseModal(id, appNo, borrowerName, amount, currency, tenure) {
+      document.getElementById('disburseAppId').value = id;
+      document.getElementById('disburseModalAppNo').textContent = appNo;
+      document.getElementById('disburseModalBorrower').textContent = borrowerName;
+      const currSymbol = (currency === 'KHR') ? '៛' : '$';
+      const numAmount = Number(amount);
+      const formattedAmount = (currency === 'KHR')
+        ? `${currSymbol} ${numAmount.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
+        : `${currSymbol} ${numAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      document.getElementById('disburseModalAmount').textContent = formattedAmount;
+      document.getElementById('disburseModalTenure').textContent = currentLang === 'km' ? `${tenure} ខែ` : `${tenure} Months`;
+      const modal = new bootstrap.Modal(document.getElementById('disburseModal'));
+      modal.show();
+    }
+
+    function openRejectReceiptModal(receiptId, ref) {
+      const modalEl = document.getElementById('rejectReceiptModal');
+      if (!modalEl) return;
+      document.getElementById('rejectReceiptId').value = receiptId;
+      document.getElementById('rejectReceiptRef').textContent = ref;
+      const modal = new bootstrap.Modal(modalEl);
+      modal.show();
+    }
+
+    function loadCbcData(appNo, applicantName, appId, score, income, amount, emi, purpose, status, doSwitch = true) {
+      document.getElementById('cbcWidgetId').textContent = appNo;
+      document.getElementById('cbcWidgetName').textContent = applicantName;
+
+      ['cbcAppIdApprove', 'cbcAppIdReview', 'cbcAppIdReject'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = appId;
+      });
+
+      const btnApprove = document.getElementById('cbcBtnApprove');
+      const btnReview = document.getElementById('cbcBtnReview');
+      const btnReject = document.getElementById('cbcBtnReject');
+      const isPendingDecision = (status === 'SUBMITTED' || status === 'UNDER_REVIEW');
+      if (btnApprove) btnApprove.disabled = !isPendingDecision;
+      if (btnReview) btnReview.disabled = !isPendingDecision;
+      if (btnReject) btnReject.disabled = !isPendingDecision;
+
+      if (score) document.getElementById('cbcWidgetScore').textContent = score;
+      if (income) document.getElementById('cbcWidgetIncome').textContent = `$ ${parseFloat(income).toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+      if (emi) document.getElementById('cbcWidgetEmi').textContent = `$ ${parseFloat(emi).toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+      if (purpose) {
+        const pEl = document.getElementById('cbcWidgetPurpose');
+        if (pEl) { pEl.textContent = purpose; pEl.title = purpose; }
+      }
+
+      fetch(`/loans/applications/${appId}/cbc/`)
+        .then(res => res.json())
+        .then(data => {
+          if (!data.success) return;
+
+          const numScore = data.cbc_score;
+          const scoreEl = document.getElementById('cbcWidgetScore');
+          if (scoreEl) scoreEl.textContent = numScore;
+
+          const gradeEl = document.getElementById('cbcWidgetGrade');
+          const riskEl = document.getElementById('cbcWidgetRisk');
+
+          if (numScore >= 700) {
+            if (gradeEl) gradeEl.textContent = currentLang === 'km' ? 'កម្រិត A (ហានិភ័យទាប)' : 'Grade A (Low Risk)';
+            if (riskEl) {
+              riskEl.className = 'badge bg-success mx-auto';
+              riskEl.textContent = currentLang === 'km' ? 'ហានិភ័យទាប' : 'Low Risk';
+            }
+          } else if (numScore >= 620) {
+            if (gradeEl) gradeEl.textContent = currentLang === 'km' ? 'កម្រិត B (ហានិភ័យមធ្យម)' : 'Grade B (Medium Risk)';
+            if (riskEl) {
+              riskEl.className = 'badge bg-primary mx-auto';
+              riskEl.textContent = currentLang === 'km' ? 'ហានិភ័យមធ្យម' : 'Medium Risk';
+            }
+          } else if (numScore >= 550) {
+            if (gradeEl) gradeEl.textContent = currentLang === 'km' ? 'កម្រិត C (ទាមទារការពិនិត្យ)' : 'Grade C (Moderate Risk)';
+            if (riskEl) {
+              riskEl.className = 'badge bg-warning text-dark mx-auto';
+              riskEl.textContent = currentLang === 'km' ? 'ហានិភ័យកម្រិតមធ្យម' : 'Moderate Risk';
+            }
+          } else {
+            if (gradeEl) gradeEl.textContent = currentLang === 'km' ? 'កម្រិត D (ហានិភ័យខ្ពស់)' : 'Grade D (High Risk)';
+            if (riskEl) {
+              riskEl.className = 'badge bg-danger mx-auto';
+              riskEl.textContent = currentLang === 'km' ? 'ហានិភ័យខ្ពស់' : 'High Risk';
+            }
+          }
+
+          document.getElementById('cbcWidgetDti').textContent = `${data.dti.toFixed(1)}%`;
+          document.getElementById('cbcWidgetIncome').textContent = `$ ${data.monthly_income.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+          document.getElementById('cbcWidgetEmi').textContent = `$ ${data.emi.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+
+          const statusBadge = document.getElementById('cbcWidgetStatus');
+          if (statusBadge) statusBadge.textContent = data.status_display;
+
+          const recEl = document.getElementById('cbcWidgetRecommendation');
+          if (recEl) {
+            recEl.textContent = currentLang === 'km' ? data.recommendation : data.recommendation_en;
+          }
+
+          const collEl = document.getElementById('cbcWidgetCollateral');
+          if (collEl) {
+            collEl.textContent = `$ ${data.total_collateral.toLocaleString(undefined, { minimumFractionDigits: 2 })} (${data.collateral_coverage.toFixed(1)}%)`;
+          }
+
+          const pEl = document.getElementById('cbcWidgetPurpose');
+          if (pEl) {
+            pEl.textContent = data.purpose;
+            pEl.title = data.purpose;
+          }
+
+          const collList = document.getElementById('cbcWidgetCollateralList');
+          if (collList) {
+            if (data.collaterals && data.collaterals.length > 0) {
+              collList.innerHTML = data.collaterals.map(c => `
+                <div class="border rounded p-2 mb-1 bg-white small">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span class="fw-semibold text-dark"><i class="bi bi-tag me-1"></i>${c.type} <span class="text-muted font-monospace">(${c.title_deed})</span></span>
+                    <span class="text-success font-monospace fw-bold">$ ${c.valuation.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                  </div>
+                  ${c.description ? `<div class="text-muted mt-1" style="font-size:0.75rem;">${c.description}</div>` : ''}
+                </div>
+              `).join('');
+            } else {
+              collList.innerHTML = `<div class="text-muted small fst-italic">${currentLang === 'km' ? 'មិនមានទ្រព្យបញ្ចាំធានា (ឥណទានអត់ទ្រព្យបញ្ចាំ)' : 'No pledged collateral (Unsecured loan).'}</div>`;
+            }
+          }
+
+          const logsList = document.getElementById('cbcWidgetActionLogs');
+          if (logsList) {
+            if (data.action_logs && data.action_logs.length > 0) {
+              logsList.innerHTML = data.action_logs.map(log => `
+                <div class="border-bottom py-1 small">
+                  <div class="d-flex justify-content-between text-muted" style="font-size:0.75rem;">
+                    <span><i class="bi bi-clock-history me-1"></i>${log.timestamp} • ${log.changed_by}</span>
+                    <span class="badge bg-secondary-subtle text-secondary font-monospace">${log.from_status} &rarr; ${log.to_status}</span>
+                  </div>
+                  ${log.action_notes ? `<div class="text-dark mt-1" style="font-size:0.8rem;">${log.action_notes}</div>` : ''}
+                </div>
+              `).join('');
+            } else {
+              logsList.innerHTML = `<div class="text-muted small fst-italic">${currentLang === 'km' ? 'មិនទាន់មានប្រវត្តិផ្លាស់ប្តូរ' : 'No audit history yet.'}</div>`;
+            }
+          }
+
+          const disburseBtn = document.getElementById('cbcWidgetDisburseBtn');
+          if (disburseBtn) {
+            if (data.status === 'APPROVED') {
+              disburseBtn.classList.remove('d-none');
+              disburseBtn.onclick = () => openDisburseModal(appId, data.application_no, data.borrower_name, data.amount, data.currency, data.tenure_months);
+            } else {
+              disburseBtn.classList.add('d-none');
+            }
+          }
+        })
+        .catch(err => console.error("Error loading CBC data:", err));
+
+      if (doSwitch) switchNav('sec-applications');
+    }
+
+    function exportPortfolioCsv() {
+      const rows = document.querySelectorAll('#portfolioTable tbody tr');
+      let csv = "Loan ID,Borrower,Product,Principal,Monthly EMI,Interest Rate,Tenure,Status\n";
+      rows.forEach(tr => {
+        const cols = tr.querySelectorAll('td');
+        if (cols.length >= 8) {
+          const rowData = [
+            cols[0].innerText.trim(),
+            `"${cols[1].innerText.trim()}"`,
+            `"${cols[2].innerText.trim()}"`,
+            cols[3].innerText.replace(/[^0-9.]/g, ''),
+            cols[4].innerText.replace(/[^0-9.]/g, ''),
+            cols[5].innerText.trim(),
+            cols[6].innerText.trim(),
+            cols[7].innerText.trim()
+          ];
+          csv += rowData.join(',') + '\n';
+        }
+      });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `active_loan_portfolio_${new Date().toISOString().slice(0,10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function exportAssetQualityReport() {
+      let csv = "Classification Tier,Description,Provisioning Requirement,PAR Days\n";
+      csv += "Normal,Standard Performing Loan,1.0%,0 - 29 days\n";
+      csv += "Special Mention,Watchlist Facilities,3.0%,30 - 89 days\n";
+      csv += "Substandard,Non-Performing Substandard,20.0%,90 - 179 days\n";
+      csv += "Doubtful,Non-Performing Doubtful,50.0%,180 - 359 days\n";
+      csv += "Loss,Loss Facilities,100.0%,360+ days\n";
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `NBC_5_Tier_Asset_Quality_Report_${new Date().toISOString().slice(0,10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function exportDelinquencyReport() {
+      let csv = "Loan ID,Borrower,Product,Outstanding Balance,Days Past Due,PAR Classification\n";
+      const rows = document.querySelectorAll('#portfolioTable tbody tr');
+      let rowCount = 0;
+      rows.forEach(tr => {
+        const cols = tr.querySelectorAll('td');
+        if (cols.length >= 8) {
+          const loanId = cols[0].innerText.trim();
+          const borrower = cols[1].innerText.trim();
+          const product = cols[2].innerText.trim();
+          const bal = cols[3].innerText.replace(/[^0-9.]/g, '');
+          csv += `${loanId},"${borrower}","${product}",${bal},0 Days,Standard (Normal)\n`;
+          rowCount++;
+        }
+      });
+      if (rowCount === 0) {
+        csv += "N/A,No Active Facilities,N/A,0.00,0 Days,Standard (Normal)\n";
+      }
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `PAR_Delinquency_Report_${new Date().toISOString().slice(0,10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function filterStaffTable() {
+      const searchInput = document.getElementById('searchStaffInput');
+      const query = (searchInput ? searchInput.value : '').toLowerCase().trim();
+      const roleEl = document.getElementById('filterStaffRole');
+      const role = (roleEl ? roleEl.value : 'ALL').toUpperCase();
+      const statusEl = document.getElementById('filterStaffStatus');
+      const status = (statusEl ? statusEl.value : 'ALL').toUpperCase();
+
+      const rows = document.querySelectorAll('#staffTableBody tr[data-user-id]');
+      rows.forEach(tr => {
+        const username = (tr.getAttribute('data-username') || '').toLowerCase();
+        const name = (tr.getAttribute('data-name') || '').toLowerCase();
+        const phone = (tr.getAttribute('data-phone') || '').toLowerCase();
+        const branch = (tr.getAttribute('data-branch') || '').toLowerCase();
+        const rowRole = (tr.getAttribute('data-role') || '').toUpperCase();
+        const rowStatus = (tr.getAttribute('data-status') || '').toUpperCase();
+
+        const matchQuery = !query || username.includes(query) || name.includes(query) || phone.includes(query) || branch.includes(query);
+        const matchRole = (role === 'ALL') || (rowRole === role);
+        const matchStatus = (status === 'ALL') || (rowStatus === status);
+
+        if (matchQuery && matchRole && matchStatus) {
+          tr.style.display = '';
+        } else {
+          tr.style.display = 'none';
+        }
+      });
+    }
+
+    function openEditStaffModal(userId) {
+      const alertEl = document.getElementById('editStaffAlert');
+      if (alertEl) alertEl.classList.add('d-none');
+      
+      fetch(`/accounts/staff/${userId}/details/`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.user) {
+            const u = data.user;
+            document.getElementById('editStaffId').value = u.id;
+            document.getElementById('editUsername').value = u.username;
+            document.getElementById('editFirstName').value = u.first_name || '';
+            document.getElementById('editLastName').value = u.last_name || '';
+            document.getElementById('editEmail').value = u.email || '';
+            document.getElementById('editPhone').value = u.phone_number || '';
+            document.getElementById('editRole').value = u.role;
+            document.getElementById('editEmployeeId').value = u.employee_id || '';
+            document.getElementById('editBranch').value = u.branch || '';
+            document.getElementById('editDepartment').value = u.department || '';
+            document.getElementById('editNewPassword').value = '';
+
+            const activeCheck = document.getElementById('editIsActive');
+            const activeLabel = document.getElementById('editIsActiveLabel');
+            activeCheck.checked = !!u.is_active;
+            activeLabel.textContent = currentLang === 'km' ? (u.is_active ? 'សកម្ម' : 'ផ្អាក') : (u.is_active ? 'Active' : 'Suspended');
+
+            activeCheck.onchange = function() {
+              activeLabel.textContent = currentLang === 'km' ? (this.checked ? 'សកម្ម' : 'ផ្អាក') : (this.checked ? 'Active' : 'Suspended');
+            };
+
+            const modal = new bootstrap.Modal(document.getElementById('editStaffModal'));
+            modal.show();
+          } else {
+            alert(data.error || 'Failed to load user details.');
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          alert('Error fetching user data.');
+        });
+    }
+
+    function handleCreateStaff(e) {
+      e.preventDefault();
+      const form = document.getElementById('createStaffForm');
+      const alertEl = document.getElementById('createStaffAlert');
+      const btn = document.getElementById('createStaffSubmitBtn');
+      alertEl.classList.add('d-none');
+
+      const formData = new FormData(form);
+      btn.disabled = true;
+      btn.innerHTML = `<span class="spinner-border spinner-border-sm me-1" role="status"></span> ${currentLang === 'km' ? 'កំពុងបង្កើត...' : 'Creating...'}`;
+
+      fetch("{% url 'accounts:create_staff' %}", {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="bi bi-check2-circle"></i> <span data-i18n="btn_create_account">${I18N[currentLang].btn_create_account}</span>`;
+        if (data.success) {
+          const modalEl = document.getElementById('createStaffModal');
+          const modalInstance = bootstrap.Modal.getInstance(modalEl);
+          if (modalInstance) modalInstance.hide();
+          window.location.reload();
+        } else {
+          alertEl.textContent = data.error || (data.errors ? data.errors.join(' ') : 'Error creating staff.');
+          alertEl.classList.remove('d-none');
+        }
+      })
+      .catch(err => {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="bi bi-check2-circle"></i> <span data-i18n="btn_create_account">${I18N[currentLang].btn_create_account}</span>`;
+        alertEl.textContent = 'Network or server error.';
+        alertEl.classList.remove('d-none');
+      });
+    }
+
+    function handleEditStaff(e) {
+      e.preventDefault();
+      const form = document.getElementById('editStaffForm');
+      const alertEl = document.getElementById('editStaffAlert');
+      const btn = document.getElementById('editStaffSubmitBtn');
+      const staffId = document.getElementById('editStaffId').value;
+      alertEl.classList.add('d-none');
+
+      const formData = new FormData(form);
+      btn.disabled = true;
+      btn.innerHTML = `<span class="spinner-border spinner-border-sm me-1" role="status"></span> ${currentLang === 'km' ? 'កំពុងរក្សាទុក...' : 'Saving...'}`;
+
+      fetch(`/accounts/staff/${staffId}/edit/`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="bi bi-save"></i> <span data-i18n="btn_save_changes">${I18N[currentLang].btn_save_changes}</span>`;
+        if (data.success) {
+          const modalEl = document.getElementById('editStaffModal');
+          const modalInstance = bootstrap.Modal.getInstance(modalEl);
+          if (modalInstance) modalInstance.hide();
+          window.location.reload();
+        } else {
+          alertEl.textContent = data.error || (data.errors ? data.errors.join(' ') : 'Error updating staff.');
+          alertEl.classList.remove('d-none');
+        }
+      })
+      .catch(err => {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="bi bi-save"></i> <span data-i18n="btn_save_changes">${I18N[currentLang].btn_save_changes}</span>`;
+        alertEl.textContent = 'Network or server error.';
+        alertEl.classList.remove('d-none');
+      });
+    }
+
+    function toggleStaffStatus(userId, username, currentStatus) {
+      const actionText = currentStatus 
+        ? (currentLang === 'km' ? 'ផ្អាក' : 'Suspend') 
+        : (currentLang === 'km' ? 'បើកដំណើរការ' : 'Activate');
+      const confirmMsg = currentLang === 'km'
+        ? `តើអ្នកពិតជាចង់ ${actionText} គណនី ${username} ឬទេ?`
+        : `Are you sure you want to ${actionText.toLowerCase()} account ${username}?`;
+      if (!confirm(confirmMsg)) {
+        return;
+      }
+
+      const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]') ? document.querySelector('[name=csrfmiddlewaretoken]').value : '';
+
+      fetch(`/accounts/staff/${userId}/toggle-status/`, {
+        method: 'POST',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-CSRFToken': csrfToken
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          window.location.reload();
+        } else {
+          alert(data.error || 'Failed to update user status.');
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert('Network error.');
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const trendCtx = document.getElementById('trendChart');
+      if (trendCtx) {
+        new Chart(trendCtx, {
+          type: 'line',
+          data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+            datasets: [{
+              label: 'Disbursements ($)',
+              data: [42000, 58000, 75000, 92000, 110000, 125000, 140000, 165000, 190000],
+              borderColor: '#1d4ed8',
+              backgroundColor: 'rgba(29, 78, 216, 0.08)',
+              fill: true,
+              tension: 0.35,
+              borderWidth: 2
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              y: { grid: { color: '#f1f5f9' } },
+              x: { grid: { display: false } }
+            }
+          }
+        });
+      }
+
+      const portCtx = document.getElementById('portfolioChart');
+      if (portCtx) {
+        new Chart(portCtx, {
+          type: 'doughnut',
+          data: {
+            labels: ['SME Business Loan', 'Personal Loan', 'Agriculture Loan'],
+            datasets: [{
+              data: [55, 25, 20],
+              backgroundColor: ['#1d4ed8', '#16a34a', '#d97706'],
+              borderWidth: 0
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
+            },
+            cutout: '70%'
+          }
+        });
+      }
+
+      {% if first_app %}
+        loadCbcData('{{ first_app.application_no }}', '{{ first_app.applicant_name|escapejs }}', {{ first_app.id }}, {{ first_app.borrower.borrower_profile.credit_score|default:720 }}, {{ first_app.monthly_income|default:0 }}, {{ first_app.amount|default:0 }}, {{ first_app.emi|default:0 }}, '{{ first_app.purpose|default:''|escapejs }}', '{{ first_app.status }}', false);
+      {% endif %}
+    });
+
+    applyLang();
+  </script>
+  {% endlocalize %}
+</body>
+</html>

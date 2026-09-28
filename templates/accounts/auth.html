@@ -1,0 +1,917 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="km">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LMS - Login & Register | Cambodian Microfinance</title>
+
+  <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}" />
+  <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}" />
+  <link rel="apple-touch-icon" href="{% static 'images/favicon.png' %}" />
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Kantumruy+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --slate-50: #f8fafc;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-300: #cbd5e1;
+      --slate-400: #94a3b8;
+      --slate-500: #64748b;
+      --slate-600: #475569;
+      --slate-700: #334155;
+      --slate-800: #1e293b;
+      --slate-900: #0f172a;
+      --brand-blue: #1d4ed8;
+      --brand-blue-hover: #1e40af;
+      --brand-blue-light: #eff6ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'Kantumruy Pro', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--slate-50);
+      color: var(--slate-900);
+      line-height: 1.55;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      margin: 0;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .auth-header {
+      padding: 1.25rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #ffffff;
+      border-bottom: 1px solid var(--slate-200);
+    }
+
+    .brand-mark {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: var(--slate-900);
+    }
+
+    .brand-logo {
+      width: 36px;
+      height: 36px;
+      background: var(--slate-900);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .brand-text {
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .lang-pill-btn {
+      background: #ffffff;
+      border: 1px solid var(--slate-200);
+      padding: 0.4rem 0.85rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--slate-700);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.15s ease;
+    }
+
+    .lang-pill-btn:hover {
+      background: var(--slate-100);
+      border-color: var(--slate-300);
+    }
+
+    .auth-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2.5rem 1rem;
+    }
+
+    .auth-card {
+      background: #ffffff;
+      border: 1px solid var(--slate-200);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 440px;
+      padding: 2.25rem;
+      box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+    }
+
+    .tab-pills-nav {
+      background: var(--slate-100);
+      border-radius: 8px;
+      padding: 4px;
+      display: flex;
+      gap: 4px;
+      margin-bottom: 1.75rem;
+    }
+
+    .tab-pill {
+      flex: 1;
+      text-align: center;
+      padding: 0.55rem;
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--slate-500);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .tab-pill.active {
+      background: #ffffff;
+      color: var(--slate-900);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+    }
+
+    .form-label {
+      font-size: 0.825rem;
+      font-weight: 600;
+      color: var(--slate-700);
+      margin-bottom: 0.35rem;
+    }
+
+    .form-control, .form-select {
+      border: 1px solid var(--slate-200);
+      border-radius: 8px;
+      padding: 0.65rem 0.85rem;
+      font-size: 0.9rem;
+      color: var(--slate-900);
+      background-color: #ffffff;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+      border-color: var(--brand-blue);
+      box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.12);
+      outline: none;
+    }
+
+    .btn-brand {
+      background: var(--brand-blue);
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.7rem 1rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      width: 100%;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .btn-brand:hover {
+      background: var(--brand-blue-hover);
+      color: #ffffff;
+    }
+
+    .dev-sandbox-helper {
+      margin-top: 1.25rem;
+      padding: 0.65rem 0.85rem;
+      background: var(--slate-50);
+      border: 1px dashed var(--slate-300);
+      border-radius: 8px;
+    }
+
+    .dev-sandbox-summary {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--slate-600);
+      cursor: pointer;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      outline: none;
+    }
+
+    .dev-sandbox-summary:hover {
+      color: var(--brand-blue);
+    }
+
+    .security-notice-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.55rem 0.75rem;
+      background: #f8fafc;
+      border: 1px solid var(--slate-200);
+      border-radius: 8px;
+      font-size: 0.75rem;
+      color: var(--slate-600);
+      margin-top: 1.25rem;
+    }
+
+    .chip-btn {
+      background: #ffffff;
+      border: 1px solid var(--slate-200);
+      border-radius: 6px;
+      padding: 0.35rem 0.65rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--slate-700);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.15s ease;
+      margin-right: 0.35rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .chip-btn:hover {
+      border-color: var(--brand-blue);
+      color: var(--brand-blue);
+      background: var(--brand-blue-light);
+    }
+
+    .auth-footer {
+      text-align: center;
+      padding: 1.25rem;
+      font-size: 0.8rem;
+      color: var(--slate-500);
+    }
+
+    .password-wrapper {
+      position: relative;
+    }
+
+    .btn-password-toggle {
+      position: absolute;
+      top: 50%;
+      right: 0.65rem;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      padding: 0.25rem 0.4rem;
+      color: var(--slate-400);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      font-size: 1.05rem;
+      transition: color 0.15s ease, background-color 0.15s ease;
+      z-index: 5;
+    }
+
+    .btn-password-toggle:hover {
+      color: var(--slate-700);
+      background-color: var(--slate-100);
+    }
+
+    .btn-password-toggle:focus-visible {
+      outline: 2px solid var(--brand-blue);
+      outline-offset: 1px;
+    }
+
+    .animated-dropdown {
+      position: relative;
+      display: inline-block;
+      user-select: none;
+    }
+
+    .animated-dropdown.w-100 {
+      display: block;
+      width: 100%;
+    }
+
+    .dropdown-trigger {
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.65rem;
+      width: 100%;
+      height: 42px;
+      padding: 0.65rem 0.85rem;
+      background-color: #ffffff;
+      border: 1px solid var(--slate-200);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--slate-800);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      outline: none;
+    }
+
+    .dropdown-trigger:hover {
+      background-color: var(--slate-50);
+      border-color: var(--slate-300);
+    }
+
+    .animated-dropdown.open .dropdown-trigger {
+      border-color: var(--brand-blue);
+      box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.12);
+    }
+
+    .dropdown-chevron {
+      font-size: 0.75rem;
+      color: var(--slate-400);
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), color 0.15s ease;
+      flex-shrink: 0;
+    }
+
+    .animated-dropdown.open .dropdown-chevron {
+      transform: rotate(180deg);
+      color: var(--brand-blue);
+    }
+
+    .dropdown-menu-custom {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      min-width: 100%;
+      background: #ffffff;
+      border: 1px solid var(--slate-200);
+      border-radius: 8px;
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.05);
+      padding: 4px;
+      z-index: 1050;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(-8px) scale(0.96);
+      pointer-events: none;
+      visibility: hidden;
+      transform-origin: top center;
+      transition: opacity 0.2s ease-out, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.2s;
+    }
+
+    .animated-dropdown.open .dropdown-menu-custom {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+      visibility: visible;
+    }
+
+    .dropdown-item-custom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 0.55rem 0.75rem;
+      font-size: 0.875rem;
+      color: var(--slate-700);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.12s ease, color 0.12s ease;
+      white-space: nowrap;
+    }
+
+    .dropdown-item-custom:hover {
+      background-color: var(--slate-100);
+      color: var(--slate-900);
+    }
+
+    .dropdown-item-custom.selected {
+      background-color: var(--brand-blue-light);
+      color: var(--brand-blue);
+      font-weight: 600;
+    }
+
+    .dropdown-item-custom .check-icon {
+      font-size: 0.85rem;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      color: var(--brand-blue);
+    }
+
+    .dropdown-item-custom.selected .check-icon {
+      opacity: 1;
+    }
+
+    /* Refined Institutional Alert System */
+    .custom-alert {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.85rem 1rem;
+      border-radius: 8px;
+      font-size: 0.84rem;
+      line-height: 1.45;
+      margin-bottom: 1.25rem;
+      position: relative;
+      animation: alertSlideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes alertSlideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .custom-alert .alert-icon {
+      font-size: 1.15rem;
+      line-height: 1;
+      margin-top: 0.15rem;
+      flex-shrink: 0;
+    }
+
+    .custom-alert .alert-text {
+      flex: 1;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    .custom-alert .btn-close {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      width: 1.15rem;
+      height: 1.15rem;
+      padding: 0;
+      background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23991b1b'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e") center/0.65rem auto no-repeat !important;
+      border: none !important;
+      box-shadow: none !important;
+      opacity: 0.55;
+      transition: opacity 0.15s ease;
+      cursor: pointer;
+    }
+
+    .custom-alert .btn-close:hover {
+      opacity: 0.95;
+    }
+
+    /* Danger / Error Alert (Vibrant Red) */
+    .custom-alert.alert-danger,
+    .custom-alert.alert-error {
+      background-color: #fef2f2 !important;
+      border: 1px solid #fecaca !important;
+      border-left: 4px solid #dc2626 !important;
+      color: #991b1b !important;
+      box-shadow: 0 2px 6px rgba(220, 38, 38, 0.08);
+    }
+    .custom-alert.alert-danger .alert-icon,
+    .custom-alert.alert-error .alert-icon {
+      color: #dc2626 !important;
+    }
+
+    /* Warning Alert (Amber) */
+    .custom-alert.alert-warning {
+      background-color: #fffbeb !important;
+      border: 1px solid #fde68a !important;
+      border-left: 4px solid #d97706 !important;
+      color: #92400e !important;
+      box-shadow: 0 2px 6px rgba(217, 119, 6, 0.08);
+    }
+    .custom-alert.alert-warning .alert-icon {
+      color: #d97706 !important;
+    }
+
+    /* Success Alert (Emerald) */
+    .custom-alert.alert-success {
+      background-color: #f0fdf4 !important;
+      border: 1px solid #bbf7d0 !important;
+      border-left: 4px solid #16a34a !important;
+      color: #166534 !important;
+      box-shadow: 0 2px 6px rgba(22, 163, 74, 0.08);
+    }
+    .custom-alert.alert-success .alert-icon {
+      color: #16a34a !important;
+    }
+
+    /* Info Alert (Blue) */
+    .custom-alert.alert-info {
+      background-color: #eff6ff !important;
+      border: 1px solid #bfdbfe !important;
+      border-left: 4px solid #2563eb !important;
+      color: #1e40af !important;
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.08);
+    }
+    .custom-alert.alert-info .alert-icon {
+      color: #2563eb !important;
+    }
+
+    /* Red Input Highlights on Error - Crisp, No SVG Icon Collision */
+    .form-control.is-invalid,
+    .form-select.is-invalid {
+      border-color: #dc2626 !important;
+      background-color: #ffffff !important;
+      background-image: none !important;
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.08) !important;
+    }
+    .form-control.is-invalid:focus,
+    .form-select.is-invalid:focus {
+      border-color: #dc2626 !important;
+      box-shadow: 0 0 0 3.5px rgba(220, 38, 38, 0.18) !important;
+    }
+
+    .password-wrapper .form-control.is-invalid {
+      padding-right: 2.75rem !important;
+    }
+    .password-wrapper .form-control.is-invalid ~ .btn-password-toggle {
+      color: #dc2626 !important;
+    }
+    .password-wrapper .form-control.is-invalid ~ .btn-password-toggle:hover {
+      color: #b91c1c !important;
+      background-color: #fef2f2 !important;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="auth-header">
+    <a href="{% url 'accounts:auth' %}" class="brand-mark">
+      <img src="{% static 'images/logo.png' %}" alt="Logo" class="brand-img-logo" style="height: 38px; width: 38px; border-radius: 9px; object-fit: cover; box-shadow: 0 2px 6px rgba(0,0,0,0.12);">
+      <div>
+        <div class="brand-text">Loan Management System</div>
+        <div class="text-muted" style="font-size: 0.68rem; font-weight: 500;">NBC Reducing Balance Standard</div>
+      </div>
+    </a>
+    <div class="d-flex align-items-center gap-3">
+      <div class="d-none d-md-flex align-items-center gap-2 text-muted" style="font-size: 0.78rem;">
+        <i class="bi bi-shield-lock-fill text-success"></i>
+      </div>
+      <button class="lang-pill-btn" onclick="toggleLang()" id="langBtn" type="button" aria-label="Toggle language">
+        <i class="bi bi-translate"></i> <span id="langBtnText">EN</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="auth-container">
+    <div class="auth-card">
+      
+      {% if messages %}
+        <div class="messages-container mb-3">
+          {% for message in messages %}
+            {% with tag=message.tags|default:'info' %}
+            <div class="custom-alert alert-{% if 'error' in tag or 'danger' in tag %}danger{% elif 'success' in tag %}success{% elif 'warning' in tag %}warning{% else %}info{% endif %} alert-dismissible fade show" role="alert">
+              {% if 'error' in tag or 'danger' in tag %}
+                <i class="bi bi-exclamation-octagon-fill alert-icon"></i>
+              {% elif 'success' in tag %}
+                <i class="bi bi-check-circle-fill alert-icon"></i>
+              {% elif 'warning' in tag %}
+                <i class="bi bi-exclamation-triangle-fill alert-icon"></i>
+              {% else %}
+                <i class="bi bi-info-circle-fill alert-icon"></i>
+              {% endif %}
+              <div class="alert-text pe-4">{{ message }}</div>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endwith %}
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <div class="tab-pills-nav">
+        <button type="button" class="tab-pill {% if active_tab == 'LOGIN' %}active{% endif %}" id="tabLoginBtn" onclick="switchAuthTab('LOGIN')">
+          <span data-i18n="tab_login">ចូលប្រើប្រាស់</span>
+        </button>
+        <button type="button" class="tab-pill {% if active_tab == 'REGISTER' %}active{% endif %}" id="tabRegisterBtn" onclick="switchAuthTab('REGISTER')">
+          <span data-i18n="tab_register">ចុះឈ្មោះ</span>
+        </button>
+      </div>
+
+      <form id="loginForm" method="POST" action="{% url 'accounts:auth' %}" style="{% if active_tab == 'REGISTER' %}display: none;{% endif %}">
+        {% csrf_token %}
+        <input type="hidden" name="auth_action" value="LOGIN">
+
+        <div class="mb-3">
+          <label class="form-label" data-i18n="lbl_username" for="loginUsername">ឈ្មោះអ្នកប្រើ ឬ លេខទូរស័ព្ទ</label>
+          <input type="text" class="form-control {% if login_form.errors %}is-invalid{% endif %}" name="username" id="loginUsername" required placeholder="ឈ្មោះអ្នកប្រើ ឬ លេខទូរស័ព្ទ" data-i18n-placeholder="ph_login_username" value="{{ login_form.data.username|default:'' }}" autofocus>
+        </div>
+
+        <div class="mb-3">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <label class="form-label mb-0" data-i18n="lbl_password" for="loginPassword">លេខសម្ងាត់</label>
+            <a href="javascript:void(0)" class="text-decoration-none small text-muted" data-i18n="forgot_pass">ភ្លេចលេខសម្ងាត់?</a>
+          </div>
+          <div class="password-wrapper">
+            <input type="password" class="form-control pe-5 {% if login_form.errors %}is-invalid{% endif %}" name="password" id="loginPassword" required placeholder="••••••••">
+            <button type="button" class="btn-password-toggle" onclick="togglePasswordVisibility('loginPassword', this)" aria-label="Toggle password visibility" tabindex="-1">
+              <i class="bi bi-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="mb-4 d-flex align-items-center">
+          <input type="checkbox" class="form-check-input mt-0 me-2" id="rememberMe">
+          <label class="form-check-label small text-muted" for="rememberMe" data-i18n="remember_me">ចងចាំខ្ញុំ</label>
+        </div>
+
+        <button type="submit" class="btn-brand" id="loginSubmitBtn">
+          <span data-i18n="btn_login">ចូលប្រើប្រាស់</span>
+        </button>
+      </form>
+
+      <div class="security-notice-badge" id="securityNoticeBadge" style="{% if active_tab == 'REGISTER' %}display: none;{% endif %}">
+        <i class="bi bi-shield-check text-primary fs-6"></i>
+        <span data-i18n="security_notice">ប្រព័ន្ធធនាគារមានសុវត្ថិភាពស្របតាមបទដ្ឋានធនាគារជាតិនៃកម្ពុជា (NBC)</span>
+      </div>
+
+      <div class="mt-3 pt-3 border-top text-center" id="demoChipsBox" style="{% if active_tab == 'REGISTER' %}display: none;{% endif %}">
+        <div class="d-flex justify-content-center gap-1 flex-wrap">
+          <button type="button" class="chip-btn" onclick="quickFill('officer')">
+            <i class="bi bi-shield-check text-primary"></i> <span data-i18n="chip_officer">មន្ត្រីឥណទាន (officer1)</span>
+          </button>
+          <button type="button" class="chip-btn" onclick="quickFill('borrower')">
+            <i class="bi bi-person-check text-success"></i> <span data-i18n="chip_borrower">អតិថិជន (borrower1)</span>
+          </button>
+          <button type="button" class="chip-btn" onclick="quickFill('admin')">
+            <i class="bi bi-gear text-secondary"></i> <span data-i18n="chip_admin">អ្នកគ្រប់គ្រង (admin)</span>
+          </button>
+        </div>
+      </div>
+
+      <form id="registerForm" method="POST" action="{% url 'accounts:auth' %}" style="{% if active_tab != 'REGISTER' %}display: none;{% endif %}">
+        {% csrf_token %}
+        <input type="hidden" name="auth_action" value="REGISTER">
+
+        <div class="mb-3">
+          <label class="form-label" data-i18n="reg_name" for="regName">ឈ្មោះពេញ</label>
+          <input type="text" class="form-control" name="full_name" id="regName" required placeholder="វណ្ណៈ កែវ" data-i18n-placeholder="ph_reg_name">
+        </div>
+
+        <div class="row g-2 mb-3">
+          <div class="col-6">
+            <label class="form-label" data-i18n="reg_phone" for="regPhone">លេខទូរស័ព្ទ</label>
+            <input type="tel" class="form-control" name="phone_number" id="regPhone" required placeholder="012 345 678">
+          </div>
+          <div class="col-6">
+            <label class="form-label" data-i18n="reg_national_id" for="regId">អត្តសញ្ញាណប័ណ្ណ</label>
+            <input type="text" class="form-control" name="national_id" id="regId" required placeholder="010987654">
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" data-i18n="reg_currency">រូបិយប័ណ្ណចម្បង</label>
+          <div class="animated-dropdown w-100" id="dd-regCurrency">
+            <select class="d-none" name="primary_currency" id="regCurrency">
+              <option value="USD" selected>ដុល្លារអាមេរិក (USD)</option>
+              <option value="KHR">រៀលខ្មែរ (KHR)</option>
+            </select>
+            <button type="button" class="dropdown-trigger" onclick="toggleDropdown('dd-regCurrency')">
+              <span class="dropdown-label" data-i18n="opt_cur_usd">ដុល្លារអាមេរិក (USD)</span>
+              <i class="bi bi-chevron-down dropdown-chevron"></i>
+            </button>
+            <div class="dropdown-menu-custom">
+              <div class="dropdown-item-custom selected" onclick="selectDropdownOption('dd-regCurrency', 'USD', this)">
+                <span data-i18n="opt_cur_usd">ដុល្លារអាមេរិក (USD)</span>
+                <i class="bi bi-check2 check-icon"></i>
+              </div>
+              <div class="dropdown-item-custom" onclick="selectDropdownOption('dd-regCurrency', 'KHR', this)">
+                <span data-i18n="opt_cur_khr">រៀលខ្មែរ (KHR)</span>
+                <i class="bi bi-check2 check-icon"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" data-i18n="lbl_password" for="regPassword">លេខសម្ងាត់</label>
+          <div class="password-wrapper">
+            <input type="password" class="form-control pe-5" name="password" id="regPassword" required placeholder="••••••••">
+            <button type="button" class="btn-password-toggle" onclick="togglePasswordVisibility('regPassword', this)" aria-label="Toggle password visibility" tabindex="-1">
+              <i class="bi bi-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label" data-i18n="reg_confirm_pass" for="regConfirmPassword">បញ្ជាក់លេខសម្ងាត់</label>
+          <div class="password-wrapper">
+            <input type="password" class="form-control pe-5" name="confirm_password" id="regConfirmPassword" required placeholder="••••••••">
+            <button type="button" class="btn-password-toggle" onclick="togglePasswordVisibility('regConfirmPassword', this)" aria-label="Toggle password visibility" tabindex="-1">
+              <i class="bi bi-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-brand">
+          <span data-i18n="btn_register">បង្កើតគណនី</span>
+        </button>
+      </form>
+
+    </div>
+  </main>
+
+  <footer class="auth-footer">
+    <span>Cambodia Loan Management System (NBC Reducing Balance Standard)</span>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    const I18N = {
+      km: {
+        tab_login: "ចូលប្រើប្រាស់",
+        tab_register: "ចុះឈ្មោះ",
+        security_notice: "ប្រព័ន្ធធនាគារមានសុវត្ថិភាពស្របតាមបទដ្ឋានធនាគារជាតិនៃកម្ពុជា (NBC)",
+        lbl_username: "ឈ្មោះអ្នកប្រើ ឬ លេខទូរស័ព្ទ",
+        lbl_password: "លេខសម្ងាត់",
+        forgot_pass: "ភ្លេចលេខសម្ងាត់?",
+        remember_me: "ចងចាំខ្ញុំ",
+        btn_login: "ចូលប្រើប្រាស់",
+        reg_name: "ឈ្មោះពេញ",
+        reg_phone: "លេខទូរស័ព្ទ",
+        reg_national_id: "អត្តសញ្ញាណប័ណ្ណ",
+        reg_currency: "រូបិយប័ណ្ណចម្បង",
+        opt_cur_usd: "ដុល្លារអាមេរិក (USD)",
+        opt_cur_khr: "រៀលខ្មែរ (KHR)",
+        reg_confirm_pass: "បញ្ជាក់លេខសម្ងាត់",
+        btn_register: "បង្កើតគណនី",
+        chip_officer: "មន្ត្រីឥណទាន (officer1)",
+        chip_borrower: "អតិថិជន (borrower1)",
+        chip_admin: "អ្នកគ្រប់គ្រង (admin)",
+        ph_login_username: "ឈ្មោះអ្នកប្រើ ឬ លេខទូរស័ព្ទ",
+        ph_reg_name: "វណ្ណៈ កែវ"
+      },
+      en: {
+        tab_login: "Sign In",
+        tab_register: "Sign Up",
+        security_notice: "Institutional banking gateway protected by NBC regulatory security standards.",
+        lbl_username: "Username or Phone Number",
+        lbl_password: "Password",
+        forgot_pass: "Forgot password?",
+        remember_me: "Remember me",
+        btn_login: "Sign In",
+        reg_name: "Full Legal Name",
+        reg_phone: "Phone Number",
+        reg_national_id: "National ID",
+        reg_currency: "Primary Currency",
+        opt_cur_usd: "US Dollar (USD)",
+        opt_cur_khr: "Khmer Riel (KHR)",
+        reg_confirm_pass: "Confirm Password",
+        btn_register: "Create Account",
+        chip_officer: "Loan Officer (officer1)",
+        chip_borrower: "Borrower (borrower1)",
+        chip_admin: "System Admin (admin)",
+        ph_login_username: "Username or Phone Number",
+        ph_reg_name: "Vannak Keo"
+      }
+    };
+
+    let currentLang = 'km';
+
+    function toggleLang() {
+      currentLang = currentLang === 'km' ? 'en' : 'km';
+      document.getElementById('langBtnText').textContent = currentLang === 'km' ? 'EN' : 'KM';
+      applyLanguage();
+    }
+
+    function formatBilingualAlerts() {
+      document.querySelectorAll('.custom-alert .alert-text').forEach(el => {
+        const raw = el.getAttribute('data-raw-msg') || el.textContent.trim();
+        if (!el.getAttribute('data-raw-msg')) {
+          el.setAttribute('data-raw-msg', raw);
+        }
+        if (raw.includes(' / ')) {
+          const parts = raw.split(' / ');
+          const km = parts[0].trim();
+          const en = parts.slice(1).join(' / ').trim();
+          if (currentLang === 'en') {
+            el.innerHTML = `<div class="fw-semibold" style="font-size: 0.88rem; line-height: 1.35;">${en}</div>`;
+          } else {
+            el.innerHTML = `<div class="fw-semibold" style="font-size: 0.88rem; line-height: 1.35;">${km}</div><div class="small mt-0.5" style="font-size: 0.78rem; opacity: 0.82; line-height: 1.3;">${en}</div>`;
+          }
+        }
+      });
+    }
+
+    function applyLanguage() {
+      const dict = I18N[currentLang];
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (dict[key]) el.textContent = dict[key];
+      });
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (dict[key]) el.setAttribute('placeholder', dict[key]);
+      });
+      formatBilingualAlerts();
+    }
+
+    function toggleDropdown(id) {
+      const dd = document.getElementById(id);
+      if (!dd) return;
+      const isOpen = dd.classList.contains('open');
+      document.querySelectorAll('.animated-dropdown.open').forEach(d => d.classList.remove('open'));
+      if (!isOpen) {
+        dd.classList.add('open');
+      }
+    }
+
+    function selectDropdownOption(dropdownId, val, itemEl) {
+      const dd = document.getElementById(dropdownId);
+      if (!dd) return;
+      const select = dd.querySelector('select');
+      if (select) {
+        select.value = val;
+      }
+      
+      const labelSpan = dd.querySelector('.dropdown-label');
+      const itemSpan = itemEl.querySelector('span');
+      if (labelSpan && itemSpan) {
+        labelSpan.textContent = itemSpan.textContent;
+        const i18nKey = itemSpan.getAttribute('data-i18n');
+        if (i18nKey) {
+          labelSpan.setAttribute('data-i18n', i18nKey);
+        } else {
+          labelSpan.removeAttribute('data-i18n');
+        }
+      }
+      
+      dd.querySelectorAll('.dropdown-item-custom').forEach(item => item.classList.remove('selected'));
+      itemEl.classList.add('selected');
+      dd.classList.remove('open');
+
+      if (select) {
+        select.dispatchEvent(new Event('change'));
+      }
+    }
+
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest('.animated-dropdown')) {
+        document.querySelectorAll('.animated-dropdown.open').forEach(d => d.classList.remove('open'));
+      }
+    });
+
+    function switchAuthTab(tab) {
+      const isLogin = tab === 'LOGIN';
+      document.getElementById('tabLoginBtn').classList.toggle('active', isLogin);
+      document.getElementById('tabRegisterBtn').classList.toggle('active', !isLogin);
+      document.getElementById('loginForm').style.display = isLogin ? 'block' : 'none';
+      document.getElementById('registerForm').style.display = isLogin ? 'none' : 'block';
+      const demoBox = document.getElementById('demoChipsBox');
+      if (demoBox) demoBox.style.display = isLogin ? 'block' : 'none';
+      const secBadge = document.getElementById('securityNoticeBadge');
+      if (secBadge) secBadge.style.display = isLogin ? 'flex' : 'none';
+    }
+
+    function quickFill(role) {
+      const userEl = document.getElementById('loginUsername');
+      const passEl = document.getElementById('loginPassword');
+      if (role === 'officer') {
+        userEl.value = 'officer1';
+        passEl.value = 'pass123';
+      } else if (role === 'borrower') {
+        userEl.value = 'borrower1';
+        passEl.value = 'pass123';
+      } else if (role === 'admin') {
+        userEl.value = 'admin';
+        passEl.value = 'pass123';
+      }
+    }
+
+    function togglePasswordVisibility(inputId, btn) {
+      const input = document.getElementById(inputId);
+      if (!input) return;
+      const icon = btn.querySelector('i');
+      if (input.type === 'password') {
+        input.type = 'text';
+        if (icon) {
+          icon.classList.remove('bi-eye');
+          icon.classList.add('bi-eye-slash');
+        }
+        btn.setAttribute('aria-label', currentLang === 'km' ? 'លាក់លេខសម្ងាត់' : 'Hide password');
+      } else {
+        input.type = 'password';
+        if (icon) {
+          icon.classList.remove('bi-eye-slash');
+          icon.classList.add('bi-eye');
+        }
+        btn.setAttribute('aria-label', currentLang === 'km' ? 'បង្ហាញលេខសម្ងាត់' : 'Show password');
+      }
+    }
+
+    document.querySelectorAll('.form-control').forEach(input => {
+      input.addEventListener('input', () => input.classList.remove('is-invalid'));
+    });
+
+    applyLanguage();
+  </script>
+</body>
+</html>

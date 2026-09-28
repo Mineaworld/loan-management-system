@@ -1,0 +1,2307 @@
+{% load l10n %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="km">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LMS - Borrower Portal | Cambodian Microfinance</title>
+
+  <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}" />
+  <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}" />
+  <link rel="apple-touch-icon" href="{% static 'images/favicon.png' %}" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Kantumruy+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --slate-50: #f8fafc;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-300: #cbd5e1;
+      --slate-400: #94a3b8;
+      --slate-500: #64748b;
+      --slate-600: #475569;
+      --slate-700: #334155;
+      --slate-800: #1e293b;
+      --slate-900: #0f172a;
+      --brand-blue: #1d4ed8;
+      --brand-blue-hover: #1e40af;
+      --brand-blue-soft: #eff6ff;
+      --khqr-red: #d32f2f;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --warning: #d97706;
+      --sidebar-width: 250px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'Kantumruy Pro', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--slate-50);
+      color: var(--slate-900);
+      line-height: 1.55;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .font-monospace {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, monospace !important;
+      font-feature-settings: 'tnum';
+      font-variant-numeric: tabular-nums;
+    }
+
+    .app-sidebar {
+      width: var(--sidebar-width);
+      background: #ffffff;
+      border-right: 1px solid var(--slate-200);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .sidebar-brand {
+      padding: 1.25rem 1.25rem;
+      border-bottom: 1px solid var(--slate-100);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: var(--slate-900);
+    }
+
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--brand-blue);
+      color: #ffffff;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.05rem;
+    }
+
+    .brand-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      line-height: 1.2;
+    }
+
+    .brand-role {
+      font-size: 0.725rem;
+      color: var(--slate-500);
+      font-weight: 500;
+    }
+
+    .sidebar-nav {
+      padding: 1rem 0.75rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      overflow-y: auto;
+    }
+
+    .nav-item-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.65rem 0.85rem;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      color: var(--slate-600);
+      font-size: 0.875rem;
+      font-weight: 500;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      position: relative;
+    }
+
+    .nav-item-btn i {
+      font-size: 1.1rem;
+      color: var(--slate-400);
+      transition: color 0.15s ease;
+    }
+
+    .nav-item-btn:hover {
+      background: var(--slate-100);
+      color: var(--slate-900);
+    }
+
+    .nav-item-btn:hover i {
+      color: var(--slate-700);
+    }
+
+    .nav-item-btn.active {
+      background: var(--brand-blue-soft);
+      color: var(--brand-blue);
+      font-weight: 600;
+    }
+
+    .nav-item-btn.active i {
+      color: var(--brand-blue);
+    }
+
+    .badge-counter {
+      margin-left: auto;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.15rem 0.5rem;
+      border-radius: 12px;
+      background: var(--slate-200);
+      color: var(--slate-700);
+    }
+
+    .nav-item-btn.active .badge-counter {
+      background: var(--brand-blue);
+      color: #ffffff;
+    }
+
+    .sidebar-footer {
+      padding: 1rem;
+      border-top: 1px solid var(--slate-100);
+      background: #ffffff;
+    }
+
+    .user-profile-card {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem;
+      border-radius: 8px;
+      background: var(--slate-50);
+      border: 1px solid var(--slate-200);
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      background: var(--brand-blue);
+      color: #ffffff;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.8rem;
+    }
+
+    .user-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .user-name {
+      font-size: 0.8rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .user-role-label {
+      font-size: 0.7rem;
+      color: var(--slate-500);
+    }
+
+    .btn-logout {
+      color: var(--slate-500);
+      text-decoration: none;
+      font-size: 0.85rem;
+      padding: 0.4rem 0.6rem;
+      border-radius: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-logout:hover {
+      color: var(--danger);
+      background: #fee2e2;
+    }
+
+    .app-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .top-header {
+      background: #ffffff;
+      border-bottom: 1px solid var(--slate-200);
+      padding: 0.85rem 1.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 90;
+    }
+
+    .header-title-box h1 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin: 0;
+      color: var(--slate-900);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .header-org-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .badge-branch, .badge-dept {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--slate-600);
+      background: var(--slate-100);
+      border: 1px solid var(--slate-200);
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    .header-user-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.25rem 0.65rem;
+      background: #ffffff;
+      border: 1px solid var(--slate-200);
+      border-radius: 8px;
+    }
+
+    .header-user-avatar {
+      width: 28px;
+      height: 28px;
+      background: var(--brand-blue);
+      color: #ffffff;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .header-user-name {
+      font-size: 0.82rem;
+      color: var(--slate-900);
+    }
+
+    .header-user-role {
+      font-size: 0.7rem;
+    }
+
+    .btn-header-logout {
+      background: #ffffff;
+      border: 1px solid var(--slate-200);
+      color: var(--slate-600);
+      padding: 0.4rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.15s ease;
+      cursor: pointer;
+    }
+
+    .btn-header-logout:hover {
+      background: #fef2f2;
+      border-color: #fecaca;
+      color: #dc2626;
+    }
+
+    .lang-btn {
+      background: #ffffff;
+      border: 1px solid var(--slate-200);
+      color: var(--slate-700);
+      padding: 0.4rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.15s ease;
+    }
+
+    .lang-btn:hover {
+      background: var(--slate-100);
+    }
+
+    .content-body {
+      padding: 1.75rem;
+      flex: 1;
+    }
+
+    .view-section {
+      display: none;
+    }
+
+    .view-section.active {
+      display: block;
+    }
+
+    .clean-card {
+      background: #ffffff;
+      border: 1px solid var(--slate-200);
+      border-radius: 10px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+    }
+
+    .table-clean {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+
+    .table-clean th {
+      background: var(--slate-50);
+      color: var(--slate-600);
+      font-weight: 600;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--slate-200);
+      white-space: nowrap;
+    }
+
+    .table-clean td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--slate-100);
+      font-size: 0.875rem;
+      vertical-align: middle;
+    }
+
+    .table-clean tr:hover td {
+      background-color: var(--slate-50);
+    }
+
+    .badge-status {
+      font-size: 0.725rem;
+      font-weight: 600;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      display: inline-block;
+      white-space: nowrap;
+    }
+
+    .badge-submitted {
+      background: #eff6ff;
+      color: var(--brand-blue);
+      border: 1px solid #bfdbfe;
+    }
+
+    .badge-under_review {
+      background: #fefce8;
+      color: #854d0e;
+      border: 1px solid #fef08a;
+    }
+
+    .badge-approved {
+      background: #f0fdf4;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+
+    .badge-disbursed, .badge-active {
+      background: #ecfdf5;
+      color: #047857;
+      border: 1px solid #a7f3d0;
+    }
+
+    .badge-rejected {
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .badge-paid {
+      background: #f0fdf4;
+      color: var(--success);
+      border: 1px solid #bbf7d0;
+    }
+
+    .badge-pending {
+      background: #fefce8;
+      color: var(--warning);
+      border: 1px solid #fef08a;
+    }
+
+    .badge-verifying {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+    }
+
+    .badge-overdue {
+      background: #fef2f2;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
+    }
+
+    .btn-act {
+      border: 1px solid var(--slate-200);
+      background: #ffffff;
+      color: var(--slate-700);
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      text-decoration: none;
+    }
+
+    .btn-act:hover {
+      background: var(--slate-100);
+      color: var(--slate-900);
+    }
+
+    .btn-act-primary {
+      background: var(--brand-blue);
+      color: #ffffff;
+      border-color: var(--brand-blue);
+    }
+
+    .btn-act-primary:hover {
+      background: var(--brand-blue-hover);
+      color: #ffffff;
+    }
+
+    .khqr-card {
+      border: 2px solid var(--khqr-red);
+      border-radius: 12px;
+      overflow: hidden;
+      max-width: 380px;
+      margin: 0 auto;
+      background: #ffffff;
+      box-shadow: 0 4px 15px rgba(211, 47, 47, 0.08);
+    }
+
+    .khqr-top {
+      background: var(--khqr-red);
+      color: #ffffff;
+      padding: 0.85rem;
+      text-align: center;
+      font-weight: 700;
+      font-size: 1.2rem;
+      letter-spacing: 0.05em;
+    }
+
+    .khqr-body {
+      padding: 1.5rem;
+      text-align: center;
+    }
+
+    .khqr-qr-box {
+      width: 200px;
+      height: 200px;
+      margin: 0 auto 1.25rem;
+      border: 1px solid var(--slate-200);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #ffffff;
+      position: relative;
+    }
+
+    .animated-dropdown {
+      position: relative;
+      display: inline-block;
+      user-select: none;
+    }
+
+    .animated-dropdown.w-100 {
+      display: block;
+      width: 100%;
+    }
+
+    .dropdown-trigger {
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      width: 100%;
+      height: 34px;
+      padding: 0.4rem 0.75rem;
+      background-color: #ffffff;
+      border: 1px solid var(--slate-200);
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--slate-800);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      outline: none;
+    }
+
+    .dropdown-trigger:hover {
+      background-color: var(--slate-50);
+      border-color: var(--slate-300);
+    }
+
+    .animated-dropdown.open .dropdown-trigger {
+      border-color: var(--brand-blue);
+      box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.12);
+    }
+
+    .dropdown-chevron {
+      font-size: 0.7rem;
+      color: var(--slate-400);
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), color 0.15s ease;
+      flex-shrink: 0;
+    }
+
+    .animated-dropdown.open .dropdown-chevron {
+      transform: rotate(180deg);
+      color: var(--brand-blue);
+    }
+
+    .dropdown-menu-custom {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      min-width: 100%;
+      background: #ffffff;
+      border: 1px solid var(--slate-200);
+      border-radius: 6px;
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.05);
+      padding: 4px;
+      z-index: 1050;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(-6px) scale(0.97);
+      pointer-events: none;
+      visibility: hidden;
+      transform-origin: top center;
+      transition: opacity 0.2s ease-out, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.2s;
+    }
+
+    .animated-dropdown.open .dropdown-menu-custom {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+      visibility: visible;
+    }
+
+    .dropdown-item-custom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 0.45rem 0.7rem;
+      font-size: 0.825rem;
+      color: var(--slate-700);
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.12s ease, color 0.12s ease;
+      white-space: nowrap;
+    }
+
+    .dropdown-item-custom:hover {
+      background-color: var(--slate-100);
+      color: var(--slate-900);
+    }
+
+    .dropdown-item-custom.selected {
+      background-color: var(--brand-blue-soft);
+      color: var(--brand-blue);
+      font-weight: 600;
+    }
+
+    .dropdown-item-custom .check-icon {
+      font-size: 0.8rem;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      color: var(--brand-blue);
+    }
+
+    .dropdown-item-custom.selected .check-icon {
+      opacity: 1;
+    }
+
+    .empty-state-box {
+      text-align: center;
+      padding: 3.5rem 1.5rem;
+    }
+
+    .empty-state-icon {
+      width: 64px;
+      height: 64px;
+      background: var(--slate-100);
+      color: var(--slate-400);
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+    }
+
+    /* Refined Institutional Alert System */
+    .custom-alert {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.85rem 1rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      line-height: 1.45;
+      margin-bottom: 1.25rem;
+      position: relative;
+      animation: alertSlideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes alertSlideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .custom-alert .alert-icon {
+      font-size: 1.15rem;
+      line-height: 1;
+      margin-top: 0.15rem;
+      flex-shrink: 0;
+    }
+
+    .custom-alert .alert-text {
+      flex: 1;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    .custom-alert .btn-close {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      width: 1.15rem;
+      height: 1.15rem;
+      padding: 0;
+      background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23991b1b'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e") center/0.65rem auto no-repeat !important;
+      border: none !important;
+      box-shadow: none !important;
+      opacity: 0.55;
+      transition: opacity 0.15s ease;
+      cursor: pointer;
+    }
+
+    .custom-alert .btn-close:hover {
+      opacity: 0.95;
+    }
+
+    .custom-alert.alert-danger,
+    .custom-alert.alert-error {
+      background-color: #fef2f2 !important;
+      border: 1px solid #fecaca !important;
+      border-left: 4px solid #dc2626 !important;
+      color: #991b1b !important;
+      box-shadow: 0 2px 6px rgba(220, 38, 38, 0.08);
+    }
+    .custom-alert.alert-danger .alert-icon,
+    .custom-alert.alert-error .alert-icon {
+      color: #dc2626 !important;
+    }
+
+    .custom-alert.alert-warning {
+      background-color: #fffbeb !important;
+      border: 1px solid #fde68a !important;
+      border-left: 4px solid #d97706 !important;
+      color: #92400e !important;
+      box-shadow: 0 2px 6px rgba(217, 119, 6, 0.08);
+    }
+    .custom-alert.alert-warning .alert-icon {
+      color: #d97706 !important;
+    }
+
+    .custom-alert.alert-success {
+      background-color: #f0fdf4 !important;
+      border: 1px solid #bbf7d0 !important;
+      border-left: 4px solid #16a34a !important;
+      color: #166534 !important;
+      box-shadow: 0 2px 6px rgba(22, 163, 74, 0.08);
+    }
+    .custom-alert.alert-success .alert-icon {
+      color: #16a34a !important;
+    }
+
+    .custom-alert.alert-info {
+      background-color: #eff6ff !important;
+      border: 1px solid #bfdbfe !important;
+      border-left: 4px solid #2563eb !important;
+      color: #1e40af !important;
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.08);
+    }
+    .custom-alert.alert-info .alert-icon {
+      color: #2563eb !important;
+    }
+
+    /* Red Input Highlights on Error - Crisp, No SVG Icon Collision */
+    .form-control.is-invalid,
+    .form-select.is-invalid {
+      border-color: #dc2626 !important;
+      background-color: #ffffff !important;
+      background-image: none !important;
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.08) !important;
+    }
+    .form-control.is-invalid:focus,
+    .form-select.is-invalid:focus {
+      border-color: #dc2626 !important;
+      box-shadow: 0 0 0 3.5px rgba(220, 38, 38, 0.18) !important;
+    }
+  </style>
+</head>
+<body>
+
+  <aside class="app-sidebar">
+    <a href="{% url 'borrower' %}" class="sidebar-brand">
+      <img src="{% static 'images/logo.png' %}" alt="Logo" class="brand-img-logo" style="height: 36px; width: 36px; border-radius: 8px; object-fit: cover; box-shadow: 0 2px 6px rgba(0,0,0,0.12); flex-shrink: 0;">
+      <div>
+        <div class="brand-title">LMS Portal</div>
+        <div class="brand-role" data-i18n="role_borrower">អតិថិជន</div>
+      </div>
+    </a>
+
+    <nav class="sidebar-nav">
+      <button type="button" class="nav-item-btn {% if not active_section or active_section == 'sec-my-loan' %}active{% endif %}" onclick="switchNav('sec-my-loan', this)">
+        <i class="bi bi-wallet2"></i>
+        <span data-i18n="nav_my_loan">ឥណទានរបស់ខ្ញុំ</span>
+      </button>
+
+      <button type="button" class="nav-item-btn" onclick="switchNav('sec-applications', this)">
+        <i class="bi bi-file-earmark-text"></i>
+        <span data-i18n="nav_applications">ពាក្យស្នើសុំរបស់ខ្ញុំ</span>
+        <span class="badge-counter">{{ user_applications.count }}</span>
+      </button>
+
+      <button type="button" class="nav-item-btn" onclick="switchNav('sec-schedule', this)">
+        <i class="bi bi-calendar3"></i>
+        <span data-i18n="nav_schedule">តារាងសងប្រាក់</span>
+      </button>
+
+      <button type="button" class="nav-item-btn" onclick="switchNav('sec-pay', this)">
+        <i class="bi bi-qr-code-scan"></i>
+        <span data-i18n="nav_pay">បង់ប្រាក់ KHQR</span>
+      </button>
+
+      <button type="button" class="nav-item-btn {% if active_section == 'sec-apply' %}active{% endif %}" onclick="switchNav('sec-apply', this)">
+        <i class="bi bi-pencil-square"></i>
+        <span data-i18n="nav_apply">ស្នើសុំឥណទាន</span>
+      </button>
+
+      <button type="button" class="nav-item-btn {% if active_section == 'sec-history' %}active{% endif %}" onclick="switchNav('sec-history', this)">
+        <i class="bi bi-clock-history"></i>
+        <span data-i18n="nav_history">ប្រវត្តិបង់ប្រាក់</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-profile-card">
+        <div class="user-avatar">
+          {{ request.user.first_name|slice:":1" }}{{ request.user.last_name|slice:":1"|default:request.user.username|slice:":2"|upper }}
+        </div>
+        <div class="user-info">
+          <div class="user-name">{{ request.user.get_full_name|default:request.user.username }}</div>
+          <div class="user-role-label">{% if approved_loan %}{{ approved_loan.application_no }}{% elif active_application %}{{ active_application.application_no }}{% else %}Borrower Account{% endif %}</div>
+        </div>
+        <a href="{% url 'accounts:logout' %}" class="btn-logout" title="Sign Out">
+          <i class="bi bi-box-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+  </aside>
+
+  <main class="app-main">
+    
+    <header class="top-header">
+      <div class="header-title-box">
+        <h1 id="pageTitle" data-i18n="{% if active_section == 'sec-apply' %}page_apply{% elif active_section == 'sec-history' %}page_history{% else %}page_my_loan{% endif %}">{% if active_section == 'sec-apply' %}ស្នើសុំឥណទានថ្មី{% elif active_section == 'sec-history' %}ប្រវត្តិប្រតិបត្តិការ{% else %}ឥណទានរបស់ខ្ញុំ{% endif %}</h1>
+      </div>
+
+      <div class="header-actions">
+        <div class="header-org-badge d-none d-lg-flex align-items-center gap-2">
+          <span class="badge-branch"><i class="bi bi-shield-check text-success me-1"></i><span data-i18n="badge_secure_portal">ច្រកទ្វារសុវត្ថិភាព NBC</span></span>
+          <span class="badge-dept"><i class="bi bi-bank text-primary me-1"></i><span data-i18n="badge_retail_banking">ឥណទានបុគ្គល</span></span>
+        </div>
+
+        <div class="header-user-badge d-flex align-items-center">
+          <div class="header-user-avatar">
+            {{ request.user.first_name|slice:":1" }}{{ request.user.last_name|slice:":1"|default:request.user.username|slice:":2"|upper }}
+          </div>
+          <div class="header-user-meta d-none d-sm-block text-start">
+            <div class="header-user-name fw-semibold lh-1">{{ request.user.get_full_name|default:request.user.username }}</div>
+            <div class="header-user-role text-muted lh-1 mt-1">{% if approved_loan %}{{ approved_loan.application_no }} (<span data-i18n="status_{{ approved_loan.status|lower }}">{{ approved_loan.get_status_display }}</span>){% elif active_application %}{{ active_application.application_no }}{% else %}<span data-i18n="role_borrower">អតិថិជន</span>{% endif %}</div>
+          </div>
+        </div>
+
+        <button type="button" class="lang-btn" onclick="toggleLang()" id="langBtn" aria-label="Toggle Language">
+          <i class="bi bi-translate"></i> <span id="langText">EN</span>
+        </button>
+
+        <a href="{% url 'accounts:logout' %}" class="btn-header-logout" title="Sign Out">
+          <i class="bi bi-box-arrow-right"></i>
+          <span class="d-none d-md-inline" data-i18n="btn_logout">ចាកចេញ</span>
+        </a>
+      </div>
+    </header>
+
+    <div class="content-body">
+
+      {% if messages %}
+        <div class="messages-container mb-4">
+          {% for message in messages %}
+            {% with tag=message.tags|default:'info' %}
+            <div class="custom-alert alert-{% if 'error' in tag or 'danger' in tag %}danger{% elif 'success' in tag %}success{% elif 'warning' in tag %}warning{% else %}info{% endif %} alert-dismissible fade show" role="alert">
+              {% if 'error' in tag or 'danger' in tag %}
+                <i class="bi bi-exclamation-octagon-fill alert-icon"></i>
+              {% elif 'success' in tag %}
+                <i class="bi bi-check-circle-fill alert-icon"></i>
+              {% elif 'warning' in tag %}
+                <i class="bi bi-exclamation-triangle-fill alert-icon"></i>
+              {% else %}
+                <i class="bi bi-info-circle-fill alert-icon"></i>
+              {% endif %}
+              <div class="alert-text pe-4">{{ message }}</div>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endwith %}
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <section id="sec-my-loan" class="view-section {% if not active_section or active_section == 'sec-my-loan' %}active{% endif %}">
+        
+        {% if approved_loan %}
+          <div class="row g-3 mb-4">
+            <div class="col-12 col-md-4">
+              <div class="clean-card h-100">
+                <span class="text-muted small" data-i18n="lbl_outstanding">សមតុល្យប្រាក់ដើមនៅសល់</span>
+                <div class="fs-3 fw-bold text-primary mt-1 font-monospace" id="dispOutstanding">
+                  $ {{ remaining_principal|default:approved_loan.amount|floatformat:2 }}
+                </div>
+                <div class="text-muted small mt-1">
+                  <span data-i18n="lbl_initial_principal">ប្រាក់ដើមដំបូង</span>: $ {{ approved_loan.amount|floatformat:2 }}
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12 col-md-4">
+              <div class="clean-card h-100 border-start border-3 {% if not next_installment and total_count > 0 and paid_count == total_count %}border-success{% elif days_remaining < 0 %}border-danger{% else %}border-warning{% endif %}">
+                {% if not next_installment and total_count > 0 and paid_count == total_count %}
+                  <span class="text-muted small" data-i18n="lbl_fully_settled">ការទូទាត់រួចរាល់</span>
+                {% else %}
+                  <span class="text-muted small" data-i18n="lbl_next_due">ការបង់បន្ទាប់ (លើកទី #{% if next_installment %}{{ next_installment.sequence_number }}{% else %}1{% endif %})</span>
+                {% endif %}
+                <div class="fs-3 fw-bold text-dark mt-1 font-monospace" id="dispNextDueAmount">
+                  {% if not next_installment and total_count > 0 and paid_count == total_count %}
+                    $ 0.00
+                  {% else %}
+                    $ {% if next_installment %}{{ next_installment.total_installment_emi|floatformat:2 }}{% else %}{{ approved_loan.emi|floatformat:2 }}{% endif %}
+                  {% endif %}
+                </div>
+                <div class="small mt-1 {% if days_remaining < 0 %}text-danger{% elif not next_installment and total_count > 0 and paid_count == total_count %}text-success{% else %}text-warning{% endif %}">
+                  {% if not next_installment and total_count > 0 and paid_count == total_count %}
+                    <i class="bi bi-check-circle me-1"></i> <span class="badge bg-success-subtle text-success" data-i18n="badge_completed">រួចរាល់ 100%</span>
+                  {% elif next_installment %}
+                    <i class="bi bi-calendar-event me-1"></i> <span data-i18n="lbl_due_date">កាលបរិច្ឆេទសងបន្ទាប់</span>: {{ next_installment.due_date|date:"d-M-Y" }}
+                    <span class="badge {% if days_remaining < 0 %}bg-danger text-white{% elif days_remaining <= 5 %}bg-warning text-dark{% else %}bg-warning-subtle text-dark{% endif %} ms-1">
+                      {% if days_remaining < 0 %}<span data-i18n="lbl_overdue_prefix">ហួសកំណត់</span> {{ days_remaining|stringformat:"+d"|slice:"1:" }} <span data-i18n="lbl_days">ថ្ងៃ</span>{% else %}<span data-i18n="lbl_days_left_prefix">នៅសល់</span> {{ days_remaining }} <span data-i18n="lbl_days">ថ្ងៃ</span>{% endif %}
+                    </span>
+                  {% else %}
+                    <i class="bi bi-calendar-event me-1"></i> <span data-i18n="lbl_due_date">កាលបរិច្ឆេទសងបន្ទាប់</span>: 28-{{ approved_loan.created_at|date:"M-Y" }}
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12 col-md-4">
+              <div class="clean-card h-100 d-flex flex-column justify-content-between">
+                <div>
+                  <span class="text-muted small" data-i18n="lbl_progress">វឌ្ឍនភាពនៃការសង</span>
+                  <div class="fs-4 fw-bold mt-1 font-monospace">{{ paid_count }} / {{ total_count|default:approved_loan.tenure_months }} <span class="fs-6 text-muted fw-normal" data-i18n="lbl_progress_sub">ខែ ({{ progress_pct }}%)</span></div>
+                  <div class="progress mt-2" style="height: 6px;">
+                    <div class="progress-bar bg-success" style="width: {{ progress_pct }}%"></div>
+                  </div>
+                </div>
+                <div class="mt-3">
+                  <button type="button" class="btn-act btn-act-primary w-100" onclick="switchNav('sec-pay')">
+                    <i class="bi bi-qr-code me-1"></i> <span data-i18n="btn_pay_now">បង់ប្រាក់ KHQR ឥឡូវនេះ</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="clean-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span class="fw-bold" data-i18n="title_schedule_preview">តារាងបង់រំលស់ 5 ខែដំបូង</span>
+              <button type="button" class="btn-act" onclick="switchNav('sec-schedule')">
+                <span data-i18n="btn_view_full_schedule">មើលតារាងពេញលេញ</span> <i class="bi bi-arrow-right"></i>
+              </button>
+            </div>
+
+            <div class="table-responsive">
+              <table class="table-clean">
+                <thead>
+                  <tr>
+                    <th class="text-center">#</th>
+                    <th data-i18n="th_due_date">កាលបរិច្ឆេទសង</th>
+                    <th class="text-end" data-i18n="th_emi">ការបង់ប្រចាំខែ</th>
+                    <th class="text-end" data-i18n="th_principal">ប្រាក់ដើម</th>
+                    <th class="text-end" data-i18n="th_interest">ការប្រាក់</th>
+                    <th class="text-end" data-i18n="th_balance">សមតុល្យសល់</th>
+                    <th class="text-center" data-i18n="th_status">ស្ថានភាព</th>
+                    <th class="text-end" data-i18n="th_action">សកម្មភាព</th>
+                  </tr>
+                </thead>
+                <tbody id="previewScheduleTbody">
+                  {% if installments %}
+                    {% for inst in installments|slice:":5" %}
+                      <tr>
+                        <td class="text-center font-monospace">#{{ inst.sequence_number }}</td>
+                        <td class="text-muted font-monospace">{{ inst.due_date|date:"d-M-Y" }}</td>
+                        <td class="text-end font-monospace fw-semibold text-dark">$ {{ inst.total_installment_emi|floatformat:2 }}</td>
+                        <td class="text-end font-monospace text-muted">$ {{ inst.principal_component|floatformat:2 }}</td>
+                        <td class="text-end font-monospace text-muted">$ {{ inst.interest_component|floatformat:2 }}</td>
+                        <td class="text-end font-monospace text-primary">$ {{ inst.remaining_balance|floatformat:2 }}</td>
+                        <td class="text-center"><span class="badge-status badge-{{ inst.status|lower }}" data-i18n="status_{{ inst.status|lower }}">{{ inst.get_status_display }}</span></td>
+                        <td class="text-end">
+                          {% if inst.status == 'PENDING' %}
+                            <button type="button" class="btn-act btn-act-primary py-1 px-2" onclick="switchNav('sec-pay')">
+                              <span data-i18n="btn_pay">បង់ប្រាក់</span>
+                            </button>
+                          {% elif inst.status == 'PAID' %}
+                            <span class="text-success small fw-semibold"><i class="bi bi-check-circle"></i> <span data-i18n="badge_paid">រួចរាល់</span></span>
+                          {% else %}
+                            <span class="text-muted small" data-i18n="status_{{ inst.status|lower }}">{{ inst.get_status_display }}</span>
+                          {% endif %}
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  {% else %}
+                  {% endif %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        {% elif pending_application %}
+          <div class="clean-card mb-4 border-start border-4 border-primary">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+              <div>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                  <span class="badge bg-primary font-monospace">{{ pending_application.application_no }}</span>
+                  <span class="badge-status badge-{{ pending_application.status|lower }}" data-i18n="status_{{ pending_application.status|lower }}">{{ pending_application.get_status_display }}</span>
+                </div>
+                <h4 class="fw-bold mb-0">{{ pending_application.product.name }}</h4>
+              </div>
+              <div class="text-md-end flex-shrink-0">
+                <span class="text-muted small d-block" data-i18n="lbl_apply_amount">ចំនួនទឹកប្រាក់ស្នើសុំ</span>
+                <span class="fs-3 fw-bold text-primary font-monospace">$ {{ pending_application.amount|floatformat:2 }}</span>
+                <div class="small text-muted font-monospace">{{ pending_application.tenure_months }} <span data-i18n="lbl_months">ខែ</span> @ {{ pending_application.product.interest_rate }}% p.a.</div>
+              </div>
+            </div>
+
+            <hr class="my-3 text-muted opacity-25">
+
+            <div class="row g-3 small">
+              <div class="col-6 col-md-3">
+                <span class="text-muted d-block" data-i18n="th_date">កាលបរិច្ឆេទស្នើសុំ</span>
+                <span class="fw-semibold font-monospace">{{ pending_application.created_at|date:"d-M-Y H:i" }}</span>
+              </div>
+              <div class="col-6 col-md-3">
+                <span class="text-muted d-block" data-i18n="th_emi">ការបង់ប្រចាំខែប៉ាន់ស្មាន</span>
+                <span class="fw-semibold text-dark font-monospace">$ {{ pending_application.emi|floatformat:2 }}</span>
+              </div>
+              <div class="col-6 col-md-3">
+                <span class="text-muted d-block" data-i18n="lbl_apply_income">ប្រាក់ចំណូលប្រចាំខែ</span>
+                <span class="fw-semibold font-monospace">$ {{ pending_application.monthly_income|floatformat:2 }}</span>
+              </div>
+              <div class="col-6 col-md-3">
+                <span class="text-muted d-block" data-i18n="lbl_apply_purpose">គោលបំណង</span>
+                <span class="fw-semibold text-truncate d-block" title="{{ pending_application.purpose }}">{{ pending_application.purpose }}</span>
+              </div>
+            </div>
+
+            <div class="mt-3 pt-3 border-top d-flex gap-2">
+              <button type="button" class="btn btn-outline-primary btn-sm" onclick="switchNav('sec-applications')">
+                <i class="bi bi-file-earmark-text me-1"></i> <span data-i18n="btn_view_my_apps">មើលពាក្យស្នើសុំទាំងអស់</span>
+              </button>
+              <button type="button" class="btn btn-outline-secondary btn-sm" onclick="switchNav('sec-apply')">
+                <i class="bi bi-pencil-square me-1"></i> <span data-i18n="btn_new_app">ដាក់ពាក្យស្នើសុំបន្ថែម</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="clean-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div>
+                <span class="fw-bold" data-i18n="title_projected_schedule">តារាងរំលស់ប៉ាន់ស្មាន</span>
+              </div>
+              <button type="button" class="btn-act" onclick="switchNav('sec-schedule')">
+                <span data-i18n="btn_view_full_schedule">មើលតារាងពេញលេញ</span> <i class="bi bi-arrow-right"></i>
+              </button>
+            </div>
+
+            <div class="table-responsive">
+              <table class="table-clean">
+                <thead>
+                  <tr>
+                    <th class="text-center">#</th>
+                    <th data-i18n="th_due_date">កាលបរិច្ឆេទសង</th>
+                    <th class="text-end" data-i18n="th_emi">ការបង់ប្រចាំខែ</th>
+                    <th class="text-end" data-i18n="th_principal">ប្រាក់ដើម</th>
+                    <th class="text-end" data-i18n="th_interest">ការប្រាក់</th>
+                    <th class="text-end" data-i18n="th_balance">សមតុល្យសល់</th>
+                    <th class="text-center" data-i18n="th_status">ស្ថានភាព</th>
+                  </tr>
+                </thead>
+                <tbody id="previewScheduleTbody">
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        {% else %}
+          <div class="clean-card empty-state-box">
+            <div class="empty-state-icon">
+              <i class="bi bi-wallet2"></i>
+            </div>
+            <h4 class="fw-bold mb-3" data-i18n="title_no_active_loan">លោកអ្នកមិនទាន់មានឥណទានសកម្មនៅឡើយទេ</h4>
+            <div class="d-flex justify-content-center gap-3">
+              <button type="button" class="btn btn-primary px-4 py-2" onclick="switchNav('sec-apply')">
+                <i class="bi bi-pencil-square me-1"></i> <span data-i18n="btn_apply_first_loan">ស្នើសុំឥណទានថ្មីឥឡូវនេះ</span>
+              </button>
+            </div>
+          </div>
+        {% endif %}
+
+      </section>
+
+      <section id="sec-applications" class="view-section">
+        <div class="clean-card">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <span class="fw-bold fs-5 d-block" data-i18n="title_my_applications">បញ្ជីពាក្យស្នើសុំឥណទានរបស់ខ្ញុំ</span>
+            </div>
+            <button type="button" class="btn btn-primary btn-sm" onclick="switchNav('sec-apply')">
+              <i class="bi bi-plus-lg me-1"></i> <span data-i18n="btn_new_app">ស្នើសុំថ្មី</span>
+            </button>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table-clean">
+              <thead>
+                <tr>
+                  <th data-i18n="th_id">ID</th>
+                  <th data-i18n="th_date">កាលបរិច្ឆេទ</th>
+                  <th data-i18n="th_product">ផលិតផល</th>
+                  <th class="text-end" data-i18n="th_amount">ទឹកប្រាក់</th>
+                  <th class="text-center" data-i18n="lbl_apply_tenure">រយៈពេល</th>
+                  <th class="text-end" data-i18n="th_emi">ការបង់ប្រចាំខែ</th>
+                  <th class="text-center" data-i18n="th_status">ស្ថានភាព</th>
+                  <th data-i18n="th_remarks">មតិមន្ត្រីឥណទាន</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for app in user_applications %}
+                  <tr>
+                    <td class="font-monospace fw-semibold text-primary">{{ app.application_no }}</td>
+                    <td class="text-muted small">{{ app.created_at|date:"d-M-Y" }}</td>
+                    <td class="fw-semibold">{{ app.product.name }}</td>
+                    <td class="text-end font-monospace fw-bold">$ {{ app.amount|floatformat:2 }}</td>
+                    <td class="text-center font-monospace">{{ app.tenure_months }} <span data-i18n="lbl_months">ខែ</span></td>
+                    <td class="text-end font-monospace text-primary">$ {{ app.emi|floatformat:2 }}</td>
+                    <td class="text-center">
+                      <span class="badge-status badge-{{ app.status|lower }}" data-i18n="status_{{ app.status|lower }}">{{ app.get_status_display }}</span>
+                    </td>
+                    <td class="small text-muted">
+                      {% if app.officer_remarks %}{{ app.officer_remarks }}{% else %}<span data-i18n="status_awaiting_review">កំពុងរង់ចាំការពិនិត្យ</span>{% endif %}
+                    </td>
+                  </tr>
+                {% empty %}
+                  <tr>
+                    <td colspan="8" class="text-center text-muted py-4">
+                      <span data-i18n="msg_no_applications">មិនទាន់មានពាក្យស្នើសុំនៅឡើយទេ</span>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="sec-schedule" class="view-section">
+        {% if approved_loan or active_application %}
+          <div class="clean-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div>
+                <span class="fw-bold d-block" data-i18n="title_full_schedule">តារាងរំលស់ពេញលេញ</span>
+                <span class="text-muted small">
+                  {% if approved_loan %}
+                    {{ approved_loan.application_no }} — $ {{ approved_loan.amount|floatformat:2 }} @ {{ approved_loan.product.interest_rate }}% p.a. ({{ approved_loan.tenure_months }} Months)
+                  {% else %}
+                    {{ active_application.application_no }} — $ {{ active_application.amount|floatformat:2 }} @ {{ active_application.product.interest_rate }}% p.a. ({{ active_application.tenure_months }} Months)
+                  {% endif %}
+                </span>
+              </div>
+              <button type="button" class="btn-act" onclick="exportScheduleCsv()">
+                <i class="bi bi-download me-1"></i> <span data-i18n="btn_download_csv">ទាញយក CSV</span>
+              </button>
+            </div>
+
+            <div class="table-responsive">
+              <table class="table-clean">
+                <thead>
+                  <tr>
+                    <th class="text-center">#</th>
+                    <th data-i18n="th_due_date">កាលបរិច្ឆេទសង</th>
+                    <th class="text-end" data-i18n="th_emi">ការបង់ប្រចាំខែ</th>
+                    <th class="text-end" data-i18n="th_principal">ប្រាក់ដើម</th>
+                    <th class="text-end" data-i18n="th_interest">ការប្រាក់</th>
+                    <th class="text-end" data-i18n="th_balance">សមតុល្យសល់</th>
+                    <th class="text-center" data-i18n="th_status">ស្ថានភាព</th>
+                    <th class="text-end" data-i18n="th_action">សកម្មភាព</th>
+                  </tr>
+                </thead>
+                <tbody id="fullScheduleTbody">
+                  {% if installments %}
+                    {% for inst in installments %}
+                      <tr>
+                        <td class="text-center font-monospace">#{{ inst.sequence_number }}</td>
+                        <td class="text-muted font-monospace">{{ inst.due_date|date:"d-M-Y" }}</td>
+                        <td class="text-end font-monospace fw-semibold text-dark">$ {{ inst.total_installment_emi|floatformat:2 }}</td>
+                        <td class="text-end font-monospace text-muted">$ {{ inst.principal_component|floatformat:2 }}</td>
+                        <td class="text-end font-monospace text-muted">$ {{ inst.interest_component|floatformat:2 }}</td>
+                        <td class="text-end font-monospace text-primary">$ {{ inst.remaining_balance|floatformat:2 }}</td>
+                        <td class="text-center"><span class="badge-status badge-{{ inst.status|lower }}" data-i18n="status_{{ inst.status|lower }}">{{ inst.get_status_display }}</span></td>
+                        <td class="text-end">
+                          {% if inst.status == 'PAID' %}
+                            <span class="text-success small fw-semibold"><i class="bi bi-check2-all me-1"></i><span data-i18n="badge_paid">រួចរាល់</span></span>
+                          {% elif inst.status == 'VERIFYING' %}
+                            <span class="text-primary small fw-semibold"><i class="bi bi-hourglass-split me-1"></i><span data-i18n="badge_verifying">ផ្ទៀងផ្ទាត់</span></span>
+                          {% else %}
+                            <button type="button" class="btn btn-outline-primary btn-sm py-0 px-2" style="font-size:0.75rem;" onclick="simulateInstantPay({{ inst.id }})" title="Pay via KHQR">
+                              <i class="bi bi-lightning-charge"></i> <span data-i18n="btn_pay_short">បង់</span>
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-2 ms-1" style="font-size:0.75rem;" onclick="openUploadSlipModal({{ inst.id }}, {{ inst.sequence_number }}, '{{ inst.total_installment_emi|floatformat:2 }}')" title="Upload Slip">
+                              <i class="bi bi-upload"></i>
+                            </button>
+                          {% endif %}
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  {% else %}
+                  {% endif %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        {% else %}
+          <div class="clean-card empty-state-box">
+            <div class="empty-state-icon"><i class="bi bi-calendar3"></i></div>
+            <h5 class="fw-bold mb-3" data-i18n="title_no_schedule">មិនទាន់មានតារាងសងប្រាក់ទេ</h5>
+            <button type="button" class="btn btn-outline-primary btn-sm" onclick="switchNav('sec-apply')">
+              <i class="bi bi-pencil-square me-1"></i> <span data-i18n="btn_apply_now">ស្នើសុំឥណទាន</span>
+            </button>
+          </div>
+        {% endif %}
+      </section>
+
+      <!-- KHQR Payment -->
+      <section id="sec-pay" class="view-section">
+        {% if approved_loan %}
+          <div class="clean-card mb-4 text-center">
+            <span class="fw-bold fs-5 d-block mb-1" data-i18n="title_pay_khqr">ការទូទាត់តាមប្រព័ន្ធបាគង KHQR</span>
+            <span class="text-muted small" data-i18n="lbl_amount_due">ចំនួនទឹកប្រាក់ត្រូវបង់ (Installment #{% if next_installment %}{{ next_installment.sequence_number }}{% else %}1{% endif %}):</span>
+            <span class="text-primary fw-bold font-monospace fs-4 ms-2" id="payAmountDisp">$ {% if next_installment %}{{ next_installment.total_installment_emi|floatformat:2 }}{% else %}{{ approved_loan.emi|floatformat:2 }}{% endif %}</span>
+          </div>
+
+          <div class="khqr-card mb-4">
+            <div class="khqr-top">BAKONG KHQR</div>
+            <div class="khqr-body">
+              <div class="text-muted small mb-2">LMS COMMERCIAL BANK PLC</div>
+              <div class="khqr-qr-box">
+                <svg width="180" height="180" viewBox="0 0 100 100" fill="none">
+                  <rect width="100" height="100" fill="white"/>
+                  <path d="M10 10h30v30H10V10zm5 5v20h20V15H15zm5 5h10v10H20V20z" fill="#0f172a"/>
+                  <path d="M60 10h30v30H60V10zm5 5v20h20V15H65zm5 5h10v10H70V20z" fill="#0f172a"/>
+                  <path d="M10 60h30v30H10V60zm5 5v20h20V65H15zm5 5h10v10H20V70z" fill="#0f172a"/>
+                  <circle cx="50" cy="50" r="12" fill="#d32f2f"/>
+                  <text x="50" y="54" fill="white" font-size="10" font-family="sans-serif" font-weight="bold" text-anchor="middle">QR</text>
+                  <rect x="46" y="15" width="8" height="18" fill="#0f172a"/>
+                  <rect x="46" y="68" width="8" height="18" fill="#0f172a"/>
+                  <rect x="15" y="46" width="18" height="8" fill="#0f172a"/>
+                  <rect x="68" y="46" width="18" height="8" fill="#0f172a"/>
+                </svg>
+              </div>
+              <div class="small fw-bold text-dark">{{ request.user.get_full_name|default:request.user.username }} • Installment #{% if next_installment %}{{ next_installment.sequence_number }}{% else %}1{% endif %}</div>
+              <div class="text-muted font-monospace small">BILL: {{ approved_loan.application_no }}-{% if next_installment %}{{ next_installment.sequence_number|stringformat:"02d" }}{% else %}01{% endif %}</div>
+            </div>
+          </div>
+
+          <div class="clean-card max-w-md mx-auto text-center" style="max-width: 480px; margin: 0 auto;">
+            <div class="d-flex justify-content-center gap-2 flex-wrap">
+              <button type="button" class="btn btn-primary btn-sm px-3" onclick="simulateInstantPay({% if next_installment %}{{ next_installment.id }}{% else %}0{% endif %})" id="btnInstantPay">
+                <i class="bi bi-lightning-charge me-1"></i> <span data-i18n="btn_instant_pay">ទូទាត់ភ្លាមៗ</span>
+              </button>
+              <button type="button" class="btn btn-outline-primary btn-sm px-3" onclick="openUploadSlipModal({% if next_installment %}{{ next_installment.id }}, {{ next_installment.sequence_number }}, '{{ next_installment.total_installment_emi|floatformat:2 }}'{% else %}0, 1, '{{ approved_loan.emi|floatformat:2 }}'{% endif %})">
+                <i class="bi bi-upload me-1"></i> <span data-i18n="btn_upload_slip">ផ្ញើបង្កាន់ដៃ</span>
+              </button>
+            </div>
+          </div>
+
+        {% elif pending_application %}
+          <div class="clean-card empty-state-box">
+            <div class="empty-state-icon"><i class="bi bi-clock-history text-warning"></i></div>
+            <h5 class="fw-bold mb-3" data-i18n="title_awaiting_approval">មិនទាន់ដល់កាលវិភាគទូទាត់ទេ</h5>
+            <button type="button" class="btn btn-outline-primary btn-sm" onclick="switchNav('sec-applications')">
+              <i class="bi bi-file-earmark-text me-1"></i> <span data-i18n="btn_view_my_apps">មើលពាក្យស្នើសុំទាំងអស់</span>
+            </button>
+          </div>
+        {% else %}
+          <div class="clean-card empty-state-box">
+            <div class="empty-state-icon"><i class="bi bi-qr-code-scan"></i></div>
+            <h5 class="fw-bold mb-3" data-i18n="title_no_due">មិនមានវិក្កយបត្រត្រូវបង់ទេ</h5>
+            <button type="button" class="btn btn-outline-primary btn-sm" onclick="switchNav('sec-apply')">
+              <i class="bi bi-pencil-square me-1"></i> <span data-i18n="btn_apply_first_loan">ស្នើសុំឥណទានថ្មី</span>
+            </button>
+          </div>
+        {% endif %}
+      </section>
+
+      <!-- Loan Application -->
+      <section id="sec-apply" class="view-section {% if active_section == 'sec-apply' %}active{% endif %}">
+        <div class="clean-card">
+          <div class="row g-4">
+            
+            <div class="col-12 col-lg-7">
+              <span class="fw-bold fs-5 d-block mb-3" data-i18n="title_apply_loan">ស្នើសុំឥណទានថ្មី</span>
+
+              <div id="applyFormAlertContainer"></div>
+
+              <form id="loanApplyForm" method="POST" action="{% url 'borrower' %}">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold" data-i18n="lbl_product" for="applyProduct">ប្រភេទផលិតផលឥណទាន</label>
+                  <div class="animated-dropdown w-100" id="dd-applyProduct">
+                    <select class="d-none" name="product" id="applyProduct" onchange="updateCalc()">
+                      {% for p in products %}
+                        <option value="{{ p.id }}" data-rate="{{ p.interest_rate }}" data-currency="{{ p.currency }}" data-min="{{ p.min_amount }}" data-max="{{ p.max_amount }}" data-min-tenure="{{ p.min_tenure_months }}" data-max-tenure="{{ p.max_tenure_months }}" {% if forloop.first %}selected{% endif %}>
+                          {{ p.name }}
+                        </option>
+                      {% endfor %}
+                    </select>
+                    <button type="button" class="dropdown-trigger" onclick="toggleDropdown('dd-applyProduct')">
+                      <span class="dropdown-label">{{ products.0.name|default:'SME Business Loan' }}</span>
+                      <i class="bi bi-chevron-down dropdown-chevron"></i>
+                    </button>
+                    <div class="dropdown-menu-custom">
+                      {% for p in products %}
+                        <div class="dropdown-item-custom {% if forloop.first %}selected{% endif %}" onclick="selectDropdownOption('dd-applyProduct', '{{ p.id }}', this)">
+                          <span>{{ p.name }}</span>
+                          <i class="bi bi-check2 check-icon"></i>
+                        </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row g-2 mb-3">
+                  <div class="col-7">
+                    <label class="form-label small fw-semibold" data-i18n="lbl_apply_amount" for="applyAmount">ចំនួនទឹកប្រាក់ស្នើសុំ</label>
+                    <input type="number" class="form-control form-control-sm font-monospace" name="amount" id="applyAmount" placeholder="10000" min="500" step="100" oninput="updateCalc()" required>
+                  </div>
+                  <div class="col-5">
+                    <label class="form-label small fw-semibold" data-i18n="lbl_apply_currency">រូបិយប័ណ្ណ</label>
+                    <div class="animated-dropdown w-100" id="dd-applyCurrency">
+                      <select class="d-none" name="currency" id="applyCurrency" onchange="updateCalc()">
+                        <option value="USD" selected>USD ($)</option>
+                        <option value="KHR">KHR (៛)</option>
+                      </select>
+                      <button type="button" class="dropdown-trigger" onclick="toggleDropdown('dd-applyCurrency')">
+                        <span class="dropdown-label">USD ($)</span>
+                        <i class="bi bi-chevron-down dropdown-chevron"></i>
+                      </button>
+                      <div class="dropdown-menu-custom">
+                        <div class="dropdown-item-custom selected" onclick="selectDropdownOption('dd-applyCurrency', 'USD', this)">
+                          <span>USD ($)</span>
+                          <i class="bi bi-check2 check-icon"></i>
+                        </div>
+                        <div class="dropdown-item-custom" onclick="selectDropdownOption('dd-applyCurrency', 'KHR', this)">
+                          <span>KHR (៛)</span>
+                          <i class="bi bi-check2 check-icon"></i>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row g-2 mb-3">
+                  <div class="col-6">
+                    <label class="form-label small fw-semibold" data-i18n="lbl_apply_tenure">រយៈពេល (ខែ)</label>
+                    <div class="animated-dropdown w-100" id="dd-applyTenure">
+                      <select class="d-none" name="tenure_months" id="applyTenure" onchange="updateCalc()">
+                        <option value="12">12 ខែ (1 ឆ្នាំ)</option>
+                        <option value="24" selected>24 ខែ (2 ឆ្នាំ)</option>
+                        <option value="36">36 ខែ (3 ឆ្នាំ)</option>
+                      </select>
+                      <button type="button" class="dropdown-trigger" onclick="toggleDropdown('dd-applyTenure')">
+                        <span class="dropdown-label" data-i18n="opt_tenure_24">24 ខែ (2 ឆ្នាំ)</span>
+                        <i class="bi bi-chevron-down dropdown-chevron"></i>
+                      </button>
+                      <div class="dropdown-menu-custom">
+                        <div class="dropdown-item-custom" onclick="selectDropdownOption('dd-applyTenure', '12', this)">
+                          <span data-i18n="opt_tenure_12">12 ខែ (1 ឆ្នាំ)</span>
+                          <i class="bi bi-check2 check-icon"></i>
+                        </div>
+                        <div class="dropdown-item-custom selected" onclick="selectDropdownOption('dd-applyTenure', '24', this)">
+                          <span data-i18n="opt_tenure_24">24 ខែ (2 ឆ្នាំ)</span>
+                          <i class="bi bi-check2 check-icon"></i>
+                        </div>
+                        <div class="dropdown-item-custom" onclick="selectDropdownOption('dd-applyTenure', '36', this)">
+                          <span data-i18n="opt_tenure_36">36 ខែ (3 ឆ្នាំ)</span>
+                          <i class="bi bi-check2 check-icon"></i>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label small fw-semibold" data-i18n="lbl_apply_income" for="applyIncome">ប្រាក់ចំណូលប្រចាំខែ</label>
+                    <input type="number" class="form-control form-control-sm font-monospace" name="monthly_income" id="applyIncome" {% if request.user.borrower_profile.monthly_income %}value="{{ request.user.borrower_profile.monthly_income|floatformat:0 }}"{% endif %} placeholder="2500" required>
+                  </div>
+                </div>
+
+                <div class="mb-4">
+                  <label class="form-label small fw-semibold" data-i18n="lbl_apply_purpose" for="applyPurpose">គោលបំណងនៃការប្រើប្រាស់ប្រាក់</label>
+                  <input type="text" class="form-control form-control-sm" name="purpose" id="applyPurpose" placeholder="ទិញទំនិញស្តុក ឬពង្រីកអាជីវកម្ម" data-i18n-placeholder="ph_apply_purpose" required>
+                </div>
+
+                <button type="submit" id="btnSubmitApply" class="btn-act btn-act-primary w-100 py-2">
+                  <i class="bi bi-send me-1"></i> <span data-i18n="btn_submit_app">បញ្ជូនពាក្យស្នើសុំ</span>
+                </button>
+              </form>
+            </div>
+
+            <div class="col-12 col-lg-5">
+              <div class="p-3 bg-light border rounded">
+                <span class="fw-bold small text-muted text-uppercase d-block mb-2" data-i18n="title_live_calc">ការប៉ាន់ស្មានការបង់ប្រាក់</span>
+                <div class="display-6 fw-bold text-primary mb-3 font-monospace" id="calcEmiDisplay">$ 463.80</div>
+
+                <div class="d-flex justify-content-between small py-1 border-bottom">
+                  <span class="text-muted" data-i18n="calc_lbl_principal">ប្រាក់ដើម:</span>
+                  <span class="fw-semibold font-monospace" id="calcPrincipalDisplay">$ 10,000.00</span>
+                </div>
+                <div class="d-flex justify-content-between small py-1 border-bottom">
+                  <span class="text-muted" data-i18n="calc_lbl_rate">អត្រាការប្រាក់:</span>
+                  <span class="fw-semibold font-monospace" id="calcRateDisplay">10.50% p.a.</span>
+                </div>
+                <div class="d-flex justify-content-between small py-1 border-bottom">
+                  <span class="text-muted" data-i18n="calc_lbl_interest">ការប្រាក់សរុប:</span>
+                  <span class="fw-semibold font-monospace text-warning" id="calcInterestDisplay">$ 1,131.20</span>
+                </div>
+                <div class="d-flex justify-content-between small py-1">
+                  <span class="text-muted" data-i18n="calc_lbl_total">ទឹកប្រាក់សងសរុប:</span>
+                  <span class="fw-bold text-dark font-monospace" id="calcTotalDisplay">$ 11,131.20</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="sec-history" class="view-section {% if active_section == 'sec-history' %}active{% endif %}">
+        <div class="clean-card">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="fw-bold" data-i18n="title_history">ប្រវត្តិបង់ប្រាក់</span>
+            {% if user_receipts %}
+              <span class="badge bg-light text-muted border px-2 py-1" style="font-size: 0.75rem;">
+                {{ user_receipts|length }} ប្រតិបត្តិការ / Transactions
+              </span>
+            {% endif %}
+          </div>
+
+          <div class="table-responsive">
+            <table class="table-clean">
+              <thead>
+                <tr>
+                  <th data-i18n="th_tx_code">លេខប្រតិបត្តិការ</th>
+                  <th data-i18n="th_date">កាលបរិច្ឆេទ</th>
+                  <th class="text-center">#</th>
+                  <th class="text-end" data-i18n="th_amount">ទឹកប្រាក់</th>
+                  <th data-i18n="th_method">វិធីសាស្ត្រ</th>
+                  <th class="text-center" data-i18n="th_status">ស្ថានភាព</th>
+                </tr>
+              </thead>
+              <tbody id="historyTbody">
+                {% if user_receipts %}
+                  {% for r in user_receipts %}
+                    <tr>
+                      <td class="font-mono fw-bold text-primary">{{ r.transaction_reference }}</td>
+                      <td class="text-muted" style="white-space: nowrap;">{{ r.created_at|date:"d M Y, H:i" }}</td>
+                      <td class="text-center">
+                        <span class="badge bg-light text-dark border">#{{ r.installment.sequence_number }}</span>
+                      </td>
+                      <td class="text-end fw-bold font-mono">
+                        {% if r.currency == 'KHR' %}
+                          ៛ {{ r.amount|floatformat:0 }}
+                        {% else %}
+                          $ {{ r.amount|floatformat:2 }}
+                        {% endif %}
+                      </td>
+                      <td>
+                        <div class="d-flex align-items-center gap-1">
+                          {% if r.payment_method == 'BAKONG_KHQR' %}
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                              <i class="bi bi-qr-code me-1"></i>Bakong KHQR
+                            </span>
+                          {% elif r.payment_method == 'BANK_TRANSFER' %}
+                            <span class="badge bg-info-subtle text-info border border-info-subtle">
+                              <i class="bi bi-bank me-1"></i>Bank Transfer
+                            </span>
+                          {% else %}
+                            <span class="badge bg-secondary-subtle text-secondary border">
+                              <i class="bi bi-cash me-1"></i>{{ r.get_payment_method_display }}
+                            </span>
+                          {% endif %}
+                          {% if r.slip_image %}
+                            <a href="{{ r.slip_image.url }}" target="_blank" class="btn btn-sm btn-outline-secondary py-0 px-1 ms-1" title="View Transfer Slip">
+                              <i class="bi bi-file-earmark-image text-primary"></i>
+                            </a>
+                          {% endif %}
+                        </div>
+                      </td>
+                      <td class="text-center">
+                        {% if r.status == 'VERIFIED' %}
+                          <span class="badge bg-success-subtle text-success border border-success-subtle">
+                            <i class="bi bi-check-circle me-1"></i><span data-i18n="badge_verified">បានផ្ទៀងផ្ទាត់</span>
+                          </span>
+                        {% elif r.status == 'PENDING' %}
+                          <span class="badge bg-warning-subtle text-warning border border-warning-subtle">
+                            <i class="bi bi-hourglass-split me-1"></i><span data-i18n="badge_verifying">កំពុងផ្ទៀងផ្ទាត់</span>
+                          </span>
+                        {% else %}
+                          <span class="badge bg-danger-subtle text-danger border border-danger-subtle">
+                            <i class="bi bi-x-circle me-1"></i><span data-i18n="status_rejected">បានបដិសេធ</span>
+                          </span>
+                        {% endif %}
+                      </td>
+                    </tr>
+                  {% endfor %}
+                {% else %}
+                  <tr>
+                    <td colspan="6" class="text-center text-muted py-4">
+                      <span data-i18n="msg_no_history">មិនទាន់មានប្រវត្តិប្រតិបត្តិការបង់ប្រាក់នៅឡើយទេ</span>
+                    </td>
+                  </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <div class="modal fade" id="uploadSlipModal" tabindex="-1" aria-labelledby="uploadSlipModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title fs-6 fw-bold" id="uploadSlipModalLabel">
+            <i class="bi bi-upload me-1"></i> <span data-i18n="modal_upload_slip_title">បញ្ជូនបង្កាន់ដៃផ្ទេរប្រាក់</span>
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form method="POST" action="{% url 'loans:upload_payment_slip' %}" enctype="multipart/form-data">
+          {% csrf_token %}
+          <input type="hidden" name="installment_id" id="uploadSlipInstallmentId" value="">
+          <div class="modal-body p-4">
+            <div class="mb-3">
+              <div class="text-muted small" data-i18n="lbl_installment_no">ការបង់រំលស់:</div>
+              <div class="fw-bold font-monospace fs-5 text-primary" id="uploadSlipSeqDisp">-</div>
+            </div>
+            <div class="mb-3">
+              <div class="text-muted small" data-i18n="lbl_amount_due_modal">ចំនួនទឹកប្រាក់ត្រូវបង់:</div>
+              <div class="fw-bold font-monospace text-dark fs-5" id="uploadSlipAmountDisp">-</div>
+            </div>
+            <div class="mb-3">
+              <label for="uploadSlipRef" class="text-muted small fw-semibold" data-i18n="lbl_slip_ref">លេខយោងប្រតិបត្តិការ (ប្រសិនបើមាន):</label>
+              <input type="text" name="transaction_reference" id="uploadSlipRef" class="form-control form-control-sm font-monospace" placeholder="e.g. TXN-KHQR-98421">
+            </div>
+            <div class="mb-3">
+              <label for="uploadSlipFile" class="text-muted small fw-semibold" data-i18n="lbl_slip_file">រូបភាពបង្កាន់ដៃ * :</label>
+              <input type="file" name="slip_image" id="uploadSlipFile" class="form-control form-control-sm" accept="image/*,application/pdf" required>
+            </div>
+            <div class="mb-2">
+              <label for="uploadSlipNotes" class="text-muted small fw-semibold" data-i18n="lbl_slip_notes">កំណត់ចំណាំ (ប្រសិនបើមាន):</label>
+              <input type="text" name="notes" id="uploadSlipNotes" class="form-control form-control-sm" placeholder="ព័ត៌មានបន្ថែម..." data-i18n-placeholder="ph_slip_notes">
+            </div>
+          </div>
+          <div class="modal-footer bg-light">
+            <button type="button" class="btn btn-sm btn-outline-secondary px-3" data-bs-dismiss="modal" data-i18n="btn_cancel">បោះបង់</button>
+            <button type="submit" class="btn btn-sm btn-primary px-3">
+              <i class="bi bi-send me-1"></i> <span data-i18n="btn_submit_slip">បញ្ជូនបង្កាន់ដៃ</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  {% localize off %}
+  <script>
+    const LOAN_DATA = {
+      hasActiveLoan: {% if approved_loan %}true{% else %}false{% endif %},
+      hasPendingApp: {% if pending_application %}true{% else %}false{% endif %},
+      applicationNo: '{% if approved_loan %}{{ approved_loan.application_no }}{% elif pending_application %}{{ pending_application.application_no }}{% else %}LN-NONE{% endif %}',
+      principal: {% if approved_loan %}{{ approved_loan.amount }}{% elif pending_application %}{{ pending_application.amount }}{% else %}0{% endif %},
+      rate: {% if approved_loan %}{{ approved_loan.product.interest_rate }}{% elif pending_application %}{{ pending_application.product.interest_rate }}{% else %}10.5{% endif %},
+      tenure: {% if approved_loan %}{{ approved_loan.tenure_months }}{% elif pending_application %}{{ pending_application.tenure_months }}{% else %}0{% endif %},
+      currency: '{% if approved_loan %}{{ approved_loan.currency }}{% elif pending_application %}{{ pending_application.currency }}{% else %}USD{% endif %}',
+      status: '{% if approved_loan %}{{ approved_loan.status }}{% elif pending_application %}{{ pending_application.status }}{% else %}NONE{% endif %}'
+    };
+
+    let installments = [
+      {% if installments %}
+        {% for inst in installments %}
+        {
+          seq: {{ inst.sequence_number }},
+          dueDate: '{{ inst.due_date|date:"d-M-Y" }}',
+          emi: {{ inst.total_installment_emi }},
+          principal: {{ inst.principal_component }},
+          interest: {{ inst.interest_component }},
+          balance: {{ inst.remaining_balance }},
+          status: '{{ inst.status }}'
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+      {% endif %}
+    ];
+
+    function initAmortization() {
+      if (installments.length > 0) return;
+      if (!LOAN_DATA.principal || !LOAN_DATA.tenure || LOAN_DATA.tenure <= 0) return;
+
+      const P0 = LOAN_DATA.principal;
+      const r = (LOAN_DATA.rate / 100) / 12;
+      const n = LOAN_DATA.tenure;
+      const emi = (P0 * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+      let bal = P0;
+      const now = new Date();
+
+      for (let i = 1; i <= n; i++) {
+        const d = new Date(now.getFullYear(), now.getMonth() + i, 28);
+        const int = bal * r;
+        const pr = emi - int;
+        bal = Math.max(0, bal - pr);
+
+        const dStr = d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+        installments.push({
+          seq: i,
+          dueDate: dStr,
+          emi: Number(emi.toFixed(2)),
+          principal: Number(pr.toFixed(2)),
+          interest: Number(int.toFixed(2)),
+          balance: Number(bal.toFixed(2)),
+          status: LOAN_DATA.hasActiveLoan ? 'PENDING' : 'PENDING_APPROVAL'
+        });
+      }
+    }
+
+    const I18N = {
+      km: {
+        role_borrower: "អតិថិជន",
+        nav_my_loan: "ឥណទានរបស់ខ្ញុំ",
+        nav_applications: "ពាក្យស្នើសុំរបស់ខ្ញុំ",
+        nav_schedule: "តារាងសងប្រាក់",
+        nav_pay: "បង់ប្រាក់ KHQR",
+        nav_apply: "ស្នើសុំឥណទាន",
+        nav_history: "ប្រវត្តិបង់ប្រាក់",
+        page_my_loan: "ឥណទានរបស់ខ្ញុំ",
+        page_applications: "ពាក្យស្នើសុំរបស់ខ្ញុំ",
+        page_schedule: "តារាងរំលស់ប្រាក់",
+        page_pay: "ការទូទាត់ប្រាក់ KHQR",
+        page_apply: "ស្នើសុំឥណទានថ្មី",
+        page_history: "ប្រវត្តិប្រតិបត្តិការ",
+        btn_logout: "ចាកចេញ",
+        badge_secure_portal: "ច្រកទ្វារសុវត្ថិភាព NBC",
+        badge_retail_banking: "ឥណទានបុគ្គល",
+        lbl_outstanding: "សមតុល្យប្រាក់ដើមនៅសល់",
+        lbl_initial_principal: "ប្រាក់ដើមដំបូង",
+        lbl_next_due: "ការបង់បន្ទាប់ (Installment #1)",
+        lbl_due_date: "កាលបរិច្ឆេទសងបន្ទាប់",
+        lbl_progress: "វឌ្ឍនភាពនៃការសង",
+        lbl_progress_sub: "ខែ (0%)",
+        btn_pay_now: "បង់ប្រាក់ KHQR ឥឡូវនេះ",
+        title_schedule_preview: "តារាងបង់រំលស់ 5 ខែដំបូង",
+        btn_view_full_schedule: "មើលតារាងពេញលេញ",
+        th_due_date: "កាលបរិច្ឆេទសង",
+        th_emi: "ការបង់ប្រចាំខែ",
+        th_principal: "ប្រាក់ដើម",
+        th_interest: "ការប្រាក់",
+        th_balance: "សមតុល្យសល់",
+        th_status: "ស្ថានភាព",
+        th_action: "សកម្មភាព",
+        th_amount: "ទឹកប្រាក់",
+        th_date: "កាលបរិច្ឆេទ",
+        th_product: "ផលិតផល",
+        th_remarks: "មតិមន្ត្រីឥណទាន",
+        title_full_schedule: "តារាងរំលស់ពេញលេញ",
+        btn_download_csv: "ទាញយក CSV",
+        title_pay_khqr: "ការទូទាត់តាមប្រព័ន្ធបាគង KHQR",
+        lbl_amount_due: "ចំនួនទឹកប្រាក់ត្រូវបង់:",
+        title_apply_loan: "ស្នើសុំឥណទានថ្មី",
+        lbl_product: "ប្រភេទផលិតផលឥណទាន",
+        lbl_apply_amount: "ចំនួនទឹកប្រាក់ស្នើសុំ",
+        lbl_apply_currency: "រូបិយប័ណ្ណ",
+        lbl_apply_tenure: "រយៈពេល (ខែ)",
+        opt_tenure_12: "12 ខែ (1 ឆ្នាំ)",
+        opt_tenure_24: "24 ខែ (2 ឆ្នាំ)",
+        opt_tenure_36: "36 ខែ (3 ឆ្នាំ)",
+        lbl_apply_income: "ប្រាក់ចំណូលប្រចាំខែ",
+        lbl_apply_purpose: "គោលបំណងនៃការប្រើប្រាស់ប្រាក់",
+        btn_submit_app: "បញ្ជូនពាក្យស្នើសុំ",
+        title_live_calc: "ការប៉ាន់ស្មានការបង់ប្រាក់",
+        calc_lbl_principal: "ប្រាក់ដើម:",
+        calc_lbl_rate: "អត្រាការប្រាក់:",
+        calc_lbl_interest: "ការប្រាក់សរុប:",
+        calc_lbl_total: "ទឹកប្រាក់សងសរុប:",
+        title_history: "ប្រវត្តិបង់ប្រាក់",
+        th_tx_code: "លេខប្រតិបត្តិការ",
+        th_method: "វិធីសាស្ត្រ",
+        title_my_applications: "បញ្ជីពាក្យស្នើសុំឥណទានរបស់ខ្ញុំ",
+        btn_new_app: "ស្នើសុំថ្មី",
+        title_no_active_loan: "មិនទាន់មានឥណទានសកម្មទេ",
+        msg_no_active_loan: "មិនទាន់មានកម្ចីសកម្មក្នុងគណនីនេះទេ។ សូមបំពេញពាក្យស្នើសុំឥណទាន។",
+        btn_apply_first_loan: "ស្នើសុំឥណទានថ្មី",
+        btn_instant_pay: "ទូទាត់ភ្លាមៗ",
+        btn_upload_slip: "ផ្ញើបង្កាន់ដៃ",
+        btn_pay: "បង់ប្រាក់",
+        btn_apply_now: "ស្នើសុំឥណទាន",
+        btn_view_my_apps: "មើលពាក្យស្នើសុំទាំងអស់",
+        lbl_fully_settled: "ការទូទាត់រួចរាល់",
+        badge_completed: "រួចរាល់ 100%",
+        title_projected_schedule: "តារាងរំលស់ប៉ាន់ស្មាន",
+        status_awaiting_review: "កំពុងរង់ចាំការពិនិត្យ",
+        msg_no_applications: "មិនទាន់មានពាក្យស្នើសុំនៅឡើយទេ",
+        msg_no_history: "មិនទាន់មានប្រវត្តិប្រតិបត្តិការបង់ប្រាក់នៅឡើយទេ",
+        title_no_schedule: "មិនទាន់មានតារាងសងប្រាក់ទេ",
+        msg_no_schedule: "តារាងសងប្រាក់នឹងបង្ហាញនៅទីនេះ នៅពេលដែលលោកអ្នកមានពាក្យស្នើសុំ ឬឥណទានសកម្ម។",
+        title_no_due: "មិនមានវិក្កយបត្រត្រូវបង់ទេ",
+        msg_no_due: "លោកអ្នកមិនទាន់មានឥណទានសកម្មដែលត្រូវទូទាត់នៅឡើយទេ។",
+        ph_apply_purpose: "ទិញទំនិញស្តុក ឬពង្រីកអាជីវកម្ម",
+        modal_upload_slip_title: "បញ្ជូនបង្កាន់ដៃផ្ទេរប្រាក់",
+        lbl_installment_no: "ការបង់រំលស់:",
+        lbl_amount_due_modal: "ចំនួនទឹកប្រាក់ត្រូវបង់:",
+        lbl_slip_ref: "លេខយោងប្រតិបត្តិការ (ប្រសិនបើមាន):",
+        lbl_slip_file: "រូបភាពបង្កាន់ដៃ * :",
+        lbl_slip_notes: "កំណត់ចំណាំ (ប្រសិនបើមាន):",
+        ph_slip_notes: "ព័ត៌មានបន្ថែម...",
+        btn_cancel: "បោះបង់",
+        btn_submit_slip: "បញ្ជូនបង្កាន់ដៃ",
+        lbl_months: "ខែ",
+        lbl_days: "ថ្ងៃ",
+        lbl_overdue_prefix: "ហួសកំណត់",
+        lbl_days_left_prefix: "នៅសល់",
+        badge_paid: "រួចរាល់",
+        badge_verifying: "ផ្ទៀងផ្ទាត់",
+        badge_verified: "បានផ្ទៀងផ្ទាត់",
+        btn_pay_short: "បង់",
+        title_awaiting_approval: "មិនទាន់ដល់កាលវិភាគទូទាត់ទេ",
+        th_id: "ID",
+        status_submitted: "បានដាក់ពាក្យ",
+        status_under_review: "កំពុងពិនិត្យ",
+        status_approved: "បានអនុម័ត",
+        status_rejected: "បានបដិសេធ",
+        status_disbursed: "បានបើកផ្តល់",
+        status_active: "កំពុងសង",
+        status_completed: "បានទូទាត់រួចរាល់",
+        status_defaulted: "ហួសកំណត់ធ្ងន់ធ្ងរ",
+        status_pending: "រង់ចាំបង់",
+        status_paid: "បានបង់",
+        status_overdue: "ហួសកាលកំណត់",
+        status_verifying: "កំពុងផ្ទៀងផ្ទាត់"
+      },
+      en: {
+        role_borrower: "Borrower",
+        nav_my_loan: "My Loan",
+        nav_applications: "My Applications",
+        nav_schedule: "Repayment Schedule",
+        nav_pay: "Make Payment",
+        nav_apply: "Apply for Loan",
+        nav_history: "Payment History",
+        page_my_loan: "My Active Loan",
+        page_applications: "My Applications",
+        page_schedule: "Repayment Schedule",
+        page_pay: "Bakong KHQR Payment",
+        page_apply: "Loan Application",
+        page_history: "Transaction History",
+        btn_logout: "Sign Out",
+        badge_secure_portal: "NBC Regulated Secure Portal",
+        badge_retail_banking: "Retail Banking",
+        lbl_outstanding: "Remaining Principal Balance",
+        lbl_initial_principal: "Initial Principal",
+        lbl_next_due: "Next Installment (#1)",
+        lbl_due_date: "Next Due Date",
+        lbl_progress: "Repayment Progress",
+        lbl_progress_sub: "Months (0%)",
+        btn_pay_now: "Pay via KHQR Now",
+        title_schedule_preview: "First 5 Months Schedule",
+        btn_view_full_schedule: "View Full Schedule",
+        th_due_date: "Due Date",
+        th_emi: "Monthly Installment (EMI)",
+        th_principal: "Principal",
+        th_interest: "Interest",
+        th_balance: "Balance",
+        th_status: "Status",
+        th_action: "Action",
+        th_amount: "Amount",
+        th_date: "Date",
+        th_product: "Product",
+        th_remarks: "Officer Remarks",
+        title_full_schedule: "Full Amortization Schedule",
+        btn_download_csv: "Download CSV",
+        title_pay_khqr: "Bakong KHQR Settlement",
+        lbl_amount_due: "Installment Amount Due:",
+        title_apply_loan: "Apply for a New Loan",
+        lbl_product: "Loan Product",
+        lbl_apply_amount: "Loan Amount Requested",
+        lbl_apply_currency: "Currency",
+        lbl_apply_tenure: "Tenure (Months)",
+        opt_tenure_12: "12 Months (1 Year)",
+        opt_tenure_24: "24 Months (2 Years)",
+        opt_tenure_36: "36 Months (3 Years)",
+        lbl_apply_income: "Monthly Income",
+        lbl_apply_purpose: "Purpose of Loan",
+        btn_submit_app: "Submit Application",
+        title_live_calc: "Automated EMI Estimate",
+        calc_lbl_principal: "Principal:",
+        calc_lbl_rate: "Interest Rate:",
+        calc_lbl_interest: "Total Interest:",
+        calc_lbl_total: "Total Repayment:",
+        title_history: "Payment History",
+        th_tx_code: "Tx Code",
+        th_method: "Method",
+        title_my_applications: "My Loan Applications",
+        btn_new_app: "New Application",
+        title_no_active_loan: "No Active Loan Facility",
+        msg_no_active_loan: "No active loan facility. Please submit a loan application to begin.",
+        btn_apply_first_loan: "Apply for a Loan",
+        btn_instant_pay: "Instant Pay",
+        btn_upload_slip: "Upload Slip",
+        btn_pay: "Pay",
+        btn_apply_now: "Apply Now",
+        btn_view_my_apps: "View All Applications",
+        lbl_fully_settled: "Fully Settled",
+        badge_completed: "Completed 100%",
+        title_projected_schedule: "Projected Schedule",
+        status_awaiting_review: "Awaiting Review",
+        msg_no_applications: "No applications submitted yet.",
+        msg_no_history: "No payment transaction history recorded.",
+        title_no_schedule: "No Schedule Available",
+        msg_no_schedule: "Amortization schedule will appear once an application or active facility exists.",
+        title_no_due: "No Outstanding Due",
+        msg_no_due: "You do not have any active installments due for payment.",
+        ph_apply_purpose: "Working capital, inventory purchase, or business expansion",
+        modal_upload_slip_title: "Upload Transfer Slip",
+        lbl_installment_no: "Installment:",
+        lbl_amount_due_modal: "Amount Due:",
+        lbl_slip_ref: "Transaction Reference (Optional):",
+        lbl_slip_file: "Slip Image * :",
+        lbl_slip_notes: "Remarks (Optional):",
+        ph_slip_notes: "Additional payment details...",
+        btn_cancel: "Cancel",
+        btn_submit_slip: "Submit Slip",
+        lbl_months: "Months",
+        lbl_days: "days",
+        lbl_overdue_prefix: "Overdue",
+        lbl_days_left_prefix: "Remaining",
+        badge_paid: "Paid",
+        badge_verifying: "Verifying",
+        badge_verified: "Verified",
+        btn_pay_short: "Pay",
+        title_awaiting_approval: "Payment Not Yet Due",
+        th_id: "ID",
+        status_submitted: "Submitted",
+        status_under_review: "Under Review",
+        status_approved: "Approved",
+        status_rejected: "Rejected",
+        status_disbursed: "Disbursed",
+        status_active: "Active",
+        status_completed: "Completed",
+        status_defaulted: "Defaulted",
+        status_pending: "Pending",
+        status_paid: "Paid",
+        status_overdue: "Overdue",
+        status_verifying: "Verifying"
+      }
+    };
+
+    let currentLang = 'km';
+
+    function toggleLang() {
+      currentLang = currentLang === 'km' ? 'en' : 'km';
+      document.getElementById('langText').textContent = currentLang === 'km' ? 'EN' : 'KM';
+      applyLang();
+      renderTables();
+      updateCalc();
+    }
+
+    function formatBilingualAlerts() {
+      document.querySelectorAll('.custom-alert .alert-text').forEach(el => {
+        const raw = el.getAttribute('data-raw-msg') || el.textContent.trim();
+        if (!el.getAttribute('data-raw-msg')) {
+          el.setAttribute('data-raw-msg', raw);
+        }
+        if (raw.includes(' / ')) {
+          const parts = raw.split(' / ');
+          const km = parts[0].trim();
+          const en = parts.slice(1).join(' / ').trim();
+          if (currentLang === 'en') {
+            el.innerHTML = `<div class="fw-semibold" style="font-size: 0.88rem; line-height: 1.35;">${en}</div>`;
+          } else {
+            el.innerHTML = `<div class="fw-semibold" style="font-size: 0.88rem; line-height: 1.35;">${km}</div><div class="small mt-0.5" style="font-size: 0.78rem; opacity: 0.82; line-height: 1.3;">${en}</div>`;
+          }
+        }
+      });
+    }
+
+    function applyLang() {
+      const dict = I18N[currentLang];
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const k = el.getAttribute('data-i18n');
+        if (dict[k]) el.textContent = dict[k];
+      });
+
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const k = el.getAttribute('data-i18n-placeholder');
+        if (dict[k]) el.setAttribute('placeholder', dict[k]);
+      });
+
+      const activeSec = document.querySelector('.view-section.active');
+      if (activeSec) {
+        const titleMap = {
+          'sec-my-loan': 'page_my_loan',
+          'sec-applications': 'page_applications',
+          'sec-schedule': 'page_schedule',
+          'sec-pay': 'page_pay',
+          'sec-apply': 'page_apply',
+          'sec-history': 'page_history'
+        };
+        const titleKey = titleMap[activeSec.id] || 'page_my_loan';
+        const heading = document.getElementById('pageTitle');
+        if (heading && dict[titleKey]) {
+          heading.textContent = dict[titleKey];
+          heading.setAttribute('data-i18n', titleKey);
+        }
+      }
+
+      formatBilingualAlerts();
+    }
+
+    function toggleDropdown(id) {
+      const dd = document.getElementById(id);
+      if (!dd) return;
+      const isOpen = dd.classList.contains('open');
+      document.querySelectorAll('.animated-dropdown.open').forEach(d => d.classList.remove('open'));
+      if (!isOpen) {
+        dd.classList.add('open');
+      }
+    }
+
+    function selectDropdownOption(dropdownId, val, itemEl) {
+      const dd = document.getElementById(dropdownId);
+      if (!dd) return;
+      const select = dd.querySelector('select');
+      if (select) {
+        select.value = val;
+      }
+      
+      const labelSpan = dd.querySelector('.dropdown-label');
+      const itemSpan = itemEl.querySelector('span');
+      if (labelSpan && itemSpan) {
+        labelSpan.textContent = itemSpan.textContent;
+        const i18nKey = itemSpan.getAttribute('data-i18n');
+        if (i18nKey) {
+          labelSpan.setAttribute('data-i18n', i18nKey);
+        } else {
+          labelSpan.removeAttribute('data-i18n');
+        }
+      }
+      
+      dd.querySelectorAll('.dropdown-item-custom').forEach(item => item.classList.remove('selected'));
+      itemEl.classList.add('selected');
+      dd.classList.remove('open');
+
+      if (select) {
+        select.dispatchEvent(new Event('change'));
+      }
+    }
+
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest('.animated-dropdown')) {
+        document.querySelectorAll('.animated-dropdown.open').forEach(d => d.classList.remove('open'));
+      }
+    });
+
+    function switchNav(secId, btn) {
+      document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-item-btn').forEach(b => b.classList.remove('active'));
+
+      const sec = document.getElementById(secId);
+      if (sec) sec.classList.add('active');
+
+      if (btn) {
+        btn.classList.add('active');
+      } else {
+        const targetBtn = document.querySelector(`[onclick*="${secId}"]`);
+        if (targetBtn) targetBtn.classList.add('active');
+      }
+
+      const titleMap = {
+        'sec-my-loan': 'page_my_loan',
+        'sec-applications': 'page_applications',
+        'sec-schedule': 'page_schedule',
+        'sec-pay': 'page_pay',
+        'sec-apply': 'page_apply',
+        'sec-history': 'page_history'
+      };
+      const titleKey = titleMap[secId] || 'page_my_loan';
+      const heading = document.getElementById('pageTitle');
+      if (heading) {
+        heading.setAttribute('data-i18n', titleKey);
+        heading.textContent = I18N[currentLang][titleKey];
+      }
+    }
+
+    function formatCurrency(val, cur = 'USD') {
+      if (cur === 'KHR') return `៛ ${Number(val).toLocaleString()}`;
+      return `$ ${Number(val).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+
+    function getStatusBadge(st) {
+      const labelMap = {
+        PAID: currentLang === 'km' ? 'បានបង់រួច' : 'Paid',
+        PENDING: currentLang === 'km' ? 'រង់ចាំបង់' : 'Pending',
+        PENDING_APPROVAL: currentLang === 'km' ? 'រង់ចាំអនុម័ត' : 'Pending Approval'
+      };
+      const cls = `badge-status badge-${st.toLowerCase()}`;
+      return `<span class="${cls}">${labelMap[st] || st}</span>`;
+    }
+
+    function renderTables() {
+      const prevTbody = document.getElementById('previewScheduleTbody');
+      const fullTbody = document.getElementById('fullScheduleTbody');
+      if (prevTbody) prevTbody.innerHTML = '';
+      if (fullTbody) fullTbody.innerHTML = '';
+
+      if (!installments.length) {
+        if (prevTbody) {
+          prevTbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-3">${currentLang === 'km' ? 'មិនទាន់មានទិន្នន័យតារាងសងប្រាក់ទេ' : 'No schedule data available.'}</td></tr>`;
+        }
+        if (fullTbody) {
+          fullTbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-4">${currentLang === 'km' ? 'មិនទាន់មានទិន្នន័យតារាងសងប្រាក់ទេ' : 'No schedule data available.'}</td></tr>`;
+        }
+        return;
+      }
+
+      installments.forEach((item, idx) => {
+        const row = `
+          <td class="text-center font-monospace">#${item.seq}</td>
+          <td class="text-muted font-monospace">${item.dueDate}</td>
+          <td class="text-end font-monospace fw-semibold text-dark">${formatCurrency(item.emi, LOAN_DATA.currency)}</td>
+          <td class="text-end font-monospace text-muted">${formatCurrency(item.principal, LOAN_DATA.currency)}</td>
+          <td class="text-end font-monospace text-muted">${formatCurrency(item.interest, LOAN_DATA.currency)}</td>
+          <td class="text-end font-monospace text-primary">${formatCurrency(item.balance, LOAN_DATA.currency)}</td>
+          <td class="text-center">${getStatusBadge(item.status)}</td>
+          ${prevTbody ? `
+            <td class="text-end">
+              ${LOAN_DATA.hasActiveLoan ? `
+                <button type="button" class="btn-act btn-act-primary py-1 px-2" onclick="switchNav('sec-pay')">${currentLang === 'km' ? 'បង់ប្រាក់' : 'Pay'}</button>
+              ` : `
+                <span class="text-muted small">${currentLang === 'km' ? 'រង់ចាំ' : 'Pending'}</span>
+              `}
+            </td>
+          ` : ''}
+        `;
+
+        if (fullTbody) {
+          const trFull = document.createElement('tr');
+          trFull.innerHTML = row;
+          fullTbody.appendChild(trFull);
+        }
+
+        if (prevTbody && idx < 5) {
+          const trPrev = document.createElement('tr');
+          trPrev.innerHTML = row;
+          prevTbody.appendChild(trPrev);
+        }
+      });
+    }
+
+    function exportScheduleCsv() {
+      if (!installments.length) {
+        alert(currentLang === 'km' ? 'មិនមានតារាងសងប្រាក់សម្រាប់ទាញយកទេ' : 'No schedule data available to download.');
+        return;
+      }
+      let csv = "Installment,Due Date,EMI,Principal,Interest,Remaining Balance,Status\n";
+      installments.forEach(item => {
+        csv += `${item.seq},"${item.dueDate}",${item.emi},${item.principal},${item.interest},${item.balance},${item.status}\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `repayment_schedule_${LOAN_DATA.applicationNo}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function confirmPaymentReceipt() {
+      alert(currentLang === 'km' 
+        ? 'ប្រព័ន្ធកំពុងភ្ជាប់ទៅកាន់បណ្តាញ Bakong Real-Time Settlement API។ សូមរង់ចាំការផ្ទៀងផ្ទាត់ដោយស្វ័យប្រវត្តិនៃប្រតិបត្តិការរបស់អ្នក។'
+        : 'Connecting to Bakong Real-Time Settlement Gateway. Awaiting automated transaction confirmation.'
+      );
+    }
+
+    function openUploadSlipModal(installmentId, seq, amount) {
+      const modalEl = document.getElementById('uploadSlipModal');
+      if (!modalEl) return;
+      document.getElementById('uploadSlipInstallmentId').value = installmentId;
+      document.getElementById('uploadSlipSeqDisp').textContent = `Installment #${seq}`;
+      document.getElementById('uploadSlipAmountDisp').textContent = `$ ${amount}`;
+      const refInput = document.getElementById('uploadSlipRef');
+      if (refInput && !refInput.value) {
+        refInput.value = `TXN-KHQR-${Date.now().toString().slice(-6)}`;
+      }
+      const modal = new bootstrap.Modal(modalEl);
+      modal.show();
+    }
+
+    function simulateInstantPay(installmentId) {
+      if (!installmentId || installmentId === 0) {
+        alert(currentLang === 'km' ? 'មិនមានការបង់រំលស់ដែលត្រូវទូទាត់ទេ' : 'No pending installment available to pay.');
+        return;
+      }
+      const btn = document.getElementById('btnInstantPay');
+      if (btn) btn.disabled = true;
+
+      const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '{{ csrf_token }}';
+      const formData = new FormData();
+      formData.append('installment_id', installmentId);
+      formData.append('csrfmiddlewaretoken', csrfToken);
+
+      fetch('{% url "loans:simulate_instant_pay" %}', {
+        method: 'POST',
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          alert(currentLang === 'km' 
+            ? `ជោគជ័យ! ការបង់រំលស់ #${data.sequence_number} ត្រូវបានទូទាត់រួចរាល់តាមរយៈ Bakong KHQR (Ref: ${data.transaction_reference})។`
+            : `Success! Installment #${data.sequence_number} settled via Bakong KHQR (Ref: ${data.transaction_reference}).`
+          );
+          window.location.href = window.location.pathname + '?tab=history';
+        } else {
+          alert(data.error || 'Payment failed.');
+          if (btn) btn.disabled = false;
+        }
+      })
+      .catch(err => {
+        console.error('Instant pay error:', err);
+        alert('Payment request error.');
+        if (btn) btn.disabled = false;
+      });
+    }
+
+    function updateCalc() {
+      const amountInput = document.getElementById('applyAmount');
+      const pr = parseFloat(amountInput ? amountInput.value : 10000) || 10000;
+      const curEl = document.getElementById('applyCurrency');
+      const cur = curEl ? curEl.value : 'USD';
+      const tenEl = document.getElementById('applyTenure');
+      const n = parseInt(tenEl ? tenEl.value : 24) || 24;
+      const prodSelect = document.getElementById('applyProduct');
+      const selOpt = prodSelect ? prodSelect.selectedOptions[0] : null;
+      const annualRate = selOpt ? (parseFloat(selOpt.getAttribute('data-rate')) || 10.5) : 10.5;
+
+      const r = (annualRate / 100) / 12;
+      const emi = (pr * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+      const totalRepay = emi * n;
+      const totalInt = totalRepay - pr;
+
+      const emiDisp = document.getElementById('calcEmiDisplay');
+      if (emiDisp) emiDisp.textContent = formatCurrency(emi, cur);
+      const prDisp = document.getElementById('calcPrincipalDisplay');
+      if (prDisp) prDisp.textContent = formatCurrency(pr, cur);
+      const rateDisp = document.getElementById('calcRateDisplay');
+      if (rateDisp) rateDisp.textContent = currentLang === 'km' ? `${annualRate.toFixed(2)}% ក្នុងមួយឆ្នាំ` : `${annualRate.toFixed(2)}% p.a.`;
+      const intDisp = document.getElementById('calcInterestDisplay');
+      if (intDisp) intDisp.textContent = formatCurrency(totalInt, cur);
+      const totDisp = document.getElementById('calcTotalDisplay');
+      if (totDisp) totDisp.textContent = formatCurrency(totalRepay, cur);
+    }
+
+    function initLoanApplicationHandler() {
+      const applyForm = document.getElementById('loanApplyForm');
+      if (!applyForm) return;
+
+      applyForm.querySelectorAll('input, select').forEach(input => {
+        input.addEventListener('input', () => {
+          input.classList.remove('is-invalid');
+          const ddWrapper = input.closest('.animated-dropdown');
+          if (ddWrapper) {
+            ddWrapper.querySelector('.dropdown-trigger')?.classList.remove('border-danger');
+          }
+        });
+      });
+
+      applyForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const btnSubmit = document.getElementById('btnSubmitApply');
+        const alertContainer = document.getElementById('applyFormAlertContainer');
+
+        if (alertContainer) alertContainer.innerHTML = '';
+        applyForm.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+        applyForm.querySelectorAll('.dropdown-trigger.border-danger').forEach(el => el.classList.remove('border-danger'));
+
+        if (btnSubmit) {
+          btnSubmit.disabled = true;
+          btnSubmit.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> <span>${currentLang === 'km' ? 'កំពុងបញ្ជូន...' : 'Submitting...'}</span>`;
+        }
+
+        const formData = new FormData(applyForm);
+
+        fetch(applyForm.action || '{% url "borrower" %}', {
+          method: 'POST',
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          body: formData
+        })
+        .then(async response => {
+          const data = await response.json().catch(() => null);
+          if (response.ok && data && data.success) {
+            window.location.href = data.redirect_url || '{% url "borrower" %}';
+          } else {
+            if (btnSubmit) {
+              btnSubmit.disabled = false;
+              btnSubmit.innerHTML = `<i class="bi bi-send me-1"></i> <span data-i18n="btn_submit_app">${I18N[currentLang].btn_submit_app || 'បញ្ជូនពាក្យស្នើសុំ'}</span>`;
+            }
+
+            let errorList = [];
+            if (data && data.errors && data.errors.length) {
+              errorList = data.errors;
+            } else if (data && data.message) {
+              errorList = [data.message];
+            } else {
+              errorList = [currentLang === 'km' ? 'មានបញ្ហាក្នុងការបញ្ជូនពាក្យស្នើសុំ។ សូមពិនិត្យទិន្នន័យឡើងវិញ។' : 'An error occurred while submitting. Please check your inputs.'];
+            }
+
+            if (data && data.field_errors) {
+              for (const fieldName in data.field_errors) {
+                const field = applyForm.querySelector(`[name="${fieldName}"]`);
+                if (field) {
+                  field.classList.add('is-invalid');
+                  const ddWrapper = field.closest('.animated-dropdown');
+                  if (ddWrapper) {
+                    ddWrapper.querySelector('.dropdown-trigger')?.classList.add('border-danger');
+                  }
+                }
+              }
+            }
+
+            if (alertContainer) {
+              alertContainer.innerHTML = `
+                <div class="custom-alert alert-danger alert-dismissible fade show" role="alert">
+                  <i class="bi bi-exclamation-octagon-fill alert-icon"></i>
+                  <div class="alert-text pe-4">
+                    <div class="fw-bold mb-1">${currentLang === 'km' ? 'មិនអាចបញ្ជូនពាក្យស្នើសុំបានទេ' : 'Submission Failed'}</div>
+                    <ul class="mb-0 ps-3">
+                      ${errorList.map(msg => `<li>${msg}</li>`).join('')}
+                    </ul>
+                  </div>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+              `;
+              alertContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+          }
+        })
+        .catch(err => {
+          console.error('Loan submit error:', err);
+          if (btnSubmit) {
+            btnSubmit.disabled = false;
+            btnSubmit.innerHTML = `<i class="bi bi-send me-1"></i> <span data-i18n="btn_submit_app">${I18N[currentLang].btn_submit_app || 'បញ្ជូនពាក្យស្នើសុំ'}</span>`;
+          }
+          if (alertContainer) {
+            alertContainer.innerHTML = `
+              <div class="custom-alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-octagon-fill alert-icon"></i>
+                <div class="alert-text pe-4">
+                  ${currentLang === 'km' ? 'កំហុសបណ្តាញ៖ មិនអាចភ្ជាប់ទៅកាន់ប្រព័ន្ធបានទេ។' : 'Network error: Unable to connect to server.'}
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            `;
+          }
+        });
+      });
+    }
+
+    initAmortization();
+    applyLang();
+    renderTables();
+    updateCalc();
+    initLoanApplicationHandler();
+  </script>
+  {% endlocalize %}
+</body>
+</html>
