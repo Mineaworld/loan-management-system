@@ -1,0 +1,50 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Database
+*.sqlite3
+db.sqlite3
+
+# Environments & secrets
+.env
+.env.*
+!.env.example
+.venv/
+env/
+venv/
+ENV/
+
+# IDEs & OS
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Archives & compressed bundles
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# Media, uploads & collected static
+media/
+staticfiles/
+*.log
+
+# Test & coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Documentation, Markdown & presentation PDF files
+docs/
+*.md
+*.pdf
+
+# Generator scripts & demo slip assets
+demo_slips/
+generate_*.py
