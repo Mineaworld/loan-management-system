@@ -1,0 +1,70 @@
+from django.contrib.auth.models import AbstractUser
+from django.db import models
+
+
+class User(AbstractUser):
+    class Role(models.TextChoices):
+        ADMIN = 'ADMIN', 'Admin'
+        OFFICER = 'OFFICER', 'Loan Officer'
+        BORROWER = 'BORROWER', 'Borrower'
+
+    role = models.CharField(
+        max_length=20,
+        choices=Role.choices,
+        default=Role.BORROWER,
+        db_index=True
+    )
+    phone_number = models.CharField(max_length=30, blank=True, null=True)
+    national_id = models.CharField(max_length=50, blank=True, null=True)
+    primary_currency = models.CharField(
+        max_length=3,
+        choices=[('USD', 'USD'), ('KHR', 'KHR')],
+        default='USD'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        full_name = self.get_full_name()
+        display_name = full_name if full_name.strip() else self.username
+        return f"{display_name} ({self.get_role_display()})"
+
+    @property
+    def is_borrower(self):
+        return self.role == self.Role.BORROWER
+
+    @property
+    def is_officer(self):
+        return self.role == self.Role.OFFICER or self.is_superuser
+
+    @property
+    def is_admin_user(self):
+        return self.role == self.Role.ADMIN or self.is_superuser
+
+
+class BorrowerProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='borrower_profile')
+    monthly_income = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    occupation = models.CharField(max_length=150, blank=True, null=True)
+    employer = models.CharField(max_length=150, blank=True, null=True)
+    address = models.TextField(blank=True, null=True)
+    emergency_contact = models.CharField(max_length=50, blank=True, null=True)
+    credit_score = models.IntegerField(default=720)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Borrower Profile: {self.user.username}"
+
+
+class OfficerProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='officer_profile')
+    employee_id = models.CharField(max_length=50, blank=True, null=True)
+    branch = models.CharField(max_length=100, default='Head Office - Phnom Penh')
+    department = models.CharField(max_length=100, default='Credit & Underwriting')
+    phone = models.CharField(max_length=30, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Officer Profile: {self.user.username} ({self.employee_id or 'Staff'})"
