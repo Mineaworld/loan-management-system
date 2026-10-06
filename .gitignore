@@ -40,10 +40,11 @@ staticfiles/
 .coverage
 htmlcov/
 
-# Documentation, Markdown & presentation PDF files
+# Documentation, presentation PDF & markdown files
 docs/
-*.md
 *.pdf
+*.md
+!README.md
 
 # Generator scripts & demo slip assets
 demo_slips/
