@@ -11,8 +11,8 @@ class LoanProductAdmin(admin.ModelAdmin):
 
 @admin.register(LoanApplication)
 class LoanApplicationAdmin(admin.ModelAdmin):
-    list_display = ('application_no', 'borrower', 'product', 'amount', 'currency', 'tenure_months', 'status', 'created_at')
-    list_filter = ('status', 'currency', 'product')
+    list_display = ('application_no', 'borrower', 'product', 'branch', 'assigned_officer', 'amount', 'currency', 'tenure_months', 'status', 'created_at')
+    list_filter = ('status', 'branch', 'currency', 'product')
     search_fields = ('application_no', 'borrower__username', 'borrower__first_name', 'borrower__last_name')
 
 

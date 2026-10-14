@@ -2,23 +2,73 @@ import datetime
 from decimal import Decimal
 from django.core.management.base import BaseCommand
 from django.utils import timezone
-from apps.accounts.models import User, BorrowerProfile, OfficerProfile
+from apps.accounts.models import User, BorrowerProfile, OfficerProfile, Branch
 from apps.loans.models import LoanProduct, LoanApplication, Collateral, ActionLog, LoanInstallment, PaymentReceipt
 from apps.loans.services import execute_disbursal
 
 
 class Command(BaseCommand):
-    help = 'Seed demo users, loan products, sample applications, collaterals, and active installments'
+    help = 'Seed demo branches, users, 6 loan products, sample applications, collaterals, and active installments'
 
     def handle(self, *args, **options):
-        self.stdout.write('Seeding demo data...')
+        self.stdout.write('Seeding Sovanaphum Microfinance demo data...')
 
+        # 1. Seed 5 Institutional Branches
+        branches_data = [
+            {
+                'code': 'HO-PP',
+                'name_km': 'ការិយាល័យកណ្តាល (ភ្នំពេញ)',
+                'name_en': 'Head Office — Phnom Penh',
+                'province': 'Phnom Penh',
+                'phone': '023 999 001',
+                'address': 'Building 168, Preah Norodom Blvd, Sangkat Tonle Bassac, Khan Chamkarmon, Phnom Penh'
+            },
+            {
+                'code': 'BR-TK',
+                'name_km': 'សាខាទួលគោក',
+                'name_en': 'Toul Kork Urban Branch',
+                'province': 'Phnom Penh',
+                'phone': '023 999 002',
+                'address': 'Street 289, Sangkat Boeung Kak 1, Khan Toul Kork, Phnom Penh'
+            },
+            {
+                'code': 'BR-SR',
+                'name_km': 'សាខាខេត្តសៀមរាប',
+                'name_en': 'Siem Reap Provincial Branch',
+                'province': 'Siem Reap',
+                'phone': '063 999 003',
+                'address': 'National Road 6, Sangkat Svay Dangkum, Krong Siem Reap'
+            },
+            {
+                'code': 'BR-BTB',
+                'name_km': 'សាខាខេត្តបាត់ដំបង',
+                'name_en': 'Battambang Provincial Branch',
+                'province': 'Battambang',
+                'phone': '053 999 004',
+                'address': 'Street 106, Sangkat Svay Por, Krong Battambang'
+            },
+            {
+                'code': 'BR-KPC',
+                'name_km': 'សាខាខេត្តកំពង់ចាម',
+                'name_en': 'Kampong Cham Provincial Branch',
+                'province': 'Kampong Cham',
+                'phone': '042 999 005',
+                'address': 'Preah Monivong St, Sangkat Veal Vong, Krong Kampong Cham'
+            },
+        ]
+        branch_objs = {}
+        for b_data in branches_data:
+            br, _ = Branch.objects.update_or_create(code=b_data['code'], defaults=b_data)
+            branch_objs[b_data['code']] = br
+        ho_branch = branch_objs['HO-PP']
+
+        # 2. Seed Users & Staff Profiles
         admin_user, _ = User.objects.get_or_create(
             username='admin',
             defaults={
                 'first_name': 'System',
                 'last_name': 'Admin',
-                'email': 'admin@lms.com.kh',
+                'email': 'admin@sovanaphum.com.kh',
                 'role': User.Role.ADMIN,
                 'is_staff': True,
                 'is_superuser': True,
@@ -32,7 +82,7 @@ class Command(BaseCommand):
             defaults={
                 'first_name': 'សុខា',
                 'last_name': 'ឆាយ',
-                'email': 'officer1@lms.com.kh',
+                'email': 'officer1@sovanaphum.com.kh',
                 'phone_number': '012 345 678',
                 'national_id': '010123456',
                 'role': User.Role.OFFICER,
@@ -41,13 +91,14 @@ class Command(BaseCommand):
         )
         officer_user.set_password('pass123')
         officer_user.save()
-        OfficerProfile.objects.get_or_create(
+        OfficerProfile.objects.update_or_create(
             user=officer_user,
             defaults={
-                'employee_id': 'OFF-0824',
-                'branch': 'Head Office - Phnom Penh',
-                'department': 'Credit Underwriting',
+                'employee_id': 'CO-0824',
+                'branch': ho_branch,
+                'department': 'Credit & Underwriting Department',
                 'phone': '012 345 678',
+                'desk_phone': '023 999 001',
             }
         )
 
@@ -64,9 +115,10 @@ class Command(BaseCommand):
         )
         borrower1.set_password('pass123')
         borrower1.save()
-        BorrowerProfile.objects.get_or_create(
+        BorrowerProfile.objects.update_or_create(
             user=borrower1,
             defaults={
+                'servicing_branch': ho_branch,
                 'monthly_income': Decimal('2500.00'),
                 'occupation': 'Business Owner',
                 'employer': 'Keo Mart Electronics',
@@ -88,9 +140,10 @@ class Command(BaseCommand):
         )
         borrower2.set_password('pass123')
         borrower2.save()
-        BorrowerProfile.objects.get_or_create(
+        BorrowerProfile.objects.update_or_create(
             user=borrower2,
             defaults={
+                'servicing_branch': ho_branch,
                 'monthly_income': Decimal('1200.00'),
                 'occupation': 'Marketing Executive',
                 'employer': 'Angkor Media Corp',
@@ -99,9 +152,10 @@ class Command(BaseCommand):
             }
         )
 
-        p_sme, _ = LoanProduct.objects.get_or_create(
-            code='SME',
-            defaults={
+        # 3. Seed 6 Cambodian Loan Products (Option 2 Matrix)
+        products_data = [
+            {
+                'code': 'SME-01',
                 'name': 'ឥណទានអាជីវកម្ម SME (SME Business Loan)',
                 'interest_rate': Decimal('10.50'),
                 'currency': 'USD',
@@ -109,14 +163,11 @@ class Command(BaseCommand):
                 'max_amount': Decimal('50000.00'),
                 'min_tenure_months': 12,
                 'max_tenure_months': 36,
-                'description': 'Working capital and asset expansion for registered small and medium enterprises.',
+                'description': 'Working capital and asset expansion for registered small and medium enterprises. Secured by land title deed.',
                 'is_active': True,
-            }
-        )
-
-        p_personal, _ = LoanProduct.objects.get_or_create(
-            code='PERSONAL',
-            defaults={
+            },
+            {
+                'code': 'PER-01',
                 'name': 'ឥណទានផ្ទាល់ខ្លួន (Personal Consumer Loan)',
                 'interest_rate': Decimal('12.00'),
                 'currency': 'USD',
@@ -124,14 +175,11 @@ class Command(BaseCommand):
                 'max_amount': Decimal('10000.00'),
                 'min_tenure_months': 6,
                 'max_tenure_months': 24,
-                'description': 'Unsecured consumer credit for household purchases and emergency needs.',
+                'description': 'Unsecured consumer credit for household purchases, appliances, and personal emergency needs.',
                 'is_active': True,
-            }
-        )
-
-        p_agri, _ = LoanProduct.objects.get_or_create(
-            code='AGRI',
-            defaults={
+            },
+            {
+                'code': 'AGR-01',
                 'name': 'ឥណទានកសិកម្ម (Agriculture Loan)',
                 'interest_rate': Decimal('9.50'),
                 'currency': 'USD',
@@ -139,42 +187,97 @@ class Command(BaseCommand):
                 'max_amount': Decimal('25000.00'),
                 'min_tenure_months': 12,
                 'max_tenure_months': 36,
-                'description': 'Financing for agricultural inputs, machinery, irrigation, and harvest cycles.',
+                'description': 'Financing for agricultural inputs, machinery, tractor acquisition, irrigation, and harvest cycles.',
                 'is_active': True,
-            }
-        )
+            },
+            {
+                'code': 'AUT-01',
+                'name': 'ឥណទានទិញយានយន្ត (Auto & Vehicle Loan)',
+                'interest_rate': Decimal('10.00'),
+                'currency': 'USD',
+                'min_amount': Decimal('1000.00'),
+                'max_amount': Decimal('30000.00'),
+                'min_tenure_months': 12,
+                'max_tenure_months': 48,
+                'description': 'Automobile, pickup truck, and motorcycle financing secured by vehicle registration card (ID & chassis plate).',
+                'is_active': True,
+            },
+            {
+                'code': 'HOM-01',
+                'name': 'ឥណទានគេហដ្ឋាន (Housing & Improvement)',
+                'interest_rate': Decimal('8.50'),
+                'currency': 'USD',
+                'min_amount': Decimal('5000.00'),
+                'max_amount': Decimal('100000.00'),
+                'min_tenure_months': 24,
+                'max_tenure_months': 60,
+                'description': 'Residential property acquisition, renovation, and construction secured by registered hard title deed.',
+                'is_active': True,
+            },
+            {
+                'code': 'EDU-01',
+                'name': 'ឥណទានការសិក្សា (Education & Tuition Loan)',
+                'interest_rate': Decimal('7.50'),
+                'currency': 'USD',
+                'min_amount': Decimal('300.00'),
+                'max_amount': Decimal('5000.00'),
+                'min_tenure_months': 6,
+                'max_tenure_months': 24,
+                'description': 'Subsidized rate for university and vocational students. Requires student ID enrollment proof and co-signer.',
+                'is_active': True,
+            },
+        ]
+        product_objs = {}
+        for p_data in products_data:
+            p, _ = LoanProduct.objects.update_or_create(code=p_data['code'], defaults=p_data)
+            product_objs[p_data['code']] = p
 
+        # Backward compatibility aliases for tests/legacy references
+        LoanProduct.objects.update_or_create(code='SME', defaults={**products_data[0], 'code': 'SME'})
+        LoanProduct.objects.update_or_create(code='PERSONAL', defaults={**products_data[1], 'code': 'PERSONAL'})
+        LoanProduct.objects.update_or_create(code='AGRI', defaults={**products_data[2], 'code': 'AGRI'})
+
+        p_sme = product_objs['SME-01']
+        p_personal = product_objs['PER-01']
+        p_agri = product_objs['AGR-01']
+        p_auto = product_objs['AUT-01']
+        p_edu = product_objs['EDU-01']
+
+        # 4. Seed Sample Loan Applications with Branch and Officer Assignments
         samples = [
             {
                 'application_no': 'LN-202609-0012',
                 'borrower': borrower1,
                 'product': p_sme,
+                'branch': ho_branch,
                 'amount': Decimal('25000.00'),
                 'currency': 'USD',
                 'tenure_months': 24,
                 'monthly_income': Decimal('2500.00'),
                 'purpose': 'Stock expansion and inventory procurement for high season',
                 'status': LoanApplication.Status.UNDER_REVIEW,
-                'assigned_officer': officer_user,
+                'assigned_officer': officer_user,  # In "My Covered Borrowers" queue
                 'officer_remarks': 'High quality borrower. CBC Score 720 (Grade A). Collateral pledged: Land Title #4812.',
             },
             {
                 'application_no': 'LN-202609-0015',
                 'borrower': borrower2,
                 'product': p_personal,
+                'branch': ho_branch,
                 'amount': Decimal('5000.00'),
                 'currency': 'USD',
                 'tenure_months': 12,
                 'monthly_income': Decimal('1200.00'),
                 'purpose': 'Home renovation and new kitchen furnishings',
                 'status': LoanApplication.Status.SUBMITTED,
-                'assigned_officer': None,
+                'assigned_officer': None,  # In "Unassigned Applications" queue for 1-click claim demo
                 'officer_remarks': None,
             },
             {
                 'application_no': 'LN-202609-0008',
                 'borrower': borrower1,
                 'product': p_personal,
+                'branch': ho_branch,
                 'amount': Decimal('3000.00'),
                 'currency': 'USD',
                 'tenure_months': 12,
@@ -189,6 +292,7 @@ class Command(BaseCommand):
                 'application_no': 'LN-202609-0003',
                 'borrower': borrower2,
                 'product': p_agri,
+                'branch': branch_objs['BR-SR'],  # Siem Reap branch
                 'amount': Decimal('4000.00'),
                 'currency': 'USD',
                 'tenure_months': 18,
@@ -202,6 +306,7 @@ class Command(BaseCommand):
                 'application_no': 'LN-202609-0001',
                 'borrower': borrower1,
                 'product': p_sme,
+                'branch': ho_branch,
                 'amount': Decimal('10000.00'),
                 'currency': 'USD',
                 'tenure_months': 12,
@@ -211,6 +316,34 @@ class Command(BaseCommand):
                 'approved_at': timezone.now(),
                 'assigned_officer': officer_user,
                 'officer_remarks': 'Approved and scheduled for immediate disbursement.',
+            },
+            {
+                'application_no': 'LN-202609-0020',
+                'borrower': borrower1,
+                'product': p_auto,
+                'branch': ho_branch,
+                'amount': Decimal('8500.00'),
+                'currency': 'USD',
+                'tenure_months': 24,
+                'monthly_income': Decimal('2500.00'),
+                'purpose': 'Used commercial delivery van acquisition',
+                'status': LoanApplication.Status.SUBMITTED,
+                'assigned_officer': None,  # Another unassigned application for demo
+                'officer_remarks': None,
+            },
+            {
+                'application_no': 'LN-202609-0025',
+                'borrower': borrower2,
+                'product': p_edu,
+                'branch': branch_objs['BR-TK'],
+                'amount': Decimal('1200.00'),
+                'currency': 'USD',
+                'tenure_months': 12,
+                'monthly_income': Decimal('1200.00'),
+                'purpose': 'University Year 4 Semester tuition fees and laptop financing',
+                'status': LoanApplication.Status.SUBMITTED,
+                'assigned_officer': None,
+                'officer_remarks': None,
             },
         ]
 
@@ -222,6 +355,7 @@ class Command(BaseCommand):
             )
             app_map[s['application_no']] = app
 
+        # 5. Seed Collateral Records (Real Estate + Motor Vehicle)
         Collateral.objects.update_or_create(
             loan=app_map['LN-202609-0012'],
             title_deed_number='No. 4812/MeanChey',
@@ -243,6 +377,16 @@ class Command(BaseCommand):
         )
 
         Collateral.objects.update_or_create(
+            loan=app_map['LN-202609-0020'],
+            title_deed_number='PP-2BC-7721',
+            defaults={
+                'collateral_type': 'Vehicle',
+                'estimated_valuation': Decimal('12000.00'),
+                'description': '2021 Hyundai Porter II commercial delivery truck (Chassis: KMFGB17HP...)'
+            }
+        )
+
+        Collateral.objects.update_or_create(
             loan=app_map['LN-202609-0001'],
             title_deed_number='No. 1109/ToulKork',
             defaults={
@@ -252,6 +396,7 @@ class Command(BaseCommand):
             }
         )
 
+        # 6. Disburse LN-202609-0001 and seed active installments & receipts
         app_active = app_map['LN-202609-0001']
         execute_disbursal(app_active, officer=officer_user)
 
@@ -302,18 +447,19 @@ class Command(BaseCommand):
             inst_od.status = LoanInstallment.Status.OVERDUE
             inst_od.save()
 
+        # 7. Action Audit Logs
         for target_log in [
             (
                 app_map['LN-202609-0012'],
                 LoanApplication.Status.SUBMITTED,
                 LoanApplication.Status.UNDER_REVIEW,
-                'Application received. Requesting CBC credit bureau check.'
+                'Application claimed by Credit Officer Sokha Chhay (CO-0824) for underwriting and CBC investigation.'
             ),
             (
                 app_map['LN-202609-0008'],
                 LoanApplication.Status.APPROVED,
                 LoanApplication.Status.ACTIVE,
-                'Disbursed and schedule activated. Installment #1 currently past due.'
+                'Disbursed and schedule activated by Credit Officer Sokha Chhay.'
             ),
             (
                 app_map['LN-202609-0003'],
@@ -332,4 +478,4 @@ class Command(BaseCommand):
                     action_notes=note
                 )
 
-        self.stdout.write(self.style.SUCCESS('Successfully seeded demo users, products, applications, collaterals, active installments, and payment receipts!'))
+        self.stdout.write(self.style.SUCCESS('Successfully seeded Sovanaphum Microfinance demo data (5 branches, 6 products, CO assignments)!'))

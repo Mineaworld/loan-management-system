@@ -5,15 +5,29 @@ from .models import LoanApplication, LoanProduct
 class LoanApplicationForm(forms.ModelForm):
     class Meta:
         model = LoanApplication
-        fields = ('product', 'amount', 'currency', 'tenure_months', 'monthly_income', 'purpose')
+        fields = ('product', 'branch', 'amount', 'currency', 'tenure_months', 'monthly_income', 'purpose')
         widgets = {
             'product': forms.Select(attrs={'class': 'form-select form-select-sm', 'id': 'applyProduct'}),
+            'branch': forms.Select(attrs={'class': 'form-select form-select-sm', 'id': 'applyBranch'}),
             'amount': forms.NumberInput(attrs={'class': 'form-control form-control-sm font-monospace', 'id': 'applyAmount'}),
             'currency': forms.Select(attrs={'class': 'form-select form-select-sm', 'id': 'applyCurrency'}),
             'tenure_months': forms.NumberInput(attrs={'class': 'form-control form-control-sm font-monospace', 'id': 'applyTenure'}),
             'monthly_income': forms.NumberInput(attrs={'class': 'form-control form-control-sm font-monospace', 'id': 'applyIncome'}),
             'purpose': forms.TextInput(attrs={'class': 'form-control form-control-sm', 'id': 'applyPurpose'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if 'branch' in self.fields:
+            self.fields['branch'].empty_label = "ជ្រើសរើសសាខា / Select Servicing Branch"
+            self.fields['branch'].required = False
+
+    def clean_branch(self):
+        branch = self.cleaned_data.get('branch')
+        if not branch:
+            from apps.accounts.models import Branch
+            branch = Branch.objects.filter(code='HO-PP').first() or Branch.objects.first()
+        return branch
 
     def clean(self):
         cleaned_data = super().clean()

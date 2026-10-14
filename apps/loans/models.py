@@ -59,6 +59,13 @@ class LoanApplication(models.Model):
         blank=True,
         related_name='assigned_applications'
     )
+    branch = models.ForeignKey(
+        'accounts.Branch',
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name='loan_applications'
+    )
     officer_remarks = models.TextField(blank=True, null=True)
     approved_at = models.DateTimeField(null=True, blank=True)
     disbursed_at = models.DateTimeField(null=True, blank=True)

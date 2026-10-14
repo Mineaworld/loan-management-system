@@ -42,8 +42,26 @@ class User(AbstractUser):
         return self.role == self.Role.ADMIN or self.is_superuser
 
 
+class Branch(models.Model):
+    code = models.CharField(max_length=20, unique=True, db_index=True)
+    name_km = models.CharField(max_length=150)
+    name_en = models.CharField(max_length=150)
+    province = models.CharField(max_length=100)
+    phone = models.CharField(max_length=30)
+    address = models.TextField(blank=True, default='')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['code']
+        verbose_name_plural = 'Branches'
+
+    def __str__(self):
+        return f"{self.name_km} ({self.name_en})"
+
+
 class BorrowerProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='borrower_profile')
+    servicing_branch = models.ForeignKey(Branch, on_delete=models.SET_NULL, null=True, blank=True, related_name='borrowers')
     monthly_income = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
     occupation = models.CharField(max_length=150, blank=True, null=True)
     employer = models.CharField(max_length=150, blank=True, null=True)
@@ -60,11 +78,19 @@ class BorrowerProfile(models.Model):
 class OfficerProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='officer_profile')
     employee_id = models.CharField(max_length=50, blank=True, null=True)
-    branch = models.CharField(max_length=100, default='Head Office - Phnom Penh')
+    branch = models.ForeignKey(Branch, on_delete=models.SET_NULL, null=True, blank=True, related_name='officers')
     department = models.CharField(max_length=100, default='Credit & Underwriting')
     phone = models.CharField(max_length=30, blank=True, null=True)
+    desk_phone = models.CharField(max_length=30, blank=True, default='')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    @property
+    def branch_name(self):
+        if self.branch:
+            return self.branch.name_en
+        return "Head Office - Phnom Penh"
+
     def __str__(self):
-        return f"Officer Profile: {self.user.username} ({self.employee_id or 'Staff'})"
+        branch_str = self.branch.name_en if self.branch else 'Unassigned'
+        return f"Officer Profile: {self.user.username} ({self.employee_id or 'Staff'}) - {branch_str}"

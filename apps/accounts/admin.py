@@ -1,6 +1,12 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import User, BorrowerProfile, OfficerProfile
+from .models import User, BorrowerProfile, OfficerProfile, Branch
+
+
+@admin.register(Branch)
+class BranchAdmin(admin.ModelAdmin):
+    list_display = ('code', 'name_km', 'name_en', 'province', 'phone')
+    search_fields = ('code', 'name_km', 'name_en', 'province')
 
 
 @admin.register(User)
