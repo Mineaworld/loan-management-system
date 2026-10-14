@@ -823,12 +823,12 @@
     </a>
 
     <nav class="sidebar-nav">
-      <button type="button" class="nav-item-btn active" onclick="switchNav('sec-overview', this)">
+      <button type="button" class="nav-item-btn {% if not active_section or active_section == 'sec-overview' %}active{% endif %}" onclick="switchNav('sec-overview', this)">
         <i class="bi bi-grid-1x2"></i>
         <span data-i18n="nav_overview">ទិដ្ឋភាពទូទៅ</span>
       </button>
 
-      <button type="button" class="nav-item-btn" onclick="switchNav('sec-applications', this)">
+      <button type="button" class="nav-item-btn {% if active_section == 'sec-applications' %}active{% endif %}" onclick="switchNav('sec-applications', this)">
         <i class="bi bi-file-earmark-check"></i>
         <span data-i18n="nav_applications">ពាក្យស្នើសុំ</span>
         {% if pending_count %}
@@ -836,23 +836,23 @@
         {% endif %}
       </button>
 
-      <button type="button" class="nav-item-btn" onclick="switchNav('sec-loans', this)">
+      <button type="button" class="nav-item-btn {% if active_section == 'sec-loans' %}active{% endif %}" onclick="switchNav('sec-loans', this)">
         <i class="bi bi-wallet2"></i>
         <span data-i18n="nav_portfolio">ផលប័ត្រឥណទាន</span>
       </button>
 
-      <button type="button" class="nav-item-btn" onclick="switchNav('sec-repayments', this)">
+      <button type="button" class="nav-item-btn {% if active_section == 'sec-repayments' %}active{% endif %}" onclick="switchNav('sec-repayments', this)">
         <i class="bi bi-receipt"></i>
         <span data-i18n="nav_repayments">ការបង់ប្រាក់</span>
       </button>
 
-      <button type="button" class="nav-item-btn" onclick="switchNav('sec-reports', this)">
+      <button type="button" class="nav-item-btn {% if active_section == 'sec-reports' %}active{% endif %}" onclick="switchNav('sec-reports', this)">
         <i class="bi bi-file-earmark-bar-graph"></i>
         <span data-i18n="nav_reports">របាយការណ៍</span>
       </button>
 
       {% if request.user.is_admin_user %}
-      <button type="button" class="nav-item-btn" onclick="switchNav('sec-staff', this)">
+      <button type="button" class="nav-item-btn {% if active_section == 'sec-staff' %}active{% endif %}" onclick="switchNav('sec-staff', this)">
         <i class="bi bi-person-gear"></i>
         <span data-i18n="nav_staff_management">បុគ្គលិក & តួនាទី</span>
         {% if total_staff_count %}
@@ -936,7 +936,7 @@
         </div>
       {% endif %}
 
-      <section id="sec-overview" class="view-section active">
+      <section id="sec-overview" class="view-section {% if not active_section or active_section == 'sec-overview' %}active{% endif %}">
         
         <div class="row g-3 mb-4">
           <div class="col-12 col-sm-6 col-xl-3">
@@ -956,7 +956,7 @@
           <div class="col-12 col-sm-6 col-xl-3">
             <div class="kpi-card">
               <div class="kpi-label" data-i18n="kpi_recovery">អត្រាសងត្រឡប់</div>
-              <div class="kpi-value text-success font-monospace">98.2%</div>
+              <div class="kpi-value text-success font-monospace">{{ delinquency_data.collection_rate|default:"100.0" }}%</div>
               <div class="kpi-foot text-success"><i class="bi bi-graph-up-arrow me-1"></i><span data-i18n="kpi_foot_recovery">កម្រិតស្តង់ដារធនាគារជាតិ NBC</span></div>
             </div>
           </div>
@@ -1065,7 +1065,7 @@
       </section>
 
       <!-- CBC Underwriting -->
-      <section id="sec-applications" class="view-section">
+      <section id="sec-applications" class="view-section {% if active_section == 'sec-applications' %}active{% endif %}">
         
         {% with first_app=applications.0 %}
         <div class="cbc-box" id="cbcBoxWidget">
@@ -1168,19 +1168,19 @@
         <div class="clean-card">
           <!-- Multi-Tab Queue Filtering (Coverage Model) -->
           <div class="d-flex align-items-center gap-2 mb-3 border-bottom pb-2 flex-wrap">
-            <a href="?scope=my_queue{% if selected_status != 'ALL' %}&status={{ selected_status }}{% endif %}{% if selected_branch != 'ALL' %}&branch={{ selected_branch }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" class="btn btn-sm {% if current_scope == 'my_queue' %}btn-primary{% else %}btn-outline-secondary{% endif %} d-inline-flex align-items-center gap-1.5" style="border-radius: 8px;">
+            <a href="?tab=applications&scope=my_queue{% if selected_status != 'ALL' %}&status={{ selected_status }}{% endif %}{% if selected_branch != 'ALL' %}&branch={{ selected_branch }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" class="btn btn-sm {% if current_scope == 'my_queue' %}btn-primary{% else %}btn-outline-secondary{% endif %} d-inline-flex align-items-center gap-1.5" style="border-radius: 8px;">
               <i class="bi bi-person-check-fill"></i>
               <span data-i18n="tab_my_queue">អតិថិជនទទួលបន្ទុក</span>
               <span class="badge {% if current_scope == 'my_queue' %}bg-white text-primary{% else %}bg-secondary{% endif %} rounded-pill font-monospace ms-1">{{ my_queue_count }}</span>
             </a>
 
-            <a href="?scope=unassigned{% if selected_status != 'ALL' %}&status={{ selected_status }}{% endif %}{% if selected_branch != 'ALL' %}&branch={{ selected_branch }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" class="btn btn-sm {% if current_scope == 'unassigned' %}btn-primary{% else %}btn-outline-secondary{% endif %} d-inline-flex align-items-center gap-1.5" style="border-radius: 8px;">
+            <a href="?tab=applications&scope=unassigned{% if selected_status != 'ALL' %}&status={{ selected_status }}{% endif %}{% if selected_branch != 'ALL' %}&branch={{ selected_branch }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" class="btn btn-sm {% if current_scope == 'unassigned' %}btn-primary{% else %}btn-outline-secondary{% endif %} d-inline-flex align-items-center gap-1.5" style="border-radius: 8px;">
               <i class="bi bi-inbox-fill"></i>
               <span data-i18n="tab_unassigned">មិនទាន់ចាត់តាំង</span>
               <span class="badge {% if current_scope == 'unassigned' %}bg-white text-primary{% else %}bg-warning text-dark{% endif %} rounded-pill font-monospace ms-1">{{ unassigned_count }}</span>
             </a>
 
-            <a href="?scope=all{% if selected_status != 'ALL' %}&status={{ selected_status }}{% endif %}{% if selected_branch != 'ALL' %}&branch={{ selected_branch }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" class="btn btn-sm {% if current_scope == 'all' %}btn-primary{% else %}btn-outline-secondary{% endif %} d-inline-flex align-items-center gap-1.5" style="border-radius: 8px;">
+            <a href="?tab=applications&scope=all{% if selected_status != 'ALL' %}&status={{ selected_status }}{% endif %}{% if selected_branch != 'ALL' %}&branch={{ selected_branch }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" class="btn btn-sm {% if current_scope == 'all' %}btn-primary{% else %}btn-outline-secondary{% endif %} d-inline-flex align-items-center gap-1.5" style="border-radius: 8px;">
               <i class="bi bi-building"></i>
               <span data-i18n="tab_all_branch">ទូទាំងសាខា</span>
               <span class="badge {% if current_scope == 'all' %}bg-white text-primary{% else %}bg-secondary{% endif %} rounded-pill font-monospace ms-1">{{ all_queue_count }}</span>
@@ -1355,7 +1355,7 @@
 
       </section>
 
-      <section id="sec-loans" class="view-section">
+      <section id="sec-loans" class="view-section {% if active_section == 'sec-loans' %}active{% endif %}">
         <div class="clean-card">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
@@ -1405,7 +1405,7 @@
         </div>
       </section>
 
-      <section id="sec-repayments" class="view-section">
+      <section id="sec-repayments" class="view-section {% if active_section == 'sec-repayments' %}active{% endif %}">
         <div class="clean-card">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
@@ -1480,7 +1480,7 @@
         </div>
       </section>
 
-      <section id="sec-reports" class="view-section">
+      <section id="sec-reports" class="view-section {% if active_section == 'sec-reports' %}active{% endif %}">
         <div class="row g-3 mb-4">
           <div class="col-6 col-lg-3">
             <div class="clean-card h-100">
@@ -1575,7 +1575,7 @@
       </section>
 
       {% if request.user.is_admin_user %}
-      <section id="sec-staff" class="view-section">
+      <section id="sec-staff" class="view-section {% if active_section == 'sec-staff' %}active{% endif %}">
         
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
           <div>
@@ -1920,7 +1920,11 @@
               </div>
               <div class="col-md-4">
                 <label class="form-label small fw-semibold text-dark" data-i18n="lbl_branch">សាខាប្រតិបត្តិការ</label>
-                <input type="text" name="branch" class="form-control form-control-sm" value="Head Office - Phnom Penh">
+                <select name="branch" class="form-select form-select-sm">
+                  {% for b in branches %}
+                    <option value="{{ b.code }}">{{ b.name_km }} ({{ b.name_en }})</option>
+                  {% endfor %}
+                </select>
               </div>
               <div class="col-md-4">
                 <label class="form-label small fw-semibold text-dark" data-i18n="lbl_department">នាយកដ្ឋាន</label>
@@ -2003,7 +2007,11 @@
               </div>
               <div class="col-md-4">
                 <label class="form-label small fw-semibold text-dark" data-i18n="lbl_branch">សាខាប្រតិបត្តិការ</label>
-                <input type="text" id="editBranch" name="branch" class="form-control form-control-sm">
+                <select id="editBranch" name="branch" class="form-select form-select-sm">
+                  {% for b in branches %}
+                    <option value="{{ b.code }}">{{ b.name_km }} ({{ b.name_en }})</option>
+                  {% endfor %}
+                </select>
               </div>
               <div class="col-md-4">
                 <label class="form-label small fw-semibold text-dark" data-i18n="lbl_department">នាយកដ្ឋាន</label>
@@ -3065,7 +3073,7 @@
             document.getElementById('editPhone').value = u.phone_number || '';
             document.getElementById('editRole').value = u.role;
             document.getElementById('editEmployeeId').value = u.employee_id || '';
-            document.getElementById('editBranch').value = u.branch || '';
+            document.getElementById('editBranch').value = u.branch_code || u.branch || '';
             document.getElementById('editDepartment').value = u.department || '';
             document.getElementById('editNewPassword').value = '';
 
@@ -3239,10 +3247,10 @@
         new Chart(portCtx, {
           type: 'doughnut',
           data: {
-            labels: ['SME Business Loan', 'Personal Loan', 'Agriculture Loan'],
+            labels: {{ chart_labels_json|safe }},
             datasets: [{
-              data: [55, 25, 20],
-              backgroundColor: ['#1d4ed8', '#16a34a', '#d97706'],
+              data: {{ chart_counts_json|safe }},
+              backgroundColor: ['#1d4ed8', '#16a34a', '#d97706', '#9333ea', '#0891b2', '#e11d48'],
               borderWidth: 0
             }]
           },

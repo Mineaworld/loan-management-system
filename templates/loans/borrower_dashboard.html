@@ -1182,7 +1182,7 @@
                     <th class="text-center" data-i18n="th_status">ស្ថានភាព</th>
                   </tr>
                 </thead>
-                <tbody id="previewScheduleTbody">
+                <tbody id="projectedScheduleTbody">
                 </tbody>
               </table>
             </div>
@@ -1341,7 +1341,13 @@
           <div class="clean-card mb-4 text-center">
             <span class="fw-bold fs-5 d-block mb-1" data-i18n="title_pay_khqr">ការទូទាត់តាមប្រព័ន្ធបាគង KHQR</span>
             <span class="text-muted small" data-i18n="lbl_amount_due">ចំនួនទឹកប្រាក់ត្រូវបង់ (Installment #{% if next_installment %}{{ next_installment.sequence_number }}{% else %}1{% endif %}):</span>
-            <span class="text-primary fw-bold font-monospace fs-4 ms-2" id="payAmountDisp">$ {% if next_installment %}{{ next_installment.total_installment_emi|floatformat:2 }}{% else %}{{ approved_loan.emi|floatformat:2 }}{% endif %}</span>
+            <span class="text-primary fw-bold font-monospace fs-4 ms-2" id="payAmountDisp">
+              {% if approved_loan.currency == 'KHR' %}
+                ៛ {% if next_installment %}{{ next_installment.total_installment_emi|floatformat:0 }}{% else %}{{ approved_loan.emi|floatformat:0 }}{% endif %}
+              {% else %}
+                $ {% if next_installment %}{{ next_installment.total_installment_emi|floatformat:2 }}{% else %}{{ approved_loan.emi|floatformat:2 }}{% endif %}
+              {% endif %}
+            </span>
           </div>
 
           <div class="khqr-card mb-4">
@@ -1372,7 +1378,7 @@
               <button type="button" class="btn btn-primary btn-sm px-3" onclick="simulateInstantPay({% if next_installment %}{{ next_installment.id }}{% else %}0{% endif %})" id="btnInstantPay">
                 <i class="bi bi-lightning-charge me-1"></i> <span data-i18n="btn_instant_pay">ទូទាត់ភ្លាមៗ</span>
               </button>
-              <button type="button" class="btn btn-outline-primary btn-sm px-3" onclick="openUploadSlipModal({% if next_installment %}{{ next_installment.id }}, {{ next_installment.sequence_number }}, '{{ next_installment.total_installment_emi|floatformat:2 }}'{% else %}0, 1, '{{ approved_loan.emi|floatformat:2 }}'{% endif %})">
+              <button type="button" class="btn btn-outline-primary btn-sm px-3" onclick="openUploadSlipModal({% if next_installment %}{{ next_installment.id }}, {{ next_installment.sequence_number }}, {{ next_installment.total_installment_emi|unlocalize }}{% else %}0, 1, {{ approved_loan.emi|unlocalize }}{% endif %})">
                 <i class="bi bi-upload me-1"></i> <span data-i18n="btn_upload_slip">ផ្ញើបង្កាន់ដៃ</span>
               </button>
             </div>
@@ -1413,9 +1419,9 @@
                 <div class="mb-3">
                   <label class="form-label small fw-semibold" data-i18n="lbl_product" for="applyProduct">ប្រភេទផលិតផលឥណទាន</label>
                   <div class="animated-dropdown w-100" id="dd-applyProduct">
-                    <select class="d-none" name="product" id="applyProduct" onchange="updateCalc()">
+                    <select class="d-none" name="product" id="applyProduct" onchange="onProductChange()">
                       {% for p in products %}
-                        <option value="{{ p.id }}" data-rate="{{ p.interest_rate }}" data-currency="{{ p.currency }}" data-min="{{ p.min_amount }}" data-max="{{ p.max_amount }}" data-min-tenure="{{ p.min_tenure_months }}" data-max-tenure="{{ p.max_tenure_months }}" {% if forloop.first %}selected{% endif %}>
+                        <option value="{{ p.id }}" data-rate="{{ p.interest_rate|unlocalize }}" data-currency="{{ p.currency }}" data-min="{{ p.min_amount|unlocalize }}" data-max="{{ p.max_amount|unlocalize }}" data-min-tenure="{{ p.min_tenure_months }}" data-max-tenure="{{ p.max_tenure_months }}" {% if forloop.first %}selected{% endif %}>
                           {{ p.name }}
                         </option>
                       {% endfor %}
@@ -1463,7 +1469,7 @@
                 <div class="row g-2 mb-3">
                   <div class="col-7">
                     <label class="form-label small fw-semibold" data-i18n="lbl_apply_amount" for="applyAmount">ចំនួនទឹកប្រាក់ស្នើសុំ</label>
-                    <input type="number" class="form-control form-control-sm font-monospace" name="amount" id="applyAmount" placeholder="10000" min="500" step="100" oninput="updateCalc()" required>
+                    <input type="number" class="form-control form-control-sm font-monospace" name="amount" id="applyAmount" placeholder="10000" min="500" step="100" oninput="updateCalc()" onchange="updateCalc()" required>
                   </div>
                   <div class="col-5">
                     <label class="form-label small fw-semibold" data-i18n="lbl_apply_currency">រូបិយប័ណ្ណ</label>
@@ -1657,6 +1663,58 @@
     </div>
   </main>
 
+  <!-- KHQR Quick Pay Modal -->
+  <div class="modal fade" id="khqrPayModal" tabindex="-1" aria-labelledby="khqrPayModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title fs-6 fw-bold" id="khqrPayModalLabel">
+            <i class="bi bi-qr-code-scan me-1"></i> <span data-i18n="title_pay_khqr">ការទូទាត់តាមប្រព័ន្ធបាគង KHQR</span>
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4 text-center">
+          <div class="text-muted small mb-1">SOVANAPHUM MICROFINANCE PLC</div>
+          <div class="fs-5 fw-bold text-dark mb-1" id="khqrModalSeqDisp">Installment #{% if next_installment %}{{ next_installment.sequence_number }}{% else %}1{% endif %}</div>
+          <div class="fs-3 fw-bold text-primary font-monospace mb-3" id="khqrModalAmountDisp">
+            {% if approved_loan.currency == 'KHR' %}
+              ៛ {% if next_installment %}{{ next_installment.total_installment_emi|floatformat:0 }}{% else %}{{ approved_loan.emi|floatformat:0 }}{% endif %}
+            {% else %}
+              $ {% if next_installment %}{{ next_installment.total_installment_emi|floatformat:2 }}{% else %}{{ approved_loan.emi|floatformat:2 }}{% endif %}
+            {% endif %}
+          </div>
+          
+          <div class="khqr-qr-box mx-auto mb-3" style="width: 200px; height: 200px; background: #fff; padding: 10px; border-radius: 12px; border: 2px solid #e2e8f0; display: flex; align-items: center; justify-content: center;">
+            <svg width="180" height="180" viewBox="0 0 100 100" fill="none">
+              <rect width="100" height="100" fill="white"/>
+              <path d="M10 10h30v30H10V10zm5 5v20h20V15H15zm5 5h10v10H20V20z" fill="#0f172a"/>
+              <path d="M60 10h30v30H60V10zm5 5v20h20V15H65zm5 5h10v10H70V20z" fill="#0f172a"/>
+              <path d="M10 60h30v30H10V60zm5 5v20h20V65H15zm5 5h10v10H20V70z" fill="#0f172a"/>
+              <circle cx="50" cy="50" r="12" fill="#d32f2f"/>
+              <text x="50" y="54" fill="white" font-size="10" font-family="sans-serif" font-weight="bold" text-anchor="middle">QR</text>
+              <rect x="46" y="15" width="8" height="18" fill="#0f172a"/>
+              <rect x="46" y="68" width="8" height="18" fill="#0f172a"/>
+              <rect x="15" y="46" width="18" height="8" fill="#0f172a"/>
+              <rect x="68" y="46" width="18" height="8" fill="#0f172a"/>
+            </svg>
+          </div>
+
+          <div class="small fw-semibold text-dark mb-1">{{ request.user.get_full_name|default:request.user.username }}</div>
+          <div class="text-muted font-monospace small mb-3" id="khqrModalBillDisp">BILL: {{ approved_loan.application_no }}-{% if next_installment %}{{ next_installment.sequence_number|stringformat:"02d" }}{% else %}01{% endif %}</div>
+
+          <div class="d-flex justify-content-center gap-2">
+            <button type="button" class="btn btn-primary btn-sm px-3" id="khqrModalInstantPayBtn" onclick="onKhqrModalInstantPay()">
+              <i class="bi bi-lightning-charge me-1"></i> <span data-i18n="btn_instant_pay">ទូទាត់ភ្លាមៗ</span>
+            </button>
+            <button type="button" class="btn btn-outline-primary btn-sm px-3" id="khqrModalUploadSlipBtn" onclick="onKhqrModalSwitchToSlip()">
+              <i class="bi bi-upload me-1"></i> <span data-i18n="btn_upload_slip">ផ្ញើបង្កាន់ដៃ</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="modal fade" id="uploadSlipModal" tabindex="-1" aria-labelledby="uploadSlipModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content border-0 shadow-lg">
@@ -1721,12 +1779,13 @@
       {% if installments %}
         {% for inst in installments %}
         {
+          id: {{ inst.id }},
           seq: {{ inst.sequence_number }},
           dueDate: '{{ inst.due_date|date:"d-M-Y" }}',
-          emi: {{ inst.total_installment_emi }},
-          principal: {{ inst.principal_component }},
-          interest: {{ inst.interest_component }},
-          balance: {{ inst.remaining_balance }},
+          emi: {{ inst.total_installment_emi|unlocalize }},
+          principal: {{ inst.principal_component|unlocalize }},
+          interest: {{ inst.interest_component|unlocalize }},
+          balance: {{ inst.remaining_balance|unlocalize }},
           status: '{{ inst.status }}'
         }{% if not forloop.last %},{% endif %}
         {% endfor %}
@@ -2006,6 +2065,13 @@
       currentLang = currentLang === 'km' ? 'en' : 'km';
       document.getElementById('langText').textContent = currentLang === 'km' ? 'EN' : 'KM';
       applyLang();
+      const prodSelect = document.getElementById('applyProduct');
+      if (prodSelect && prodSelect.selectedOptions[0]) {
+        const sel = prodSelect.selectedOptions[0];
+        const minT = parseInt(sel.getAttribute('data-min-tenure')) || 6;
+        const maxT = parseInt(sel.getAttribute('data-max-tenure')) || 60;
+        updateTenureDropdown(minT, maxT);
+      }
       renderTables();
       updateCalc();
     }
@@ -2235,38 +2301,45 @@
     }
 
     function formatCurrency(val, cur = 'USD') {
-      if (cur === 'KHR') return `៛ ${Number(val).toLocaleString()}`;
-      return `$ ${Number(val).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      if (cur === 'KHR') return `៛ ${Math.round(Number(val) || 0).toLocaleString()}`;
+      return `$ ${Number(val || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     }
 
     function getStatusBadge(st) {
       const labelMap = {
         PAID: currentLang === 'km' ? 'បានបង់រួច' : 'Paid',
         PENDING: currentLang === 'km' ? 'រង់ចាំបង់' : 'Pending',
-        PENDING_APPROVAL: currentLang === 'km' ? 'រង់ចាំអនុម័ត' : 'Pending Approval'
+        PENDING_APPROVAL: currentLang === 'km' ? 'រង់ចាំអនុម័ត' : 'Pending Approval',
+        VERIFYING: currentLang === 'km' ? 'រង់ចាំផ្ទៀងផ្ទាត់' : 'Verifying',
+        REJECTED: currentLang === 'km' ? 'បានបដិសេធ' : 'Rejected'
       };
-      const cls = `badge-status badge-${st.toLowerCase()}`;
+      const cls = `badge-status badge-${(st || '').toLowerCase()}`;
       return `<span class="${cls}">${labelMap[st] || st}</span>`;
     }
 
     function renderTables() {
       const prevTbody = document.getElementById('previewScheduleTbody');
+      const projTbody = document.getElementById('projectedScheduleTbody');
       const fullTbody = document.getElementById('fullScheduleTbody');
       if (prevTbody) prevTbody.innerHTML = '';
+      if (projTbody) projTbody.innerHTML = '';
       if (fullTbody) fullTbody.innerHTML = '';
 
       if (!installments.length) {
         if (prevTbody) {
           prevTbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-3">${currentLang === 'km' ? 'មិនទាន់មានទិន្នន័យតារាងសងប្រាក់ទេ' : 'No schedule data available.'}</td></tr>`;
         }
+        if (projTbody) {
+          projTbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-3">${currentLang === 'km' ? 'មិនទាន់មានទិន្នន័យតារាងសងប្រាក់ទេ' : 'No schedule data available.'}</td></tr>`;
+        }
         if (fullTbody) {
-          fullTbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-4">${currentLang === 'km' ? 'មិនទាន់មានទិន្នន័យតារាងសងប្រាក់ទេ' : 'No schedule data available.'}</td></tr>`;
+          fullTbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-4">${currentLang === 'km' ? 'មិនទាន់មានទិន្នន័យតារាងសងប្រាក់ទេ' : 'No schedule data available.'}</td></tr>`;
         }
         return;
       }
 
       installments.forEach((item, idx) => {
-        const row = `
+        const baseCols = `
           <td class="text-center font-monospace">#${item.seq}</td>
           <td class="text-muted font-monospace">${item.dueDate}</td>
           <td class="text-end font-monospace fw-semibold text-dark">${formatCurrency(item.emi, LOAN_DATA.currency)}</td>
@@ -2274,27 +2347,49 @@
           <td class="text-end font-monospace text-muted">${formatCurrency(item.interest, LOAN_DATA.currency)}</td>
           <td class="text-end font-monospace text-primary">${formatCurrency(item.balance, LOAN_DATA.currency)}</td>
           <td class="text-center">${getStatusBadge(item.status)}</td>
-          ${prevTbody ? `
-            <td class="text-end">
-              ${LOAN_DATA.hasActiveLoan ? `
-                <button type="button" class="btn-act btn-act-primary py-1 px-2" onclick="switchNav('sec-pay')">${currentLang === 'km' ? 'បង់ប្រាក់' : 'Pay'}</button>
-              ` : `
-                <span class="text-muted small">${currentLang === 'km' ? 'រង់ចាំ' : 'Pending'}</span>
-              `}
-            </td>
-          ` : ''}
         `;
 
-        if (fullTbody) {
-          const trFull = document.createElement('tr');
-          trFull.innerHTML = row;
-          fullTbody.appendChild(trFull);
+        if (prevTbody && idx < 5) {
+          let prevActionHtml = '';
+          if (item.status === 'PAID') {
+            prevActionHtml = `<span class="text-success small fw-semibold"><i class="bi bi-check-circle me-1"></i><span>${currentLang === 'km' ? 'រួចរាល់' : 'Paid'}</span></span>`;
+          } else if (item.status === 'VERIFYING') {
+            prevActionHtml = `<span class="text-primary small fw-semibold"><i class="bi bi-hourglass-split me-1"></i><span>${currentLang === 'km' ? 'ផ្ទៀងផ្ទាត់' : 'Verifying'}</span></span>`;
+          } else {
+            prevActionHtml = `<button type="button" class="btn-act btn-act-primary py-1 px-2" onclick="openKhqrPayModal(${item.id || 0}, ${item.seq}, ${item.emi})"><span>${currentLang === 'km' ? 'បង់ប្រាក់' : 'Pay'}</span></button>`;
+          }
+          const trPrev = document.createElement('tr');
+          trPrev.innerHTML = `${baseCols}<td class="text-end">${prevActionHtml}</td>`;
+          prevTbody.appendChild(trPrev);
         }
 
-        if (prevTbody && idx < 5) {
-          const trPrev = document.createElement('tr');
-          trPrev.innerHTML = row;
-          prevTbody.appendChild(trPrev);
+        if (projTbody && idx < 5) {
+          const trProj = document.createElement('tr');
+          trProj.innerHTML = baseCols;
+          projTbody.appendChild(trProj);
+        }
+
+        if (fullTbody) {
+          let fullActionHtml = '';
+          if (!LOAN_DATA.hasActiveLoan) {
+            fullActionHtml = `<span class="text-muted small">${currentLang === 'km' ? 'រង់ចាំអនុម័ត' : 'Awaiting Approval'}</span>`;
+          } else if (item.status === 'PAID') {
+            fullActionHtml = `<span class="text-success small fw-semibold"><i class="bi bi-check2-all me-1"></i><span>${currentLang === 'km' ? 'រួចរាល់' : 'Paid'}</span></span>`;
+          } else if (item.status === 'VERIFYING') {
+            fullActionHtml = `<span class="text-primary small fw-semibold"><i class="bi bi-hourglass-split me-1"></i><span>${currentLang === 'km' ? 'ផ្ទៀងផ្ទាត់' : 'Verifying'}</span></span>`;
+          } else {
+            fullActionHtml = `
+              <button type="button" class="btn btn-outline-primary btn-sm py-0 px-2" style="font-size:0.75rem;" onclick="openKhqrPayModal(${item.id || 0}, ${item.seq}, ${item.emi})" title="Pay via KHQR">
+                <i class="bi bi-lightning-charge"></i> <span>${currentLang === 'km' ? 'បង់' : 'Pay'}</span>
+              </button>
+              <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-2 ms-1" style="font-size:0.75rem;" onclick="openUploadSlipModal(${item.id || 0}, ${item.seq}, ${item.emi})" title="Upload Slip">
+                <i class="bi bi-upload"></i>
+              </button>
+            `;
+          }
+          const trFull = document.createElement('tr');
+          trFull.innerHTML = `${baseCols}<td class="text-end">${fullActionHtml}</td>`;
+          fullTbody.appendChild(trFull);
         }
       });
     }
@@ -2325,17 +2420,66 @@
       );
     }
 
+    let currentKhqrPayment = {
+      installmentId: 0,
+      seq: 1,
+      amount: 0,
+      billRef: ''
+    };
+
+    function openKhqrPayModal(installmentId, seq, amount, billRef) {
+      currentKhqrPayment = {
+        installmentId: installmentId || 0,
+        seq: seq || 1,
+        amount: parseFloat(amount) || 0,
+        billRef: billRef || `${LOAN_DATA.applicationNo}-${String(seq || 1).padStart(2, '0')}`
+      };
+
+      const modalEl = document.getElementById('khqrPayModal');
+      if (!modalEl) return;
+
+      const seqDisp = document.getElementById('khqrModalSeqDisp');
+      if (seqDisp) seqDisp.textContent = `Installment #${currentKhqrPayment.seq}`;
+
+      const amtDisp = document.getElementById('khqrModalAmountDisp');
+      if (amtDisp) amtDisp.textContent = formatCurrency(currentKhqrPayment.amount, LOAN_DATA.currency);
+
+      const billDisp = document.getElementById('khqrModalBillDisp');
+      if (billDisp) billDisp.textContent = `BILL: ${currentKhqrPayment.billRef}`;
+
+      const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+      modal.show();
+    }
+
+    function onKhqrModalInstantPay() {
+      const modalEl = document.getElementById('khqrPayModal');
+      if (modalEl) {
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        if (modal) modal.hide();
+      }
+      simulateInstantPay(currentKhqrPayment.installmentId);
+    }
+
+    function onKhqrModalSwitchToSlip() {
+      const modalEl = document.getElementById('khqrPayModal');
+      if (modalEl) {
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        if (modal) modal.hide();
+      }
+      openUploadSlipModal(currentKhqrPayment.installmentId, currentKhqrPayment.seq, currentKhqrPayment.amount);
+    }
+
     function openUploadSlipModal(installmentId, seq, amount) {
       const modalEl = document.getElementById('uploadSlipModal');
       if (!modalEl) return;
-      document.getElementById('uploadSlipInstallmentId').value = installmentId;
-      document.getElementById('uploadSlipSeqDisp').textContent = `Installment #${seq}`;
-      document.getElementById('uploadSlipAmountDisp').textContent = `$ ${amount}`;
+      document.getElementById('uploadSlipInstallmentId').value = installmentId || 0;
+      document.getElementById('uploadSlipSeqDisp').textContent = `Installment #${seq || 1}`;
+      document.getElementById('uploadSlipAmountDisp').textContent = formatCurrency(amount, LOAN_DATA.currency);
       const refInput = document.getElementById('uploadSlipRef');
       if (refInput && !refInput.value) {
         refInput.value = `TXN-KHQR-${Date.now().toString().slice(-6)}`;
       }
-      const modal = new bootstrap.Modal(modalEl);
+      const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
       modal.show();
     }
 
@@ -2376,21 +2520,135 @@
       });
     }
 
+    function selectDropdownOptionByValue(dropdownId, val) {
+      const dd = document.getElementById(dropdownId);
+      if (!dd) return;
+      const select = dd.querySelector('select');
+      if (select) {
+        select.value = val;
+      }
+      const itemEl = Array.from(dd.querySelectorAll('.dropdown-item-custom')).find(el => {
+        const onclickAttr = el.getAttribute('onclick') || '';
+        return onclickAttr.includes(`'${val}'`);
+      });
+      if (itemEl) {
+        const labelSpan = dd.querySelector('.dropdown-label');
+        const itemSpan = itemEl.querySelector('span');
+        if (labelSpan && itemSpan) {
+          labelSpan.textContent = itemSpan.textContent;
+          const i18nKey = itemSpan.getAttribute('data-i18n');
+          if (i18nKey) labelSpan.setAttribute('data-i18n', i18nKey);
+          else labelSpan.removeAttribute('data-i18n');
+        }
+        dd.querySelectorAll('.dropdown-item-custom').forEach(item => item.classList.remove('selected'));
+        itemEl.classList.add('selected');
+      }
+    }
+
+    function updateTenureDropdown(minTenure, maxTenure) {
+      const select = document.getElementById('applyTenure');
+      const dd = document.getElementById('dd-applyTenure');
+      if (!select || !dd) return;
+
+      const currentVal = parseInt(select.value) || 24;
+      const standardTenures = [6, 12, 18, 24, 36, 48, 60];
+      let available = standardTenures.filter(t => t >= minTenure && t <= maxTenure);
+      if (!available.includes(minTenure)) available.unshift(minTenure);
+      if (!available.includes(maxTenure)) available.push(maxTenure);
+      available.sort((a, b) => a - b);
+      available = [...new Set(available)];
+
+      const selectedVal = available.includes(currentVal) ? currentVal : (available.includes(24) ? 24 : available[0]);
+
+      select.innerHTML = '';
+      available.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m;
+        const yrKm = (m % 12 === 0) ? `${m / 12} ឆ្នាំ` : `${(m / 12).toFixed(1)} ឆ្នាំ`;
+        opt.textContent = `${m} ខែ (${yrKm})`;
+        if (m === selectedVal) opt.selected = true;
+        select.appendChild(opt);
+      });
+
+      const menu = dd.querySelector('.dropdown-menu-custom');
+      if (menu) {
+        menu.innerHTML = '';
+        available.forEach(m => {
+          const yrKm = (m % 12 === 0) ? `${m / 12} ឆ្នាំ` : `${(m / 12).toFixed(1)} ឆ្នាំ`;
+          const yrEn = (m % 12 === 0) ? `${m / 12} ${(m / 12) === 1 ? 'year' : 'years'}` : `${(m / 12).toFixed(1)} years`;
+          const labelText = currentLang === 'km' ? `${m} ខែ (${yrKm})` : `${m} Months (${yrEn})`;
+          const item = document.createElement('div');
+          item.className = `dropdown-item-custom ${m === selectedVal ? 'selected' : ''}`;
+          item.setAttribute('onclick', `selectDropdownOption('dd-applyTenure', '${m}', this)`);
+          item.innerHTML = `<span>${labelText}</span><i class="bi bi-check2 check-icon"></i>`;
+          menu.appendChild(item);
+        });
+      }
+
+      const labelSpan = dd.querySelector('.dropdown-label');
+      if (labelSpan) {
+        const yrKm = (selectedVal % 12 === 0) ? `${selectedVal / 12} ឆ្នាំ` : `${(selectedVal / 12).toFixed(1)} ឆ្នាំ`;
+        const yrEn = (selectedVal % 12 === 0) ? `${selectedVal / 12} ${(selectedVal / 12) === 1 ? 'year' : 'years'}` : `${(selectedVal / 12).toFixed(1)} years`;
+        labelSpan.textContent = currentLang === 'km' ? `${selectedVal} ខែ (${yrKm})` : `${selectedVal} Months (${yrEn})`;
+      }
+    }
+
+    function onProductChange() {
+      const prodSelect = document.getElementById('applyProduct');
+      if (!prodSelect) return;
+      const selOpt = prodSelect.selectedOptions[0];
+      if (!selOpt) return;
+
+      const minAmt = parseFloat(selOpt.getAttribute('data-min')) || 500;
+      const maxAmt = parseFloat(selOpt.getAttribute('data-max')) || 50000;
+      const currency = selOpt.getAttribute('data-currency') || 'USD';
+      const minTenure = parseInt(selOpt.getAttribute('data-min-tenure')) || 6;
+      const maxTenure = parseInt(selOpt.getAttribute('data-max-tenure')) || 60;
+
+      const amountInput = document.getElementById('applyAmount');
+      if (amountInput) {
+        amountInput.min = minAmt;
+        amountInput.max = maxAmt;
+        amountInput.placeholder = currency === 'KHR' ? minAmt.toLocaleString() : minAmt;
+        const curVal = parseFloat(amountInput.value);
+        if (!curVal || curVal < minAmt) {
+          amountInput.value = minAmt;
+        } else if (curVal > maxAmt) {
+          amountInput.value = maxAmt;
+        }
+      }
+
+      selectDropdownOptionByValue('dd-applyCurrency', currency);
+      updateTenureDropdown(minTenure, maxTenure);
+      updateCalc();
+    }
+
     function updateCalc() {
       const amountInput = document.getElementById('applyAmount');
-      const pr = parseFloat(amountInput ? amountInput.value : 10000) || 10000;
-      const curEl = document.getElementById('applyCurrency');
-      const cur = curEl ? curEl.value : 'USD';
-      const tenEl = document.getElementById('applyTenure');
-      const n = parseInt(tenEl ? tenEl.value : 24) || 24;
       const prodSelect = document.getElementById('applyProduct');
       const selOpt = prodSelect ? prodSelect.selectedOptions[0] : null;
+
+      const curEl = document.getElementById('applyCurrency');
+      const cur = curEl ? curEl.value : (selOpt ? selOpt.getAttribute('data-currency') || 'USD' : 'USD');
+      const pr = parseFloat(amountInput && amountInput.value ? amountInput.value : (amountInput ? amountInput.placeholder : 10000)) || 10000;
+      const tenEl = document.getElementById('applyTenure');
+      const n = parseInt(tenEl ? tenEl.value : 24) || 24;
       const annualRate = selOpt ? (parseFloat(selOpt.getAttribute('data-rate')) || 10.5) : 10.5;
 
-      const r = (annualRate / 100) / 12;
-      const emi = (pr * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
-      const totalRepay = emi * n;
-      const totalInt = totalRepay - pr;
+      let emi = 0;
+      let totalRepay = 0;
+      let totalInt = 0;
+
+      if (pr > 0 && n > 0) {
+        if (annualRate > 0) {
+          const r = (annualRate / 100) / 12;
+          emi = (pr * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+        } else {
+          emi = pr / n;
+        }
+        totalRepay = emi * n;
+        totalInt = Math.max(0, totalRepay - pr);
+      }
 
       const emiDisp = document.getElementById('calcEmiDisplay');
       if (emiDisp) emiDisp.textContent = formatCurrency(emi, cur);
@@ -2515,8 +2773,8 @@
 
     initAmortization();
     applyLang();
+    onProductChange();
     renderTables();
-    updateCalc();
     initLoanApplicationHandler();
     initCustomAlerts();
   </script>

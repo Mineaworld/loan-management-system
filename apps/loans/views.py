@@ -1,9 +1,10 @@
+import json
 from decimal import Decimal
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.db.models import Q, Sum
+from django.db.models import Q, Sum, Count
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
@@ -265,6 +266,9 @@ def officer_dashboard_view(request):
                 except ValidationError as e:
                     messages.error(request, str(e))
 
+            tab = request.POST.get('tab') or request.GET.get('tab')
+            if tab:
+                return redirect(f"{reverse('loans:officer_dashboard')}?tab={tab}")
             return redirect('loans:officer_dashboard')
 
         receipt_id = request.POST.get('receipt_id')
@@ -288,6 +292,9 @@ def officer_dashboard_view(request):
                     )
                 except ValidationError as e:
                     messages.error(request, str(e))
+            tab = request.POST.get('tab') or request.GET.get('tab')
+            if tab:
+                return redirect(f"{reverse('loans:officer_dashboard')}?tab={tab}")
             return redirect('loans:officer_dashboard')
 
     query = request.GET.get('q', '').strip()
@@ -374,7 +381,26 @@ def officer_dashboard_view(request):
         admin_count = staff_users.filter(role=User.Role.ADMIN).count()
         borrower_count = staff_users.filter(role=User.Role.BORROWER).count()
 
+    active_section = 'sec-overview'
+    req_tab = request.GET.get('tab')
+    if req_tab in ['overview', 'applications', 'loans', 'repayments', 'reports', 'staff']:
+        active_section = f'sec-{req_tab}'
+    elif request.GET.get('scope') or (status_filter and status_filter != 'ALL') or (branch_filter and branch_filter != 'ALL') or query:
+        active_section = 'sec-applications'
+
+    product_stats = list(LoanApplication.objects.values('product__name').annotate(
+        count=Count('id'),
+        total_amt=Sum('amount')
+    ).order_by('-count'))
+    chart_product_labels = [p['product__name'] for p in product_stats] if product_stats else ['SME Business Loan', 'Personal Loan', 'Agriculture Loan']
+    chart_product_counts = [p['count'] for p in product_stats] if product_stats else [1, 1, 1]
+    chart_labels_json = json.dumps(chart_product_labels)
+    chart_counts_json = json.dumps(chart_product_counts)
+
     return render(request, 'loans/officer_dashboard.html', {
+        'active_section': active_section,
+        'chart_labels_json': chart_labels_json,
+        'chart_counts_json': chart_counts_json,
         'applications': applications,
         'recent_applications': recent_applications,
         'first_app': first_app,
