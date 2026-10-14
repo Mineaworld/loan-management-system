@@ -447,6 +447,7 @@
       border-top-width: 0 !important;
       border-bottom-width: 0 !important;
       pointer-events: none !important;
+      transition: opacity 0.35s ease, transform 0.35s ease, max-height 0.35s ease, margin 0.35s ease, padding 0.35s ease !important;
     }
 
     .custom-alert .alert-icon {
@@ -464,12 +465,12 @@
 
     .custom-alert .btn-close {
       position: absolute;
-      top: 0.75rem;
+      top: 0.65rem;
       right: 0.75rem;
-      width: 1.25rem;
-      height: 1.25rem;
+      width: 1.5rem;
+      height: 1.5rem;
       padding: 0;
-      background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%2364748b'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e") center/0.7rem auto no-repeat !important;
+      background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%2364748b'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e") center/0.75rem auto no-repeat !important;
       border: none !important;
       box-shadow: none !important;
       opacity: 0.55;
@@ -819,31 +820,26 @@
 
     function dismissCustomAlert(alertEl) {
       if (!alertEl || alertEl.classList.contains('alert-dismissing')) return;
-      alertEl.classList.add('alert-dismissing');
 
       if (alertEl._autoDismissTimeout) {
         clearTimeout(alertEl._autoDismissTimeout);
         alertEl._autoDismissTimeout = null;
       }
 
-      const currentHeight = alertEl.scrollHeight || alertEl.offsetHeight;
+      // Step 1: Capture and lock starting height before applying collapse classes
+      const currentHeight = alertEl.offsetHeight;
       alertEl.style.maxHeight = currentHeight + 'px';
-      alertEl.style.transition = 'opacity 0.35s ease, transform 0.35s ease, max-height 0.35s ease, margin 0.35s ease, padding 0.35s ease';
-
-      // Force reflow
-      void alertEl.offsetHeight;
-
-      alertEl.style.opacity = '0';
-      alertEl.style.transform = 'translateY(-8px) scale(0.98)';
-      alertEl.style.maxHeight = '0px';
-      alertEl.style.paddingTop = '0px';
-      alertEl.style.paddingBottom = '0px';
-      alertEl.style.marginTop = '0px';
-      alertEl.style.marginBottom = '0px';
-      alertEl.style.borderTopWidth = '0px';
-      alertEl.style.borderBottomWidth = '0px';
       alertEl.style.pointerEvents = 'none';
 
+      // Step 2: Force layout reflow so starting height is locked by browser
+      void alertEl.offsetHeight;
+
+      // Step 3: Trigger the transition via next frame to ensure clean start state
+      requestAnimationFrame(() => {
+        alertEl.classList.add('alert-dismissing');
+      });
+
+      // Step 4: Remove from DOM after transition completes
       setTimeout(() => {
         const parent = alertEl.parentElement;
         alertEl.remove();
@@ -852,7 +848,7 @@
             parent.remove();
           }
         }
-      }, 360);
+      }, 370);
     }
 
     function setupCustomAlert(alertEl, duration = 5000) {
