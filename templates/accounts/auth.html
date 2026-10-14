@@ -420,6 +420,9 @@
       margin-bottom: 1.25rem;
       position: relative;
       animation: alertSlideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: opacity 0.35s ease, transform 0.35s ease, max-height 0.35s ease, margin 0.35s ease, padding 0.35s ease;
+      overflow: hidden;
+      box-sizing: border-box;
     }
 
     @keyframes alertSlideDown {
@@ -431,6 +434,19 @@
         opacity: 1;
         transform: translateY(0);
       }
+    }
+
+    .custom-alert.alert-dismissing {
+      opacity: 0 !important;
+      transform: translateY(-8px) scale(0.98) !important;
+      max-height: 0 !important;
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+      border-top-width: 0 !important;
+      border-bottom-width: 0 !important;
+      pointer-events: none !important;
     }
 
     .custom-alert .alert-icon {
@@ -450,19 +466,21 @@
       position: absolute;
       top: 0.75rem;
       right: 0.75rem;
-      width: 1.15rem;
-      height: 1.15rem;
+      width: 1.25rem;
+      height: 1.25rem;
       padding: 0;
-      background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23991b1b'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e") center/0.65rem auto no-repeat !important;
+      background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%2364748b'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e") center/0.7rem auto no-repeat !important;
       border: none !important;
       box-shadow: none !important;
       opacity: 0.55;
-      transition: opacity 0.15s ease;
+      transition: opacity 0.15s ease, transform 0.15s ease;
       cursor: pointer;
+      z-index: 2;
     }
 
     .custom-alert .btn-close:hover {
       opacity: 0.95;
+      transform: scale(1.1);
     }
 
     /* Danger / Error Alert (Vibrant Red) */
@@ -478,6 +496,10 @@
     .custom-alert.alert-error .alert-icon {
       color: #dc2626 !important;
     }
+    .custom-alert.alert-danger .btn-close,
+    .custom-alert.alert-error .btn-close {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23991b1b'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e") !important;
+    }
 
     /* Warning Alert (Amber) */
     .custom-alert.alert-warning {
@@ -489,6 +511,9 @@
     }
     .custom-alert.alert-warning .alert-icon {
       color: #d97706 !important;
+    }
+    .custom-alert.alert-warning .btn-close {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%2392400e'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e") !important;
     }
 
     /* Success Alert (Emerald) */
@@ -502,6 +527,9 @@
     .custom-alert.alert-success .alert-icon {
       color: #16a34a !important;
     }
+    .custom-alert.alert-success .btn-close {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23166534'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e") !important;
+    }
 
     /* Info Alert (Blue) */
     .custom-alert.alert-info {
@@ -513,6 +541,9 @@
     }
     .custom-alert.alert-info .alert-icon {
       color: #2563eb !important;
+    }
+    .custom-alert.alert-info .btn-close {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%231e40af'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e") !important;
     }
 
     /* Red Input Highlights on Error - Crisp, No SVG Icon Collision */
@@ -786,6 +817,108 @@
       applyLanguage();
     }
 
+    function dismissCustomAlert(alertEl) {
+      if (!alertEl || alertEl.classList.contains('alert-dismissing')) return;
+      alertEl.classList.add('alert-dismissing');
+
+      if (alertEl._autoDismissTimeout) {
+        clearTimeout(alertEl._autoDismissTimeout);
+        alertEl._autoDismissTimeout = null;
+      }
+
+      const currentHeight = alertEl.scrollHeight || alertEl.offsetHeight;
+      alertEl.style.maxHeight = currentHeight + 'px';
+      alertEl.style.transition = 'opacity 0.35s ease, transform 0.35s ease, max-height 0.35s ease, margin 0.35s ease, padding 0.35s ease';
+
+      // Force reflow
+      void alertEl.offsetHeight;
+
+      alertEl.style.opacity = '0';
+      alertEl.style.transform = 'translateY(-8px) scale(0.98)';
+      alertEl.style.maxHeight = '0px';
+      alertEl.style.paddingTop = '0px';
+      alertEl.style.paddingBottom = '0px';
+      alertEl.style.marginTop = '0px';
+      alertEl.style.marginBottom = '0px';
+      alertEl.style.borderTopWidth = '0px';
+      alertEl.style.borderBottomWidth = '0px';
+      alertEl.style.pointerEvents = 'none';
+
+      setTimeout(() => {
+        const parent = alertEl.parentElement;
+        alertEl.remove();
+        if (parent && parent.classList.contains('messages-container')) {
+          if (!parent.querySelector('.custom-alert')) {
+            parent.remove();
+          }
+        }
+      }, 360);
+    }
+
+    function setupCustomAlert(alertEl, duration = 5000) {
+      if (!alertEl || alertEl.dataset.alertDismissInitialized === 'true') return;
+      alertEl.dataset.alertDismissInitialized = 'true';
+
+      let remaining = duration;
+      let timerStart = Date.now();
+      let timerId = null;
+
+      function startTimer() {
+        timerStart = Date.now();
+        timerId = setTimeout(() => {
+          dismissCustomAlert(alertEl);
+        }, remaining);
+        alertEl._autoDismissTimeout = timerId;
+      }
+
+      function pauseTimer() {
+        if (timerId) {
+          clearTimeout(timerId);
+          timerId = null;
+          alertEl._autoDismissTimeout = null;
+          const elapsed = Date.now() - timerStart;
+          remaining = Math.max(1000, remaining - elapsed);
+        }
+      }
+
+      alertEl.addEventListener('mouseenter', pauseTimer);
+      alertEl.addEventListener('mouseleave', () => {
+        if (!alertEl.classList.contains('alert-dismissing')) {
+          startTimer();
+        }
+      });
+
+      const closeBtn = alertEl.querySelector('.btn-close, [data-bs-dismiss="alert"]');
+      if (closeBtn) {
+        closeBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dismissCustomAlert(alertEl);
+        });
+      }
+
+      startTimer();
+    }
+
+    function initCustomAlerts() {
+      document.querySelectorAll('.custom-alert:not(.alert-dismissing)').forEach(el => {
+        setupCustomAlert(el, 5000);
+      });
+    }
+
+    // Delegated capture listener ensures [x] always closes any alert immediately
+    document.addEventListener('click', function(e) {
+      const closeBtn = e.target.closest('.custom-alert .btn-close, .custom-alert [data-bs-dismiss="alert"]');
+      if (closeBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        const alertEl = closeBtn.closest('.custom-alert');
+        if (alertEl) {
+          dismissCustomAlert(alertEl);
+        }
+      }
+    }, true);
+
     function formatBilingualAlerts() {
       document.querySelectorAll('.custom-alert .alert-text').forEach(el => {
         const raw = el.getAttribute('data-raw-msg') || el.textContent.trim();
@@ -916,6 +1049,7 @@
     });
 
     applyLanguage();
+    initCustomAlerts();
   </script>
 </body>
 </html>
