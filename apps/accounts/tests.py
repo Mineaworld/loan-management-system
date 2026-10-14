@@ -1,7 +1,7 @@
 from decimal import Decimal
 from django.test import TestCase, Client
 from django.urls import reverse
-from apps.accounts.models import User, BorrowerProfile, OfficerProfile
+from apps.accounts.models import User, BorrowerProfile, OfficerProfile, Branch
 from apps.accounts.forms import BorrowerRegistrationForm, LoginForm
 
 
@@ -49,12 +49,14 @@ class UserModelTest(TestCase):
         self.assertEqual(b_user.borrower_profile.credit_score, 720)
 
         o_user = User.objects.create_user(username='o_profile_test', password='password123', role=User.Role.OFFICER)
+        branch = Branch.objects.create(code='HO-PP', name_en='Phnom Penh Main', name_km='ភ្នំពេញ')
         o_profile = OfficerProfile.objects.create(
             user=o_user,
             employee_id='EMP-001',
-            branch='Phnom Penh Main'
+            branch=branch
         )
         self.assertEqual(o_user.officer_profile.employee_id, 'EMP-001')
+        self.assertEqual(o_user.officer_profile.branch.code, 'HO-PP')
 
 
 class AuthViewsTest(TestCase):
@@ -190,6 +192,16 @@ class AuthViewsTest(TestCase):
 class StaffManagementTests(TestCase):
     def setUp(self):
         self.client = Client()
+        self.branch_ho = Branch.objects.create(
+            code='HO-PP',
+            name_en='Head Office - Phnom Penh',
+            name_km='ការិយាល័យកណ្តាល - ភ្នំពេញ'
+        )
+        self.branch_sr = Branch.objects.create(
+            code='BR-SR',
+            name_en='Siem Reap Branch',
+            name_km='សាខាខេត្តសៀមរាប'
+        )
         self.admin_user = User.objects.create_user(
             username='admin_boss',
             password='password123',
@@ -199,7 +211,7 @@ class StaffManagementTests(TestCase):
         OfficerProfile.objects.create(
             user=self.admin_user,
             employee_id='ADM-001',
-            branch='Head Office - Phnom Penh',
+            branch=self.branch_ho,
             department='Executive Management'
         )
 
@@ -211,7 +223,7 @@ class StaffManagementTests(TestCase):
         OfficerProfile.objects.create(
             user=self.officer_user,
             employee_id='OFF-001',
-            branch='Siem Reap Branch',
+            branch=self.branch_sr,
             department='Credit & Underwriting'
         )
 
@@ -261,7 +273,7 @@ class StaffManagementTests(TestCase):
         self.assertEqual(user.role, User.Role.OFFICER)
         self.assertFalse(user.is_staff)
         self.assertEqual(user.officer_profile.employee_id, 'OFF-009')
-        self.assertEqual(user.officer_profile.branch, 'Battambang Branch')
+        self.assertEqual(user.officer_profile.branch.name_en, 'Battambang Branch')
 
     def test_admin_can_create_admin_staff(self):
         self.client.login(username='admin_boss', password='password123')
@@ -328,7 +340,7 @@ class StaffManagementTests(TestCase):
         self.assertEqual(self.officer_user.first_name, 'Samuel')
         self.assertEqual(self.officer_user.role, User.Role.ADMIN)
         self.assertTrue(self.officer_user.is_staff)
-        self.assertEqual(self.officer_user.officer_profile.branch, 'Head Office')
+        self.assertEqual(self.officer_user.officer_profile.branch.name_en, 'Head Office')
 
     def test_admin_cannot_demote_or_suspend_self(self):
         self.client.login(username='admin_boss', password='password123')

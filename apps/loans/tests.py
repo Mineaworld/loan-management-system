@@ -5,7 +5,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.utils import timezone
-from apps.accounts.models import User, BorrowerProfile, OfficerProfile
+from apps.accounts.models import User, BorrowerProfile, OfficerProfile, Branch
 from apps.loans.forms import LoanApplicationForm
 from apps.loans.models import LoanProduct, LoanApplication, Collateral, ActionLog, LoanInstallment, PaymentReceipt
 from apps.loans.services import (
@@ -1236,4 +1236,187 @@ class Phase3FintechAndSettlementTest(TestCase):
         self.assertContains(response, 'TXN-HIST-001')
         self.assertContains(response, 'Bakong KHQR')
         self.assertContains(response, 'បានផ្ទៀងផ្ទាត់')
+
+
+class InstitutionalBranchAndCoverageTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.branch_ho = Branch.objects.create(
+            code='HO-PP',
+            name_km='ការិយាល័យកណ្តាល (ភ្នំពេញ)',
+            name_en='Head Office - Phnom Penh',
+            province='Phnom Penh',
+            phone='023 999 001'
+        )
+        self.branch_sr = Branch.objects.create(
+            code='BR-SR',
+            name_km='សាខាខេត្តសៀមរាប',
+            name_en='Siem Reap Branch',
+            province='Siem Reap',
+            phone='063 999 003'
+        )
+
+        self.product = LoanProduct.objects.create(
+            name='Auto & Vehicle Loan',
+            code='AUTO',
+            interest_rate=Decimal('11.00'),
+            currency='USD',
+            min_amount=Decimal('2000.00'),
+            max_amount=Decimal('30000.00'),
+            min_tenure_months=12,
+            max_tenure_months=60
+        )
+
+        self.officer1 = User.objects.create_user(
+            username='co_dara',
+            password='password123',
+            first_name='Dara',
+            last_name='Sok',
+            role=User.Role.OFFICER,
+            phone_number='012888999'
+        )
+        OfficerProfile.objects.create(
+            user=self.officer1,
+            employee_id='CO-0824',
+            branch=self.branch_ho,
+            department='Credit Assessment'
+        )
+
+        self.borrower = User.objects.create_user(
+            username='borrower_coverage',
+            password='password123',
+            first_name='Minea',
+            last_name='Dy',
+            role=User.Role.BORROWER,
+            phone_number='087777888'
+        )
+        BorrowerProfile.objects.create(
+            user=self.borrower,
+            servicing_branch=self.branch_ho,
+            monthly_income=Decimal('2800.00')
+        )
+
+    def test_branch_intake_in_loan_application(self):
+        self.client.login(username='borrower_coverage', password='password123')
+        resp = self.client.post(
+            reverse('loans:borrower_portal'),
+            {
+                'product': self.product.id,
+                'branch': self.branch_sr.id,
+                'amount': '12000.00',
+                'currency': 'USD',
+                'tenure_months': '24',
+                'monthly_income': '2800.00',
+                'purpose': 'Toyota Prius Financing',
+            },
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+        )
+        self.assertEqual(resp.status_code, 200)
+        app = LoanApplication.objects.filter(purpose='Toyota Prius Financing').first()
+        self.assertIsNotNone(app)
+        self.assertEqual(app.branch, self.branch_sr)
+        self.assertEqual(app.branch.code, 'BR-SR')
+
+    def test_officer_claim_application_action(self):
+        app = LoanApplication.objects.create(
+            application_no='LN-AUTO-CLAIM-01',
+            borrower=self.borrower,
+            product=self.product,
+            branch=self.branch_ho,
+            amount=Decimal('10000.00'),
+            currency='USD',
+            tenure_months=24,
+            monthly_income=Decimal('2800.00'),
+            purpose='Motorcycle purchase',
+            status=LoanApplication.Status.SUBMITTED
+        )
+        self.assertIsNone(app.assigned_officer)
+
+        self.client.login(username='co_dara', password='password123')
+        post_resp = self.client.post(reverse('loans:officer_dashboard'), {
+            'application_id': app.id,
+            'action': 'CLAIM',
+            'remarks': 'Claiming intake application for underwriting review.'
+        })
+        self.assertRedirects(post_resp, reverse('loans:officer_dashboard'))
+
+        app.refresh_from_db()
+        self.assertEqual(app.assigned_officer, self.officer1)
+        self.assertEqual(app.status, LoanApplication.Status.UNDER_REVIEW)
+
+        log = ActionLog.objects.filter(loan=app, changed_by=self.officer1).first()
+        self.assertIsNotNone(log)
+        self.assertIn('Claiming intake application', log.action_notes)
+
+    def test_officer_queue_tabs_scope_filtering(self):
+        app1 = LoanApplication.objects.create(
+            application_no='LN-SCOPE-001',
+            borrower=self.borrower,
+            product=self.product,
+            branch=self.branch_ho,
+            assigned_officer=self.officer1,
+            amount=Decimal('5000.00'),
+            currency='USD',
+            tenure_months=12,
+            monthly_income=Decimal('2800.00'),
+            purpose='App 1 Mine',
+            status=LoanApplication.Status.UNDER_REVIEW
+        )
+        app2 = LoanApplication.objects.create(
+            application_no='LN-SCOPE-002',
+            borrower=self.borrower,
+            product=self.product,
+            branch=self.branch_sr,
+            amount=Decimal('8000.00'),
+            currency='USD',
+            tenure_months=12,
+            monthly_income=Decimal('2800.00'),
+            purpose='App 2 Unassigned',
+            status=LoanApplication.Status.SUBMITTED
+        )
+
+        self.client.login(username='co_dara', password='password123')
+
+        res_mine = self.client.get(reverse('loans:officer_dashboard') + '?scope=my_queue')
+        self.assertEqual(res_mine.status_code, 200)
+        self.assertContains(res_mine, 'LN-SCOPE-001')
+        self.assertNotContains(res_mine, 'LN-SCOPE-002')
+
+        res_unassigned = self.client.get(reverse('loans:officer_dashboard') + '?scope=unassigned')
+        self.assertEqual(res_unassigned.status_code, 200)
+        self.assertNotContains(res_unassigned, 'LN-SCOPE-001')
+        self.assertContains(res_unassigned, 'LN-SCOPE-002')
+
+        res_all = self.client.get(reverse('loans:officer_dashboard') + '?scope=all')
+        self.assertEqual(res_all.status_code, 200)
+        self.assertContains(res_all, 'LN-SCOPE-001')
+        self.assertContains(res_all, 'LN-SCOPE-002')
+
+        res_sr = self.client.get(reverse('loans:officer_dashboard') + '?branch=BR-SR')
+        self.assertEqual(res_sr.status_code, 200)
+        self.assertNotContains(res_sr, 'LN-SCOPE-001')
+        self.assertContains(res_sr, 'LN-SCOPE-002')
+
+    def test_borrower_portal_shows_servicing_officer_card(self):
+        app = LoanApplication.objects.create(
+            application_no='LN-ACTIVE-CO-01',
+            borrower=self.borrower,
+            product=self.product,
+            branch=self.branch_ho,
+            assigned_officer=self.officer1,
+            amount=Decimal('15000.00'),
+            currency='USD',
+            tenure_months=24,
+            monthly_income=Decimal('2800.00'),
+            purpose='Active Business Loan',
+            status=LoanApplication.Status.ACTIVE
+        )
+
+        self.client.login(username='borrower_coverage', password='password123')
+        resp = self.client.get(reverse('loans:borrower_portal'))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'Dara Sok')
+        self.assertContains(resp, 'CO-0824')
+        self.assertContains(resp, 'ការិយាល័យកណ្តាល (ភ្នំពេញ)')
+
 
