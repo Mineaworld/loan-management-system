@@ -153,6 +153,7 @@ def borrower_portal_view(request):
         'user_applications': user_applications,
         'active_application': active_application,
         'approved_loan': approved_loan,
+        'approved_pending_loan': approved_pending_loan,
         'active_disbursed_loan': active_disbursed_loan,
         'pending_application': pending_application,
         'installments': installments,
@@ -267,8 +268,20 @@ def officer_dashboard_view(request):
                     messages.error(request, str(e))
 
             tab = request.POST.get('tab') or request.GET.get('tab')
+            scope = request.POST.get('scope') or request.GET.get('scope')
+            query_params = []
             if tab:
-                return redirect(f"{reverse('loans:officer_dashboard')}?tab={tab}")
+                query_params.append(f"tab={tab}")
+            if scope and scope != 'all':
+                query_params.append(f"scope={scope}")
+            status_param = request.POST.get('status') or request.GET.get('status')
+            if status_param and status_param != 'ALL':
+                query_params.append(f"status={status_param}")
+            branch_param = request.POST.get('branch') or request.GET.get('branch')
+            if branch_param and branch_param != 'ALL':
+                query_params.append(f"branch={branch_param}")
+            if query_params:
+                return redirect(f"{reverse('loans:officer_dashboard')}?{'&'.join(query_params)}")
             return redirect('loans:officer_dashboard')
 
         receipt_id = request.POST.get('receipt_id')

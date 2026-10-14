@@ -882,7 +882,7 @@
     
     <header class="top-header">
       <div class="header-title-box">
-        <h1 id="pageTitle" data-i18n="page_overview">ទិដ្ឋភាពទូទៅនៃការគ្រប់គ្រង</h1>
+        <h1 id="pageTitle" data-i18n="{% if active_section == 'sec-applications' %}page_applications{% elif active_section == 'sec-loans' %}page_portfolio{% elif active_section == 'sec-repayments' %}page_repayments{% elif active_section == 'sec-reports' %}page_reports{% elif active_section == 'sec-staff' %}page_staff_management{% else %}page_overview{% endif %}">{% if active_section == 'sec-applications' %}បញ្ជីពាក្យស្នើសុំឥណទាន{% elif active_section == 'sec-loans' %}ផលប័ត្រឥណទាន{% elif active_section == 'sec-repayments' %}ផ្ទៀងផ្ទាត់ការទូទាត់ប្រាក់{% elif active_section == 'sec-reports' %}របាយការណ៍ស្ថាប័ន{% elif active_section == 'sec-staff' %}បុគ្គលិក និងតួនាទី{% else %}ទិដ្ឋភាពទូទៅនៃការគ្រប់គ្រង{% endif %}</h1>
       </div>
 
       <div class="header-actions">
@@ -1130,6 +1130,8 @@
                   {% csrf_token %}
                   <input type="hidden" name="application_id" id="cbcAppIdApprove" value="{{ first_app.id|default:'' }}">
                   <input type="hidden" name="action" value="APPROVE">
+                  <input type="hidden" name="tab" value="applications">
+                  <input type="hidden" name="scope" value="{{ current_scope }}">
                   <input type="hidden" name="remarks" class="remarks-carrier" value="">
                   <button type="submit" class="btn btn-sm btn-success w-100" id="cbcBtnApprove" {% if not first_app or first_app.status != 'SUBMITTED' and first_app.status != 'UNDER_REVIEW' %}disabled{% endif %}>
                     <i class="bi bi-check2"></i> <span data-i18n="btn_approve">អនុម័ត</span>
@@ -1140,6 +1142,8 @@
                   {% csrf_token %}
                   <input type="hidden" name="application_id" id="cbcAppIdReview" value="{{ first_app.id|default:'' }}">
                   <input type="hidden" name="action" value="REVIEW">
+                  <input type="hidden" name="tab" value="applications">
+                  <input type="hidden" name="scope" value="{{ current_scope }}">
                   <input type="hidden" name="remarks" class="remarks-carrier" value="">
                   <button type="submit" class="btn btn-sm btn-outline-warning text-dark w-100" id="cbcBtnReview" {% if not first_app or first_app.status != 'SUBMITTED' and first_app.status != 'UNDER_REVIEW' %}disabled{% endif %}>
                     <i class="bi bi-clock"></i> <span data-i18n="btn_review">កំពុងពិនិត្យ</span>
@@ -1150,6 +1154,8 @@
                   {% csrf_token %}
                   <input type="hidden" name="application_id" id="cbcAppIdReject" value="{{ first_app.id|default:'' }}">
                   <input type="hidden" name="action" value="REJECT">
+                  <input type="hidden" name="tab" value="applications">
+                  <input type="hidden" name="scope" value="{{ current_scope }}">
                   <input type="hidden" name="remarks" class="remarks-carrier" value="">
                   <button type="submit" class="btn btn-sm btn-outline-danger w-100" id="cbcBtnReject" {% if not first_app or first_app.status != 'SUBMITTED' and first_app.status != 'UNDER_REVIEW' %}disabled{% endif %}>
                     <i class="bi bi-x"></i> <span data-i18n="btn_reject">បដិសេធ</span>
@@ -1313,6 +1319,8 @@
                             {% csrf_token %}
                             <input type="hidden" name="application_id" value="{{ app.id }}">
                             <input type="hidden" name="action" value="CLAIM">
+                            <input type="hidden" name="tab" value="applications">
+                            <input type="hidden" name="scope" value="{{ current_scope }}">
                             <button type="submit" class="btn btn-sm btn-primary py-1 px-2" style="font-size:0.75rem;" title="Claim Application">
                               <i class="bi bi-hand-index-thumb me-1"></i><span data-i18n="btn_claim">ទទួលបន្ទុក</span>
                             </button>
@@ -1323,6 +1331,8 @@
                             {% csrf_token %}
                             <input type="hidden" name="application_id" value="{{ app.id }}">
                             <input type="hidden" name="action" value="APPROVE">
+                            <input type="hidden" name="tab" value="applications">
+                            <input type="hidden" name="scope" value="{{ current_scope }}">
                             <button type="submit" class="btn-act btn-act-success py-1 px-2" title="Approve">
                               <i class="bi bi-check-lg"></i>
                             </button>
@@ -1331,6 +1341,8 @@
                             {% csrf_token %}
                             <input type="hidden" name="application_id" value="{{ app.id }}">
                             <input type="hidden" name="action" value="REJECT">
+                            <input type="hidden" name="tab" value="applications">
+                            <input type="hidden" name="scope" value="{{ current_scope }}">
                             <button type="submit" class="btn-act btn-act-danger py-1 px-2" title="Reject">
                               <i class="bi bi-x-lg"></i>
                             </button>
@@ -1454,6 +1466,7 @@
                             {% csrf_token %}
                             <input type="hidden" name="receipt_id" value="{{ r.id }}">
                             <input type="hidden" name="action" value="VERIFY_RECEIPT">
+                            <input type="hidden" name="tab" value="repayments">
                             <button type="submit" class="btn btn-success btn-sm py-0 px-2" style="font-size:0.75rem;" title="Verify & Confirm">
                               <i class="bi bi-check-circle"></i> <span data-i18n="btn_verify">ផ្ទៀងផ្ទាត់</span>
                             </button>
@@ -1772,6 +1785,8 @@
           {% csrf_token %}
           <input type="hidden" name="application_id" id="disburseAppId" value="">
           <input type="hidden" name="action" value="DISBURSE">
+          <input type="hidden" name="tab" value="applications">
+          <input type="hidden" name="scope" value="{{ current_scope }}">
           <div class="modal-body p-4">
             <div class="mb-3">
               <div class="text-muted small" data-i18n="lbl_app_no">លេខពាក្យស្នើសុំ:</div>
@@ -1824,6 +1839,7 @@
           {% csrf_token %}
           <input type="hidden" name="receipt_id" id="rejectReceiptId" value="">
           <input type="hidden" name="action" value="REJECT_RECEIPT">
+          <input type="hidden" name="tab" value="repayments">
           <div class="modal-body p-4">
             <div class="mb-3">
               <div class="text-muted small" data-i18n="lbl_tx_ref">លេខយោងប្រតិបត្តិការ:</div>
@@ -2741,6 +2757,13 @@
         heading.setAttribute('data-i18n', titleKey);
         heading.textContent = I18N[currentLang][titleKey];
       }
+
+      const tabName = secId.replace('sec-', '');
+      try {
+        const url = new URL(window.location);
+        url.searchParams.set('tab', tabName);
+        window.history.replaceState(null, '', url.toString());
+      } catch (e) {}
     }
 
     function selectBranchFilter(code) {

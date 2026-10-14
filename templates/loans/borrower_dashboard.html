@@ -841,18 +841,18 @@
         <span data-i18n="nav_my_loan">ឥណទានរបស់ខ្ញុំ</span>
       </button>
 
-      <button type="button" class="nav-item-btn" onclick="switchNav('sec-applications', this)">
+      <button type="button" class="nav-item-btn {% if active_section == 'sec-applications' %}active{% endif %}" onclick="switchNav('sec-applications', this)">
         <i class="bi bi-file-earmark-text"></i>
         <span data-i18n="nav_applications">ពាក្យស្នើសុំរបស់ខ្ញុំ</span>
         <span class="badge-counter">{{ user_applications.count }}</span>
       </button>
 
-      <button type="button" class="nav-item-btn" onclick="switchNav('sec-schedule', this)">
+      <button type="button" class="nav-item-btn {% if active_section == 'sec-schedule' %}active{% endif %}" onclick="switchNav('sec-schedule', this)">
         <i class="bi bi-calendar3"></i>
         <span data-i18n="nav_schedule">តារាងសងប្រាក់</span>
       </button>
 
-      <button type="button" class="nav-item-btn" onclick="switchNav('sec-pay', this)">
+      <button type="button" class="nav-item-btn {% if active_section == 'sec-pay' %}active{% endif %}" onclick="switchNav('sec-pay', this)">
         <i class="bi bi-qr-code-scan"></i>
         <span data-i18n="nav_pay">បង់ប្រាក់ KHQR</span>
       </button>
@@ -888,7 +888,7 @@
     
     <header class="top-header">
       <div class="header-title-box">
-        <h1 id="pageTitle" data-i18n="{% if active_section == 'sec-apply' %}page_apply{% elif active_section == 'sec-history' %}page_history{% else %}page_my_loan{% endif %}">{% if active_section == 'sec-apply' %}ស្នើសុំឥណទានថ្មី{% elif active_section == 'sec-history' %}ប្រវត្តិប្រតិបត្តិការ{% else %}ឥណទានរបស់ខ្ញុំ{% endif %}</h1>
+        <h1 id="pageTitle" data-i18n="{% if active_section == 'sec-apply' %}page_apply{% elif active_section == 'sec-history' %}page_history{% elif active_section == 'sec-applications' %}page_applications{% elif active_section == 'sec-schedule' %}page_schedule{% elif active_section == 'sec-pay' %}page_pay{% else %}page_my_loan{% endif %}">{% if active_section == 'sec-apply' %}ស្នើសុំឥណទានថ្មី{% elif active_section == 'sec-history' %}ប្រវត្តិប្រតិបត្តិការ{% elif active_section == 'sec-applications' %}ពាក្យស្នើសុំរបស់ខ្ញុំ{% elif active_section == 'sec-schedule' %}តារាងរំលស់ប្រាក់{% elif active_section == 'sec-pay' %}ការទូទាត់ប្រាក់ KHQR{% else %}ឥណទានរបស់ខ្ញុំ{% endif %}</h1>
       </div>
 
       <div class="header-actions">
@@ -1003,10 +1003,10 @@
               <div class="clean-card h-100">
                 <span class="text-muted small" data-i18n="lbl_outstanding">សមតុល្យប្រាក់ដើមនៅសល់</span>
                 <div class="fs-3 fw-bold text-primary mt-1 font-monospace" id="dispOutstanding">
-                  $ {{ remaining_principal|default:approved_loan.amount|floatformat:2 }}
+                  {% if approved_loan.currency == 'KHR' %}៛{% else %}${% endif %} {{ remaining_principal|default:approved_loan.amount|floatformat:2 }}
                 </div>
                 <div class="text-muted small mt-1">
-                  <span data-i18n="lbl_initial_principal">ប្រាក់ដើមដំបូង</span>: $ {{ approved_loan.amount|floatformat:2 }}
+                  <span data-i18n="lbl_initial_principal">ប្រាក់ដើមដំបូង</span>: {% if approved_loan.currency == 'KHR' %}៛{% else %}${% endif %} {{ approved_loan.amount|floatformat:2 }}
                 </div>
               </div>
             </div>
@@ -1020,9 +1020,9 @@
                 {% endif %}
                 <div class="fs-3 fw-bold text-dark mt-1 font-monospace" id="dispNextDueAmount">
                   {% if not next_installment and total_count > 0 and paid_count == total_count %}
-                    $ 0.00
+                    {% if approved_loan.currency == 'KHR' %}៛ 0{% else %}$ 0.00{% endif %}
                   {% else %}
-                    $ {% if next_installment %}{{ next_installment.total_installment_emi|floatformat:2 }}{% else %}{{ approved_loan.emi|floatformat:2 }}{% endif %}
+                    {% if approved_loan.currency == 'KHR' %}៛ {% if next_installment %}{{ next_installment.total_installment_emi|floatformat:0 }}{% else %}{{ approved_loan.emi|floatformat:0 }}{% endif %}{% else %}$ {% if next_installment %}{{ next_installment.total_installment_emi|floatformat:2 }}{% else %}{{ approved_loan.emi|floatformat:2 }}{% endif %}{% endif %}
                   {% endif %}
                 </div>
                 <div class="small mt-1 {% if days_remaining < 0 %}text-danger{% elif not next_installment and total_count > 0 and paid_count == total_count %}text-success{% else %}text-warning{% endif %}">
@@ -1086,14 +1086,14 @@
                       <tr>
                         <td class="text-center font-monospace">#{{ inst.sequence_number }}</td>
                         <td class="text-muted font-monospace">{{ inst.due_date|date:"d-M-Y" }}</td>
-                        <td class="text-end font-monospace fw-semibold text-dark">$ {{ inst.total_installment_emi|floatformat:2 }}</td>
-                        <td class="text-end font-monospace text-muted">$ {{ inst.principal_component|floatformat:2 }}</td>
-                        <td class="text-end font-monospace text-muted">$ {{ inst.interest_component|floatformat:2 }}</td>
-                        <td class="text-end font-monospace text-primary">$ {{ inst.remaining_balance|floatformat:2 }}</td>
+                        <td class="text-end font-monospace fw-semibold text-dark">{% if approved_loan.currency == 'KHR' %}៛{% else %}${% endif %} {{ inst.total_installment_emi|floatformat:2 }}</td>
+                        <td class="text-end font-monospace text-muted">{% if approved_loan.currency == 'KHR' %}៛{% else %}${% endif %} {{ inst.principal_component|floatformat:2 }}</td>
+                        <td class="text-end font-monospace text-muted">{% if approved_loan.currency == 'KHR' %}៛{% else %}${% endif %} {{ inst.interest_component|floatformat:2 }}</td>
+                        <td class="text-end font-monospace text-primary">{% if approved_loan.currency == 'KHR' %}៛{% else %}${% endif %} {{ inst.remaining_balance|floatformat:2 }}</td>
                         <td class="text-center"><span class="badge-status badge-{{ inst.status|lower }}" data-i18n="status_{{ inst.status|lower }}">{{ inst.get_status_display }}</span></td>
                         <td class="text-end">
                           {% if inst.status == 'PENDING' %}
-                            <button type="button" class="btn-act btn-act-primary py-1 px-2" onclick="switchNav('sec-pay')">
+                            <button type="button" class="btn-act btn-act-primary py-1 px-2" onclick="openKhqrPayModal({{ inst.id }}, {{ inst.sequence_number }}, {{ inst.total_installment_emi|unlocalize }})">
                               <span data-i18n="btn_pay">បង់ប្រាក់</span>
                             </button>
                           {% elif inst.status == 'PAID' %}
@@ -1123,7 +1123,7 @@
               </div>
               <div class="text-md-end flex-shrink-0">
                 <span class="text-muted small d-block" data-i18n="lbl_apply_amount">ចំនួនទឹកប្រាក់ស្នើសុំ</span>
-                <span class="fs-3 fw-bold text-primary font-monospace">$ {{ pending_application.amount|floatformat:2 }}</span>
+                <span class="fs-3 fw-bold text-primary font-monospace">{% if pending_application.currency == 'KHR' %}៛{% else %}${% endif %} {{ pending_application.amount|floatformat:2 }}</span>
                 <div class="small text-muted font-monospace">{{ pending_application.tenure_months }} <span data-i18n="lbl_months">ខែ</span> @ {{ pending_application.product.interest_rate }}% p.a.</div>
               </div>
             </div>
@@ -1137,11 +1137,11 @@
               </div>
               <div class="col-6 col-md-3">
                 <span class="text-muted d-block" data-i18n="th_emi">ការបង់ប្រចាំខែប៉ាន់ស្មាន</span>
-                <span class="fw-semibold text-dark font-monospace">$ {{ pending_application.emi|floatformat:2 }}</span>
+                <span class="fw-semibold text-dark font-monospace">{% if pending_application.currency == 'KHR' %}៛{% else %}${% endif %} {{ pending_application.emi|floatformat:2 }}</span>
               </div>
               <div class="col-6 col-md-3">
                 <span class="text-muted d-block" data-i18n="lbl_apply_income">ប្រាក់ចំណូលប្រចាំខែ</span>
-                <span class="fw-semibold font-monospace">$ {{ pending_application.monthly_income|floatformat:2 }}</span>
+                <span class="fw-semibold font-monospace">{% if pending_application.currency == 'KHR' %}៛{% else %}${% endif %} {{ pending_application.monthly_income|floatformat:2 }}</span>
               </div>
               <div class="col-6 col-md-3">
                 <span class="text-muted d-block" data-i18n="lbl_apply_purpose">គោលបំណង</span>
@@ -1204,7 +1204,7 @@
 
       </section>
 
-      <section id="sec-applications" class="view-section">
+      <section id="sec-applications" class="view-section {% if active_section == 'sec-applications' %}active{% endif %}">
         <div class="clean-card">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
@@ -1235,9 +1235,9 @@
                     <td class="font-monospace fw-semibold text-primary">{{ app.application_no }}</td>
                     <td class="text-muted small">{{ app.created_at|date:"d-M-Y" }}</td>
                     <td class="fw-semibold">{{ app.product.name }}</td>
-                    <td class="text-end font-monospace fw-bold">$ {{ app.amount|floatformat:2 }}</td>
+                    <td class="text-end font-monospace fw-bold">{% if app.currency == 'KHR' %}៛{% else %}${% endif %} {{ app.amount|floatformat:2 }}</td>
                     <td class="text-center font-monospace">{{ app.tenure_months }} <span data-i18n="lbl_months">ខែ</span></td>
-                    <td class="text-end font-monospace text-primary">$ {{ app.emi|floatformat:2 }}</td>
+                    <td class="text-end font-monospace text-primary">{% if app.currency == 'KHR' %}៛{% else %}${% endif %} {{ app.emi|floatformat:2 }}</td>
                     <td class="text-center">
                       <span class="badge-status badge-{{ app.status|lower }}" data-i18n="status_{{ app.status|lower }}">{{ app.get_status_display }}</span>
                     </td>
@@ -1258,7 +1258,7 @@
         </div>
       </section>
 
-      <section id="sec-schedule" class="view-section">
+      <section id="sec-schedule" class="view-section {% if active_section == 'sec-schedule' %}active{% endif %}">
         {% if approved_loan or active_application %}
           <div class="clean-card">
             <div class="d-flex justify-content-between align-items-center mb-3">
@@ -1266,9 +1266,9 @@
                 <span class="fw-bold d-block" data-i18n="title_full_schedule">តារាងរំលស់ពេញលេញ</span>
                 <span class="text-muted small">
                   {% if approved_loan %}
-                    {{ approved_loan.application_no }} — $ {{ approved_loan.amount|floatformat:2 }} @ {{ approved_loan.product.interest_rate }}% p.a. ({{ approved_loan.tenure_months }} Months)
+                    {{ approved_loan.application_no }} — {% if approved_loan.currency == 'KHR' %}៛{% else %}${% endif %} {{ approved_loan.amount|floatformat:2 }} @ {{ approved_loan.product.interest_rate }}% p.a. ({{ approved_loan.tenure_months }} Months)
                   {% else %}
-                    {{ active_application.application_no }} — $ {{ active_application.amount|floatformat:2 }} @ {{ active_application.product.interest_rate }}% p.a. ({{ active_application.tenure_months }} Months)
+                    {{ active_application.application_no }} — {% if active_application.currency == 'KHR' %}៛{% else %}${% endif %} {{ active_application.amount|floatformat:2 }} @ {{ active_application.product.interest_rate }}% p.a. ({{ active_application.tenure_months }} Months)
                   {% endif %}
                 </span>
               </div>
@@ -1297,10 +1297,10 @@
                       <tr>
                         <td class="text-center font-monospace">#{{ inst.sequence_number }}</td>
                         <td class="text-muted font-monospace">{{ inst.due_date|date:"d-M-Y" }}</td>
-                        <td class="text-end font-monospace fw-semibold text-dark">$ {{ inst.total_installment_emi|floatformat:2 }}</td>
-                        <td class="text-end font-monospace text-muted">$ {{ inst.principal_component|floatformat:2 }}</td>
-                        <td class="text-end font-monospace text-muted">$ {{ inst.interest_component|floatformat:2 }}</td>
-                        <td class="text-end font-monospace text-primary">$ {{ inst.remaining_balance|floatformat:2 }}</td>
+                        <td class="text-end font-monospace fw-semibold text-dark">{% if inst.loan.currency == 'KHR' or approved_loan.currency == 'KHR' %}៛{% else %}${% endif %} {{ inst.total_installment_emi|floatformat:2 }}</td>
+                        <td class="text-end font-monospace text-muted">{% if inst.loan.currency == 'KHR' or approved_loan.currency == 'KHR' %}៛{% else %}${% endif %} {{ inst.principal_component|floatformat:2 }}</td>
+                        <td class="text-end font-monospace text-muted">{% if inst.loan.currency == 'KHR' or approved_loan.currency == 'KHR' %}៛{% else %}${% endif %} {{ inst.interest_component|floatformat:2 }}</td>
+                        <td class="text-end font-monospace text-primary">{% if inst.loan.currency == 'KHR' or approved_loan.currency == 'KHR' %}៛{% else %}${% endif %} {{ inst.remaining_balance|floatformat:2 }}</td>
                         <td class="text-center"><span class="badge-status badge-{{ inst.status|lower }}" data-i18n="status_{{ inst.status|lower }}">{{ inst.get_status_display }}</span></td>
                         <td class="text-end">
                           {% if inst.status == 'PAID' %}
@@ -1308,10 +1308,10 @@
                           {% elif inst.status == 'VERIFYING' %}
                             <span class="text-primary small fw-semibold"><i class="bi bi-hourglass-split me-1"></i><span data-i18n="badge_verifying">ផ្ទៀងផ្ទាត់</span></span>
                           {% else %}
-                            <button type="button" class="btn btn-outline-primary btn-sm py-0 px-2" style="font-size:0.75rem;" onclick="simulateInstantPay({{ inst.id }})" title="Pay via KHQR">
+                            <button type="button" class="btn btn-outline-primary btn-sm py-0 px-2" style="font-size:0.75rem;" onclick="openKhqrPayModal({{ inst.id }}, {{ inst.sequence_number }}, {{ inst.total_installment_emi|unlocalize }})" title="Pay via KHQR">
                               <i class="bi bi-lightning-charge"></i> <span data-i18n="btn_pay_short">បង់</span>
                             </button>
-                            <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-2 ms-1" style="font-size:0.75rem;" onclick="openUploadSlipModal({{ inst.id }}, {{ inst.sequence_number }}, '{{ inst.total_installment_emi|floatformat:2 }}')" title="Upload Slip">
+                            <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-2 ms-1" style="font-size:0.75rem;" onclick="openUploadSlipModal({{ inst.id }}, {{ inst.sequence_number }}, {{ inst.total_installment_emi|unlocalize }})" title="Upload Slip">
                               <i class="bi bi-upload"></i>
                             </button>
                           {% endif %}
@@ -1336,16 +1336,16 @@
       </section>
 
       <!-- KHQR Payment -->
-      <section id="sec-pay" class="view-section">
-        {% if approved_loan %}
+      <section id="sec-pay" class="view-section {% if active_section == 'sec-pay' %}active{% endif %}">
+        {% if active_disbursed_loan and next_installment %}
           <div class="clean-card mb-4 text-center">
             <span class="fw-bold fs-5 d-block mb-1" data-i18n="title_pay_khqr">ការទូទាត់តាមប្រព័ន្ធបាគង KHQR</span>
-            <span class="text-muted small" data-i18n="lbl_amount_due">ចំនួនទឹកប្រាក់ត្រូវបង់ (Installment #{% if next_installment %}{{ next_installment.sequence_number }}{% else %}1{% endif %}):</span>
+            <span class="text-muted small" data-i18n="lbl_amount_due">ចំនួនទឹកប្រាក់ត្រូវបង់ (Installment #{{ next_installment.sequence_number }}):</span>
             <span class="text-primary fw-bold font-monospace fs-4 ms-2" id="payAmountDisp">
-              {% if approved_loan.currency == 'KHR' %}
-                ៛ {% if next_installment %}{{ next_installment.total_installment_emi|floatformat:0 }}{% else %}{{ approved_loan.emi|floatformat:0 }}{% endif %}
+              {% if active_disbursed_loan.currency == 'KHR' %}
+                ៛ {{ next_installment.total_installment_emi|floatformat:0 }}
               {% else %}
-                $ {% if next_installment %}{{ next_installment.total_installment_emi|floatformat:2 }}{% else %}{{ approved_loan.emi|floatformat:2 }}{% endif %}
+                $ {{ next_installment.total_installment_emi|floatformat:2 }}
               {% endif %}
             </span>
           </div>
@@ -1368,20 +1368,40 @@
                   <rect x="68" y="46" width="18" height="8" fill="#0f172a"/>
                 </svg>
               </div>
-              <div class="small fw-bold text-dark">{{ request.user.get_full_name|default:request.user.username }} • Installment #{% if next_installment %}{{ next_installment.sequence_number }}{% else %}1{% endif %}</div>
-              <div class="text-muted font-monospace small">BILL: {{ approved_loan.application_no }}-{% if next_installment %}{{ next_installment.sequence_number|stringformat:"02d" }}{% else %}01{% endif %}</div>
+              <div class="small fw-bold text-dark">{{ request.user.get_full_name|default:request.user.username }} • Installment #{{ next_installment.sequence_number }}</div>
+              <div class="text-muted font-monospace small">BILL: {{ active_disbursed_loan.application_no }}-{{ next_installment.sequence_number|stringformat:"02d" }}</div>
             </div>
           </div>
 
           <div class="clean-card max-w-md mx-auto text-center" style="max-width: 480px; margin: 0 auto;">
             <div class="d-flex justify-content-center gap-2 flex-wrap">
-              <button type="button" class="btn btn-primary btn-sm px-3" onclick="simulateInstantPay({% if next_installment %}{{ next_installment.id }}{% else %}0{% endif %})" id="btnInstantPay">
+              <button type="button" class="btn btn-primary btn-sm px-3" onclick="simulateInstantPay({{ next_installment.id }})" id="btnInstantPay">
                 <i class="bi bi-lightning-charge me-1"></i> <span data-i18n="btn_instant_pay">ទូទាត់ភ្លាមៗ</span>
               </button>
-              <button type="button" class="btn btn-outline-primary btn-sm px-3" onclick="openUploadSlipModal({% if next_installment %}{{ next_installment.id }}, {{ next_installment.sequence_number }}, {{ next_installment.total_installment_emi|unlocalize }}{% else %}0, 1, {{ approved_loan.emi|unlocalize }}{% endif %})">
+              <button type="button" class="btn btn-outline-primary btn-sm px-3" onclick="openUploadSlipModal({{ next_installment.id }}, {{ next_installment.sequence_number }}, {{ next_installment.total_installment_emi|unlocalize }})">
                 <i class="bi bi-upload me-1"></i> <span data-i18n="btn_upload_slip">ផ្ញើបង្កាន់ដៃ</span>
               </button>
             </div>
+          </div>
+
+        {% elif active_disbursed_loan and not next_installment and total_count > 0 and paid_count == total_count %}
+          <div class="clean-card empty-state-box">
+            <div class="empty-state-icon text-success"><i class="bi bi-check-circle-fill"></i></div>
+            <h5 class="fw-bold mb-2" data-i18n="lbl_fully_settled">ការទូទាត់រួចរាល់ 100%</h5>
+            <p class="text-muted small mb-3">ឥណទានរបស់អ្នកត្រូវបានទូទាត់រួចរាល់ទាំងស្រុង។ មិនមានការបង់ប្រាក់នៅសល់ឡើយ។</p>
+            <button type="button" class="btn btn-outline-primary btn-sm" onclick="switchNav('sec-history')">
+              <i class="bi bi-clock-history me-1"></i> <span data-i18n="nav_history">ប្រវត្តិបង់ប្រាក់</span>
+            </button>
+          </div>
+
+        {% elif approved_pending_loan %}
+          <div class="clean-card empty-state-box">
+            <div class="empty-state-icon text-primary"><i class="bi bi-hourglass-split"></i></div>
+            <h5 class="fw-bold mb-2">ឥណទានបានអនុម័ត — រង់ចាំការបើកផ្តល់</h5>
+            <p class="text-muted small mb-3">ពាក្យស្នើសុំលេខ {{ approved_pending_loan.application_no }} ត្រូវបានអនុម័តរួចរាល់។ តារាងបង់ប្រាក់នឹងដំណើរការបន្ទាប់ពីប្រាក់កម្ចីត្រូវបានបើកផ្តល់។</p>
+            <button type="button" class="btn btn-outline-primary btn-sm" onclick="switchNav('sec-my-loan')">
+              <i class="bi bi-wallet2 me-1"></i> <span data-i18n="nav_my_loan">ឥណទានរបស់ខ្ញុំ</span>
+            </button>
           </div>
 
         {% elif pending_application %}
@@ -2298,6 +2318,13 @@
         heading.setAttribute('data-i18n', titleKey);
         heading.textContent = I18N[currentLang][titleKey];
       }
+
+      const tabName = secId.replace('sec-', '');
+      try {
+        const url = new URL(window.location);
+        url.searchParams.set('tab', tabName);
+        window.history.replaceState(null, '', url.toString());
+      } catch (e) {}
     }
 
     function formatCurrency(val, cur = 'USD') {
@@ -2630,7 +2657,13 @@
 
       const curEl = document.getElementById('applyCurrency');
       const cur = curEl ? curEl.value : (selOpt ? selOpt.getAttribute('data-currency') || 'USD' : 'USD');
-      const pr = parseFloat(amountInput && amountInput.value ? amountInput.value : (amountInput ? amountInput.placeholder : 10000)) || 10000;
+      let pr = 0;
+      if (amountInput && amountInput.value !== '') {
+        pr = parseFloat(amountInput.value);
+        if (isNaN(pr)) pr = 0;
+      } else if (amountInput && amountInput.placeholder) {
+        pr = parseFloat(amountInput.placeholder) || 0;
+      }
       const tenEl = document.getElementById('applyTenure');
       const n = parseInt(tenEl ? tenEl.value : 24) || 24;
       const annualRate = selOpt ? (parseFloat(selOpt.getAttribute('data-rate')) || 10.5) : 10.5;
