@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LMS - Login & Register | Cambodian Microfinance</title>
+  <title>Sovanaphum Microfinance Plc. | គ្រឹះស្ថានមីក្រូហិរញ្ញវត្ថុ សុវណ្ណភូមិ ភីអិលស៊ី</title>
 
   <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}" />
   <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}" />
@@ -547,8 +547,8 @@
     <a href="{% url 'accounts:auth' %}" class="brand-mark">
       <img src="{% static 'images/logo.png' %}" alt="Logo" class="brand-img-logo" style="height: 38px; width: 38px; border-radius: 9px; object-fit: cover; box-shadow: 0 2px 6px rgba(0,0,0,0.12);">
       <div>
-        <div class="brand-text">Loan Management System</div>
-        <div class="text-muted" style="font-size: 0.68rem; font-weight: 500;">NBC Reducing Balance Standard</div>
+        <div class="brand-text" data-i18n="brand_name">គ្រឹះស្ថានមីក្រូហិរញ្ញវត្ថុ សុវណ្ណភូមិ ភីអិលស៊ី</div>
+        <div class="text-muted" style="font-size: 0.68rem; font-weight: 500;" data-i18n="brand_sub">Sovanaphum Microfinance Plc. • NBC Prakas B7-024-118 MDI</div>
       </div>
     </a>
     <div class="d-flex align-items-center gap-3">
@@ -719,7 +719,7 @@
   </main>
 
   <footer class="auth-footer">
-    <span>Cambodia Loan Management System (NBC Reducing Balance Standard)</span>
+    <span>គ្រឹះស្ថានមីក្រូហិរញ្ញវត្ថុ សុវណ្ណភូមិ ភីអិលស៊ី (Sovanaphum Microfinance Plc. • NBC Prakas B7-024-118 MDI)</span>
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -727,9 +727,11 @@
   <script>
     const I18N = {
       km: {
+        brand_name: "គ្រឹះស្ថានមីក្រូហិរញ្ញវត្ថុ សុវណ្ណភូមិ ភីអិលស៊ី",
+        brand_sub: "Sovanaphum Microfinance Plc. • NBC Prakas B7-024-118 MDI",
         tab_login: "ចូលប្រើប្រាស់",
         tab_register: "ចុះឈ្មោះ",
-        security_notice: "ប្រព័ន្ធធនាគារមានសុវត្ថិភាពស្របតាមបទដ្ឋានធនាគារជាតិនៃកម្ពុជា (NBC)",
+        security_notice: "ប្រព័ន្ធធនាគារមានសុវត្ថិភាពស្របតាមអាជ្ញាប័ណ្ណធនាគារជាតិនៃកម្ពុជា (NBC Prakas B7-024-118 MDI)",
         lbl_username: "ឈ្មោះអ្នកប្រើ ឬ លេខទូរស័ព្ទ",
         lbl_password: "លេខសម្ងាត់",
         forgot_pass: "ភ្លេចលេខសម្ងាត់?",
@@ -750,9 +752,11 @@
         ph_reg_name: "វណ្ណៈ កែវ"
       },
       en: {
+        brand_name: "Sovanaphum Microfinance Plc.",
+        brand_sub: "គ្រឹះស្ថានមីក្រូហិរញ្ញវត្ថុ សុវណ្ណភូមិ ភីអិលស៊ី • NBC Prakas B7-024-118 MDI",
         tab_login: "Sign In",
         tab_register: "Sign Up",
-        security_notice: "Institutional banking gateway protected by NBC regulatory security standards.",
+        security_notice: "Institutional banking gateway licensed under NBC Prakas B7-024-118 MDI.",
         lbl_username: "Username or Phone Number",
         lbl_password: "Password",
         forgot_pass: "Forgot password?",

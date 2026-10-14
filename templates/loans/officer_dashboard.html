@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LMS - Officer Dashboard | Cambodian Microfinance</title>
+  <title>Sovanaphum Microfinance - Officer Dashboard | គ្រឹះស្ថានមីក្រូហិរញ្ញវត្ថុ សុវណ្ណភូមិ</title>
 
   <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}" />
   <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}" />
@@ -785,8 +785,8 @@
     <a href="{% url 'loans:officer_dashboard' %}" class="sidebar-brand">
       <img src="{% static 'images/logo.png' %}" alt="Logo" class="brand-img-logo" style="height: 36px; width: 36px; border-radius: 8px; object-fit: cover; box-shadow: 0 2px 6px rgba(0,0,0,0.12); flex-shrink: 0;">
       <div>
-        <div class="brand-title">Credit Portal</div>
-        <div class="brand-role" data-i18n="role_officer">មន្ត្រីឥណទាន</div>
+        <div class="brand-title">Sovanaphum MFI</div>
+        <div class="brand-role" data-i18n="role_officer">មន្ត្រីឥណទាន • Staff Portal</div>
       </div>
     </a>
 
@@ -855,8 +855,8 @@
 
       <div class="header-actions">
         <div class="header-org-badge d-none d-lg-flex align-items-center gap-2">
-          <span class="badge-branch"><i class="bi bi-geo-alt-fill text-primary me-1"></i>{{ request.user.officer_profile.branch|default:"Phnom Penh Head Office" }}</span>
-          <span class="badge-dept"><i class="bi bi-building text-secondary me-1"></i>{{ request.user.officer_profile.department|default:"Credit Underwriting" }}</span>
+          <span class="badge-branch"><i class="bi bi-geo-alt-fill text-danger me-1"></i>{% if request.user.officer_profile.branch %}{{ request.user.officer_profile.branch.name_km }}{% else %}ការិយាល័យកណ្តាល (ភ្នំពេញ){% endif %}</span>
+          <span class="badge-dept"><i class="bi bi-building text-primary me-1"></i>{{ request.user.officer_profile.department|default:"Credit Underwriting" }}</span>
         </div>
 
         <div class="header-user-badge d-flex align-items-center">
@@ -1134,10 +1134,57 @@
         {% endwith %}
 
         <div class="clean-card">
+          <!-- Multi-Tab Queue Filtering (Coverage Model) -->
+          <div class="d-flex align-items-center gap-2 mb-3 border-bottom pb-2 flex-wrap">
+            <a href="?scope=my_queue{% if selected_status != 'ALL' %}&status={{ selected_status }}{% endif %}{% if selected_branch != 'ALL' %}&branch={{ selected_branch }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" class="btn btn-sm {% if current_scope == 'my_queue' %}btn-primary{% else %}btn-outline-secondary{% endif %} d-inline-flex align-items-center gap-1.5" style="border-radius: 8px;">
+              <i class="bi bi-person-check-fill"></i>
+              <span data-i18n="tab_my_queue">អតិថិជនទទួលបន្ទុក</span>
+              <span class="badge {% if current_scope == 'my_queue' %}bg-white text-primary{% else %}bg-secondary{% endif %} rounded-pill font-monospace ms-1">{{ my_queue_count }}</span>
+            </a>
+
+            <a href="?scope=unassigned{% if selected_status != 'ALL' %}&status={{ selected_status }}{% endif %}{% if selected_branch != 'ALL' %}&branch={{ selected_branch }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" class="btn btn-sm {% if current_scope == 'unassigned' %}btn-primary{% else %}btn-outline-secondary{% endif %} d-inline-flex align-items-center gap-1.5" style="border-radius: 8px;">
+              <i class="bi bi-inbox-fill"></i>
+              <span data-i18n="tab_unassigned">មិនទាន់ចាត់តាំង</span>
+              <span class="badge {% if current_scope == 'unassigned' %}bg-white text-primary{% else %}bg-warning text-dark{% endif %} rounded-pill font-monospace ms-1">{{ unassigned_count }}</span>
+            </a>
+
+            <a href="?scope=all{% if selected_status != 'ALL' %}&status={{ selected_status }}{% endif %}{% if selected_branch != 'ALL' %}&branch={{ selected_branch }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" class="btn btn-sm {% if current_scope == 'all' %}btn-primary{% else %}btn-outline-secondary{% endif %} d-inline-flex align-items-center gap-1.5" style="border-radius: 8px;">
+              <i class="bi bi-building"></i>
+              <span data-i18n="tab_all_branch">ទូទាំងសាខា</span>
+              <span class="badge {% if current_scope == 'all' %}bg-white text-primary{% else %}bg-secondary{% endif %} rounded-pill font-monospace ms-1">{{ all_queue_count }}</span>
+            </a>
+          </div>
+
           <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
             <span class="fw-bold" data-i18n="title_app_queue">បញ្ជីពាក្យស្នើសុំឥណទានទាំងអស់</span>
-            <div class="d-flex gap-2">
+            <div class="d-flex gap-2 flex-wrap">
               <input type="text" class="form-control form-control-sm" data-i18n-placeholder="ph_search_apps" placeholder="ស្វែងរក ID, ឈ្មោះ, ទូរស័ព្ទ..." id="searchAppInput" oninput="filterAppsTable()">
+              
+              <div class="animated-dropdown" id="dd-filterAppBranch" style="min-width: 170px;">
+                <select class="d-none" id="filterAppBranch" onchange="filterBranchChanged(this.value)">
+                  <option value="ALL" {% if selected_branch == 'ALL' %}selected{% endif %}>សាខាទាំងអស់ / All</option>
+                  {% for b in branches %}
+                    <option value="{{ b.code }}" {% if selected_branch == b.code %}selected{% endif %}>{{ b.name_km }} ({{ b.code }})</option>
+                  {% endfor %}
+                </select>
+                <button type="button" class="dropdown-trigger" onclick="toggleDropdown('dd-filterAppBranch')">
+                  <span class="dropdown-label">{% if selected_branch == 'ALL' %}សាខាទាំងអស់ / All Branches{% else %}{{ selected_branch }}{% endif %}</span>
+                  <i class="bi bi-chevron-down dropdown-chevron"></i>
+                </button>
+                <div class="dropdown-menu-custom">
+                  <div class="dropdown-item-custom {% if selected_branch == 'ALL' %}selected{% endif %}" onclick="selectBranchFilter('ALL')">
+                    <span>សាខាទាំងអស់ / All Branches</span>
+                    <i class="bi bi-check2 check-icon"></i>
+                  </div>
+                  {% for b in branches %}
+                    <div class="dropdown-item-custom {% if selected_branch == b.code %}selected{% endif %}" onclick="selectBranchFilter('{{ b.code }}')">
+                      <span>{{ b.name_km }} ({{ b.code }})</span>
+                      <i class="bi bi-check2 check-icon"></i>
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+
               <div class="animated-dropdown" id="dd-filterAppStatus" style="min-width: 170px;">
                 <select class="d-none" id="filterAppStatus" onchange="filterAppsTable()">
                   <option value="ALL" selected data-i18n="opt_status_all">ស្ថានភាពទាំងអស់</option>
@@ -1183,6 +1230,8 @@
                   <th data-i18n="th_id">ID</th>
                   <th data-i18n="th_date">កាលបរិច្ឆេទ</th>
                   <th data-i18n="th_borrower">អតិថិជន</th>
+                  <th data-i18n="th_branch">សាខា</th>
+                  <th data-i18n="th_officer">មន្ត្រីទទួលបន្ទុក</th>
                   <th data-i18n="th_product">ផលិតផល</th>
                   <th class="text-end" data-i18n="th_amount">ទឹកប្រាក់</th>
                   <th class="text-center" data-i18n="th_cbc">CBC</th>
@@ -1192,12 +1241,25 @@
               </thead>
               <tbody id="fullAppsTbody">
                 {% for app in applications %}
-                  <tr data-app-id="{{ app.id }}" data-app-no="{{ app.application_no }}" data-applicant="{{ app.borrower.get_full_name|default:app.borrower.username }}" data-phone="{{ app.borrower.phone_number|default:'' }}" data-status="{{ app.status }}">
+                  <tr data-app-id="{{ app.id }}" data-app-no="{{ app.application_no }}" data-applicant="{{ app.borrower.get_full_name|default:app.borrower.username }}" data-phone="{{ app.borrower.phone_number|default:'' }}" data-status="{{ app.status }}" data-branch="{{ app.branch.code|default:'HO-PP' }}">
                     <td class="font-monospace fw-semibold text-primary">{{ app.application_no }}</td>
                     <td class="text-muted small">{{ app.created_at|date:"d-M-Y" }}</td>
                     <td>
                       <div class="fw-semibold">{{ app.borrower.get_full_name|default:app.borrower.username }}</div>
                       <div class="text-muted small font-monospace">{{ app.borrower.phone_number|default:'' }}</div>
+                    </td>
+                    <td>
+                      <span class="badge bg-light text-dark border font-monospace" title="{{ app.branch.name_en|default:'Head Office' }}">
+                        {{ app.branch.code|default:"HO-PP" }}
+                      </span>
+                    </td>
+                    <td>
+                      {% if app.assigned_officer %}
+                        <div class="small fw-semibold text-dark">{{ app.assigned_officer.get_full_name|default:app.assigned_officer.username }}</div>
+                        <div class="text-muted font-monospace" style="font-size:0.7rem;">{{ app.assigned_officer.officer_profile.employee_id|default:"CO-STAFF" }}</div>
+                      {% else %}
+                        <span class="badge bg-warning-subtle text-dark border border-warning-subtle" data-i18n="badge_unassigned">មិនទាន់ចាត់តាំង</span>
+                      {% endif %}
                     </td>
                     <td class="small">{{ app.product.name }}</td>
                     <td class="text-end font-monospace fw-bold">$ {{ app.amount|floatformat:2 }}</td>
@@ -1210,10 +1272,20 @@
                       <span class="badge-status badge-{{ app.status|lower }}" data-i18n="status_{{ app.status|lower }}">{{ app.get_status_display }}</span>
                     </td>
                     <td class="text-end">
-                      <div class="d-inline-flex gap-1">
+                      <div class="d-inline-flex gap-1 align-items-center">
                         <button type="button" class="btn-act py-1 px-2" title="Inspect Application & CBC" onclick="loadCbcData('{{ app.application_no }}', '{{ app.borrower.get_full_name|default:app.borrower.username|escapejs }}', {{ app.id }}, {{ app.borrower.borrower_profile.credit_score|default:720 }}, {{ app.monthly_income|default:0 }}, {{ app.amount|default:0 }}, {{ app.emi|default:0 }}, '{{ app.purpose|default:''|escapejs }}', '{{ app.status }}')">
                           <i class="bi bi-search"></i>
                         </button>
+                        {% if not app.assigned_officer %}
+                          <form method="POST" action="{% url 'loans:officer_dashboard' %}" class="d-inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="application_id" value="{{ app.id }}">
+                            <input type="hidden" name="action" value="CLAIM">
+                            <button type="submit" class="btn btn-sm btn-primary py-1 px-2" style="font-size:0.75rem;" title="Claim Application">
+                              <i class="bi bi-hand-index-thumb me-1"></i><span data-i18n="btn_claim">ទទួលបន្ទុក</span>
+                            </button>
+                          </form>
+                        {% endif %}
                         {% if app.status == 'SUBMITTED' or app.status == 'UNDER_REVIEW' %}
                           <form method="POST" action="{% url 'loans:officer_dashboard' %}" class="d-inline">
                             {% csrf_token %}
@@ -1241,7 +1313,7 @@
                   </tr>
                 {% empty %}
                   <tr>
-                    <td colspan="8" class="text-center text-muted py-4" data-i18n="msg_no_applications">មិនមានពាក្យស្នើសុំទេ</td>
+                    <td colspan="10" class="text-center text-muted py-4" data-i18n="msg_no_applications">មិនមានពាក្យស្នើសុំទេ</td>
                   </tr>
                 {% endfor %}
               </tbody>
@@ -1943,6 +2015,13 @@
   <script>
     const I18N = {
       km: {
+        tab_my_queue: "អតិថិជនទទួលបន្ទុក",
+        tab_unassigned: "មិនទាន់ចាត់តាំង",
+        tab_all_branch: "ទូទាំងសាខា",
+        th_branch: "សាខា",
+        th_officer: "មន្ត្រីទទួលបន្ទុក",
+        badge_unassigned: "មិនទាន់ចាត់តាំង",
+        btn_claim: "ទទួលបន្ទុក",
         role_officer: "មន្ត្រីឥណទាន",
         nav_overview: "ទិដ្ឋភាពទូទៅ",
         nav_applications: "ពាក្យស្នើសុំ",
@@ -2162,6 +2241,13 @@
         ph_reject_reason: "មូលហេតុបដិសេធ..."
       },
       en: {
+        tab_my_queue: "My Covered Borrowers",
+        tab_unassigned: "Unassigned Queue",
+        tab_all_branch: "All Branch Applications",
+        th_branch: "Branch",
+        th_officer: "Assigned CO",
+        badge_unassigned: "Unassigned",
+        btn_claim: "Claim",
         role_officer: "Loan Officer",
         nav_overview: "Overview",
         nav_applications: "Applications",
@@ -2520,11 +2606,30 @@
       }
     }
 
+    function selectBranchFilter(code) {
+      const dd = document.getElementById('dd-filterAppBranch');
+      if (dd) {
+        const select = dd.querySelector('select');
+        if (select) select.value = code;
+        const label = dd.querySelector('.dropdown-label');
+        if (label) label.textContent = code === 'ALL' ? 'សាខាទាំងអស់ / All Branches' : code;
+        dd.querySelectorAll('.dropdown-item-custom').forEach(item => item.classList.remove('selected'));
+        dd.classList.remove('open');
+      }
+      filterAppsTable();
+    }
+
+    function filterBranchChanged(val) {
+      selectBranchFilter(val);
+    }
+
     function filterAppsTable() {
       const searchInput = document.getElementById('searchAppInput');
       const query = (searchInput ? searchInput.value : '').toLowerCase().trim();
       const statusEl = document.getElementById('filterAppStatus');
       const status = (statusEl ? statusEl.value : 'ALL').toUpperCase();
+      const branchEl = document.getElementById('filterAppBranch');
+      const branch = (branchEl ? branchEl.value : 'ALL').toUpperCase();
 
       const rows = document.querySelectorAll('#fullAppsTbody tr');
       rows.forEach(tr => {
@@ -2532,11 +2637,13 @@
         const applicant = (tr.getAttribute('data-applicant') || '').toLowerCase();
         const phone = (tr.getAttribute('data-phone') || '').toLowerCase();
         const rowStatus = (tr.getAttribute('data-status') || '').toUpperCase();
+        const rowBranch = (tr.getAttribute('data-branch') || '').toUpperCase();
 
         const matchQuery = !query || appNo.includes(query) || applicant.includes(query) || phone.includes(query);
         const matchStatus = status === 'ALL' || rowStatus === status;
+        const matchBranch = branch === 'ALL' || rowBranch === branch;
 
-        if (matchQuery && matchStatus) {
+        if (matchQuery && matchStatus && matchBranch) {
           tr.style.display = '';
         } else {
           tr.style.display = 'none';

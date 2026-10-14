@@ -9,7 +9,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
-from apps.accounts.models import User
+from apps.accounts.models import User, Branch
 from apps.accounts.views import borrower_required, officer_required
 from .forms import LoanApplicationForm
 from .models import LoanApplication, LoanProduct, ActionLog, LoanInstallment, PaymentReceipt
@@ -37,7 +37,9 @@ from apps.reports.views import (
 @borrower_required
 def borrower_portal_view(request):
     products = LoanProduct.objects.filter(is_active=True).order_by('name')
-    user_applications = LoanApplication.objects.filter(borrower=request.user).order_by('-created_at')
+    user_applications = LoanApplication.objects.filter(borrower=request.user).select_related(
+        'product', 'branch', 'assigned_officer', 'assigned_officer__officer_profile', 'assigned_officer__officer_profile__branch'
+    ).order_by('-created_at')
 
     active_disbursed_loan = user_applications.filter(status__in=[
         LoanApplication.Status.ACTIVE,
@@ -52,6 +54,25 @@ def borrower_portal_view(request):
         LoanApplication.Status.UNDER_REVIEW
     ]).first()
     active_application = approved_loan or pending_application or user_applications.first()
+
+    servicing_officer = getattr(active_application, 'assigned_officer', None) if active_application else None
+    if not servicing_officer:
+        user_branch = getattr(getattr(request.user, 'borrower_profile', None), 'servicing_branch', None)
+        if user_branch:
+            servicing_officer = User.objects.filter(
+                role=User.Role.OFFICER,
+                officer_profile__branch=user_branch
+            ).select_related('officer_profile', 'officer_profile__branch').first()
+
+    servicing_branch = None
+    if active_application and active_application.branch:
+        servicing_branch = active_application.branch
+    elif servicing_officer and hasattr(servicing_officer, 'officer_profile') and servicing_officer.officer_profile.branch:
+        servicing_branch = servicing_officer.officer_profile.branch
+    elif hasattr(request.user, 'borrower_profile') and request.user.borrower_profile.servicing_branch:
+        servicing_branch = request.user.borrower_profile.servicing_branch
+    else:
+        servicing_branch = Branch.objects.filter(code='HO-PP').first()
 
     installments = []
     next_installment = None
@@ -125,6 +146,9 @@ def borrower_portal_view(request):
     return render(request, 'loans/borrower_dashboard.html', {
         'form': form,
         'products': products,
+        'branches': Branch.objects.all().order_by('code'),
+        'servicing_officer': servicing_officer,
+        'servicing_branch': servicing_branch,
         'user_applications': user_applications,
         'active_application': active_application,
         'approved_loan': approved_loan,
@@ -201,6 +225,36 @@ def officer_dashboard_view(request):
                     )
                 messages.info(request, f"ពាក្យស្នើសុំ {application.application_no} បានប្តូរទៅស្ថានភាពកំពុងពិនិត្យ / Marked under review.")
 
+            elif action == 'CLAIM':
+                with transaction.atomic():
+                    application.assigned_officer = request.user
+                    application.status = LoanApplication.Status.UNDER_REVIEW
+                    application.save()
+                    ActionLog.objects.create(
+                        loan=application,
+                        changed_by=request.user,
+                        from_status=old_status,
+                        to_status=LoanApplication.Status.UNDER_REVIEW,
+                        action_notes=remarks or f"ពាក្យស្នើសុំត្រូវបានទទួលបន្ទុកដោយមន្ត្រី {request.user.get_full_name() or request.user.username} / Claimed by Credit Officer."
+                    )
+                messages.success(request, f"អ្នកបានទទួលបន្ទុកពាក្យស្នើសុំ {application.application_no} រួចរាល់! / You claimed application {application.application_no}.")
+
+            elif action == 'REASSIGN':
+                target_officer_id = request.POST.get('target_officer_id')
+                if target_officer_id:
+                    target_officer = get_object_or_404(User, id=target_officer_id, role__in=[User.Role.OFFICER, User.Role.ADMIN])
+                    with transaction.atomic():
+                        application.assigned_officer = target_officer
+                        application.save()
+                        ActionLog.objects.create(
+                            loan=application,
+                            changed_by=request.user,
+                            from_status=old_status,
+                            to_status=application.status,
+                            action_notes=remarks or f"Reassigned to Credit Officer {target_officer.get_full_name() or target_officer.username}."
+                        )
+                    messages.success(request, f"ពាក្យស្នើសុំ {application.application_no} ត្រូវបានចាត់តាំងទៅកាន់ {target_officer.get_full_name() or target_officer.username} / Reassigned successfully.")
+
             elif action == 'DISBURSE':
                 try:
                     execute_disbursal(application, request.user, notes=remarks or None)
@@ -238,10 +292,27 @@ def officer_dashboard_view(request):
 
     query = request.GET.get('q', '').strip()
     status_filter = request.GET.get('status', 'ALL').strip().upper()
+    scope = request.GET.get('scope', 'all').strip().lower()
+    branch_filter = request.GET.get('branch', 'ALL').strip().upper()
 
-    applications = LoanApplication.objects.select_related(
-        'borrower', 'product', 'borrower__borrower_profile'
+    base_applications = LoanApplication.objects.select_related(
+        'borrower', 'product', 'borrower__borrower_profile', 'branch', 'assigned_officer', 'assigned_officer__officer_profile'
     ).prefetch_related('collaterals', 'action_logs').all()
+
+    if branch_filter and branch_filter != 'ALL':
+        base_applications = base_applications.filter(branch__code=branch_filter)
+
+    my_queue_count = base_applications.filter(assigned_officer=request.user).count()
+    unassigned_count = base_applications.filter(assigned_officer__isnull=True).count()
+    all_queue_count = base_applications.count()
+
+    applications = base_applications
+
+    if scope == 'my_queue':
+        applications = applications.filter(assigned_officer=request.user)
+    elif scope == 'unassigned':
+        applications = applications.filter(assigned_officer__isnull=True)
+    # else 'all' retains all branch applications
 
     if query:
         applications = applications.filter(
@@ -281,7 +352,7 @@ def officer_dashboard_view(request):
         LoanApplication.Status.APPROVED,
         LoanApplication.Status.DISBURSED,
         LoanApplication.Status.ACTIVE
-    ]).select_related('borrower', 'product', 'borrower__borrower_profile').prefetch_related('installments').order_by('-created_at')
+    ]).select_related('borrower', 'product', 'borrower__borrower_profile', 'branch', 'assigned_officer').prefetch_related('installments').order_by('-created_at')
 
     receipts = PaymentReceipt.objects.select_related(
         'installment', 'loan', 'payer', 'verified_by'
@@ -314,6 +385,13 @@ def officer_dashboard_view(request):
         'delinquency_data': delinquency_data,
         'search_query': query,
         'selected_status': status_filter,
+        'current_scope': scope,
+        'selected_branch': branch_filter,
+        'my_queue_count': my_queue_count,
+        'unassigned_count': unassigned_count,
+        'all_queue_count': all_queue_count,
+        'branches': Branch.objects.all().order_by('code'),
+        'all_officers': User.objects.filter(role__in=[User.Role.OFFICER, User.Role.ADMIN]).select_related('officer_profile'),
         'total_count': total_count,
         'pending_count': pending_count,
         'approved_count': approved_count,
@@ -335,7 +413,7 @@ def application_cbc_api(request, pk):
     """
     application = get_object_or_404(
         LoanApplication.objects.select_related(
-            'borrower', 'product', 'borrower__borrower_profile'
+            'borrower', 'product', 'borrower__borrower_profile', 'branch', 'assigned_officer'
         ).prefetch_related('collaterals', 'action_logs'),
         pk=pk
     )
@@ -366,6 +444,10 @@ def application_cbc_api(request, pk):
         'success': True,
         'application_no': application.application_no,
         'borrower_name': application.borrower.get_full_name() or application.borrower.username,
+        'branch_code': application.branch.code if application.branch else 'HO-PP',
+        'branch_name': application.branch.name_km if application.branch else 'ការិយាល័យកណ្តាល (ភ្នំពេញ)',
+        'branch_name_en': application.branch.name_en if application.branch else 'Head Office - Phnom Penh',
+        'assigned_officer': application.assigned_officer.get_full_name() or application.assigned_officer.username if application.assigned_officer else None,
         'amount': float(application.amount),
         'currency': application.currency,
         'tenure_months': application.tenure_months,

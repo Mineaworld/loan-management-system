@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LMS - Borrower Portal | Cambodian Microfinance</title>
+  <title>Sovanaphum Microfinance - Borrower Portal | គ្រឹះស្ថានមីក្រូហិរញ្ញវត្ថុ សុវណ្ណភូមិ</title>
 
   <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}" />
   <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}" />
@@ -798,8 +798,8 @@
     <a href="{% url 'borrower' %}" class="sidebar-brand">
       <img src="{% static 'images/logo.png' %}" alt="Logo" class="brand-img-logo" style="height: 36px; width: 36px; border-radius: 8px; object-fit: cover; box-shadow: 0 2px 6px rgba(0,0,0,0.12); flex-shrink: 0;">
       <div>
-        <div class="brand-title">LMS Portal</div>
-        <div class="brand-role" data-i18n="role_borrower">អតិថិជន</div>
+        <div class="brand-title">Sovanaphum MFI</div>
+        <div class="brand-role" data-i18n="brand_sub">សុវណ្ណភូមិ ភីអិលស៊ី</div>
       </div>
     </a>
 
@@ -861,8 +861,8 @@
 
       <div class="header-actions">
         <div class="header-org-badge d-none d-lg-flex align-items-center gap-2">
-          <span class="badge-branch"><i class="bi bi-shield-check text-success me-1"></i><span data-i18n="badge_secure_portal">ច្រកទ្វារសុវត្ថិភាព NBC</span></span>
-          <span class="badge-dept"><i class="bi bi-bank text-primary me-1"></i><span data-i18n="badge_retail_banking">ឥណទានបុគ្គល</span></span>
+          <span class="badge-branch"><i class="bi bi-geo-alt-fill text-danger me-1"></i><span>{% if servicing_branch %}{{ servicing_branch.name_km }}{% else %}ការិយាល័យកណ្តាល (ភ្នំពេញ){% endif %}</span></span>
+          <span class="badge-dept"><i class="bi bi-shield-check text-success me-1"></i><span data-i18n="badge_secure_portal">NBC B7-024-118 MDI</span></span>
         </div>
 
         <div class="header-user-badge d-flex align-items-center">
@@ -912,6 +912,59 @@
 
       <section id="sec-my-loan" class="view-section {% if not active_section or active_section == 'sec-my-loan' %}active{% endif %}">
         
+        <!-- Servicing Loan Officer Coverage Card -->
+        <div class="clean-card mb-4 border-start border-4 border-primary">
+          <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+            <div class="d-flex align-items-center gap-3">
+              <div class="user-avatar" style="width: 48px; height: 48px; font-size: 1.15rem; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700;">
+                {% if servicing_officer %}
+                  {{ servicing_officer.first_name|slice:":1" }}{{ servicing_officer.last_name|slice:":1"|default:servicing_officer.username|slice:":2"|upper }}
+                {% else %}
+                  CO
+                {% endif %}
+              </div>
+              <div>
+                <div class="text-muted small text-uppercase fw-semibold" style="letter-spacing: 0.04em;" data-i18n="lbl_servicing_officer">មន្ត្រីឥណទានប្រចាំការ / Servicing Loan Officer</div>
+                <div class="fs-5 fw-bold text-dark mt-0">
+                  {% if servicing_officer %}
+                    {{ servicing_officer.get_full_name|default:servicing_officer.username }}
+                    <span class="badge bg-light text-primary border font-monospace ms-1" style="font-size: 0.75rem;">
+                      {{ servicing_officer.officer_profile.employee_id|default:"CO-STAFF" }}
+                    </span>
+                  {% else %}
+                    <span>កំពុងរង់ចាំការចាត់តាំង / Officer Assignment Pending</span>
+                  {% endif %}
+                </div>
+                <div class="small text-muted mt-0.5">
+                  <i class="bi bi-geo-alt text-danger me-1"></i>
+                  {% if servicing_branch %}
+                    {{ servicing_branch.name_km }} ({{ servicing_branch.name_en }})
+                  {% else %}
+                    ការិយាល័យកណ្តាល (ភ្នំពេញ)
+                  {% endif %}
+                  {% if servicing_branch and servicing_branch.phone %}
+                    <span class="mx-1">•</span> <i class="bi bi-telephone text-muted me-1"></i>{{ servicing_branch.phone }}
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              {% if servicing_officer and servicing_officer.phone_number %}
+                <a href="tel:{{ servicing_officer.phone_number }}" class="btn btn-outline-primary btn-sm px-3 py-1.5" style="border-radius: 6px;">
+                  <i class="bi bi-telephone-outbound me-1"></i> <span data-i18n="btn_call_co">ទូរស័ព្ទ ({{ servicing_officer.phone_number }})</span>
+                </a>
+              {% elif servicing_branch and servicing_branch.phone %}
+                <a href="tel:{{ servicing_branch.phone }}" class="btn btn-outline-primary btn-sm px-3 py-1.5" style="border-radius: 6px;">
+                  <i class="bi bi-telephone me-1"></i> <span>ទាក់ទងសាខា ({{ servicing_branch.phone }})</span>
+                </a>
+              {% endif %}
+              <a href="https://t.me/sovanaphum_mfi_support" target="_blank" rel="noopener" class="btn btn-primary btn-sm px-3 py-1.5" style="background-color: #0088cc; border-color: #0088cc; border-radius: 6px;">
+                <i class="bi bi-telegram me-1"></i> <span>Telegram CO</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
         {% if approved_loan %}
           <div class="row g-3 mb-4">
             <div class="col-12 col-md-4">
@@ -1262,7 +1315,7 @@
           <div class="khqr-card mb-4">
             <div class="khqr-top">BAKONG KHQR</div>
             <div class="khqr-body">
-              <div class="text-muted small mb-2">LMS COMMERCIAL BANK PLC</div>
+              <div class="text-muted small mb-2">SOVANAPHUM MICROFINANCE PLC (SMP)</div>
               <div class="khqr-qr-box">
                 <svg width="180" height="180" viewBox="0 0 100 100" fill="none">
                   <rect width="100" height="100" fill="white"/>
@@ -1343,6 +1396,31 @@
                       {% for p in products %}
                         <div class="dropdown-item-custom {% if forloop.first %}selected{% endif %}" onclick="selectDropdownOption('dd-applyProduct', '{{ p.id }}', this)">
                           <span>{{ p.name }}</span>
+                          <i class="bi bi-check2 check-icon"></i>
+                        </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold" data-i18n="lbl_branch" for="applyBranch">សាខាបំរើការ / Servicing Branch</label>
+                  <div class="animated-dropdown w-100" id="dd-applyBranch">
+                    <select class="d-none" name="branch" id="applyBranch" required>
+                      {% for b in branches %}
+                        <option value="{{ b.id }}" {% if servicing_branch and servicing_branch.id == b.id or forloop.first and not servicing_branch %}selected{% endif %}>
+                          {{ b.name_km }} ({{ b.name_en }})
+                        </option>
+                      {% endfor %}
+                    </select>
+                    <button type="button" class="dropdown-trigger" onclick="toggleDropdown('dd-applyBranch')">
+                      <span class="dropdown-label">{% if servicing_branch %}{{ servicing_branch.name_km }} ({{ servicing_branch.name_en }}){% elif branches %}{{ branches.0.name_km }} ({{ branches.0.name_en }}){% else %}Head Office - Phnom Penh{% endif %}</span>
+                      <i class="bi bi-chevron-down dropdown-chevron"></i>
+                    </button>
+                    <div class="dropdown-menu-custom">
+                      {% for b in branches %}
+                        <div class="dropdown-item-custom {% if servicing_branch and servicing_branch.id == b.id or forloop.first and not servicing_branch %}selected{% endif %}" onclick="selectDropdownOption('dd-applyBranch', '{{ b.id }}', this)">
+                          <span>{{ b.name_km }} ({{ b.name_en }})</span>
                           <i class="bi bi-check2 check-icon"></i>
                         </div>
                       {% endfor %}
@@ -1655,6 +1733,10 @@
 
     const I18N = {
       km: {
+        brand_sub: "សុវណ្ណភូមិ ភីអិលស៊ី",
+        lbl_servicing_officer: "មន្ត្រីឥណទានប្រចាំការ",
+        btn_call_co: "ទូរស័ព្ទ",
+        lbl_branch: "សាខាបំរើការ",
         role_borrower: "អតិថិជន",
         nav_my_loan: "ឥណទានរបស់ខ្ញុំ",
         nav_applications: "ពាក្យស្នើសុំរបស់ខ្ញុំ",
@@ -1768,6 +1850,10 @@
         status_verifying: "កំពុងផ្ទៀងផ្ទាត់"
       },
       en: {
+        brand_sub: "Sovanaphum Microfinance Plc.",
+        lbl_servicing_officer: "Servicing Loan Officer",
+        btn_call_co: "Call Direct",
+        lbl_branch: "Servicing Branch",
         role_borrower: "Borrower",
         nav_my_loan: "My Loan",
         nav_applications: "My Applications",

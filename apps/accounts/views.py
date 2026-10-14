@@ -6,8 +6,34 @@ from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
+from django.db.models import Q
 from .forms import LoginForm, BorrowerRegistrationForm
-from .models import User, OfficerProfile
+from .models import User, OfficerProfile, Branch
+
+
+def resolve_branch(branch_input):
+    if not branch_input:
+        return Branch.objects.filter(code='HO-PP').first() or Branch.objects.first()
+    if isinstance(branch_input, Branch):
+        return branch_input
+    branch_str = str(branch_input).strip()
+    if not branch_str:
+        return Branch.objects.filter(code='HO-PP').first() or Branch.objects.first()
+
+    branch_obj = Branch.objects.filter(
+        Q(code__iexact=branch_str) | Q(name_en__iexact=branch_str) | Q(name_km__iexact=branch_str)
+    ).first()
+    if not branch_obj and branch_str.isdigit():
+        branch_obj = Branch.objects.filter(pk=int(branch_str)).first()
+    if not branch_obj and branch_str:
+        code = branch_str[:10].upper().replace(' ', '-')
+        branch_obj, _ = Branch.objects.get_or_create(
+            name_en=branch_str,
+            defaults={'code': code, 'name_km': branch_str}
+        )
+    if not branch_obj:
+        branch_obj = Branch.objects.filter(code='HO-PP').first() or Branch.objects.first()
+    return branch_obj
 
 
 def role_redirect(user):
@@ -180,10 +206,11 @@ def create_staff_view(request):
             is_staff=(role == User.Role.ADMIN),
         )
         emp_code = employee_id or f"EMP-{new_staff.id:04d}"
+        branch_obj = resolve_branch(branch)
         OfficerProfile.objects.create(
             user=new_staff,
             employee_id=emp_code,
-            branch=branch or 'Head Office - Phnom Penh',
+            branch=branch_obj,
             department=department or ('Administration & Management' if role == User.Role.ADMIN else 'Credit & Underwriting'),
             phone=phone_number
         )
@@ -200,7 +227,7 @@ def create_staff_view(request):
                 'role': new_staff.role,
                 'role_display': new_staff.get_role_display(),
                 'employee_id': emp_code,
-                'branch': branch,
+                'branch': branch_obj.name_en if branch_obj else branch,
                 'department': department,
             }
         })
@@ -271,7 +298,7 @@ def edit_staff_view(request, pk):
         if role in [User.Role.OFFICER, User.Role.ADMIN]:
             profile, _ = OfficerProfile.objects.get_or_create(user=target_user)
             if branch:
-                profile.branch = branch
+                profile.branch = resolve_branch(branch)
             if department:
                 profile.department = department
             if employee_id:
@@ -332,7 +359,8 @@ def get_user_details_api(request, pk):
             'role_display': target_user.get_role_display(),
             'is_active': target_user.is_active,
             'employee_id': profile.employee_id if profile else '',
-            'branch': profile.branch if profile else 'Head Office - Phnom Penh',
+            'branch': profile.branch.name_en if (profile and profile.branch) else 'Head Office - Phnom Penh',
+            'branch_code': profile.branch.code if (profile and profile.branch) else 'HO-PP',
             'department': profile.department if profile else 'Credit & Underwriting',
             'date_joined': target_user.date_joined.strftime('%Y-%m-%d %H:%M') if target_user.date_joined else '',
         }
