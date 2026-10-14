@@ -232,10 +232,24 @@ class Command(BaseCommand):
             p, _ = LoanProduct.objects.update_or_create(code=p_data['code'], defaults=p_data)
             product_objs[p_data['code']] = p
 
-        # Backward compatibility aliases for tests/legacy references
-        LoanProduct.objects.update_or_create(code='SME', defaults={**products_data[0], 'code': 'SME'})
-        LoanProduct.objects.update_or_create(code='PERSONAL', defaults={**products_data[1], 'code': 'PERSONAL'})
-        LoanProduct.objects.update_or_create(code='AGRI', defaults={**products_data[2], 'code': 'AGRI'})
+        # Clean up legacy duplicate aliases ('SME', 'PERSONAL', 'AGRI') and ensure deduplication
+        legacy_code_map = {
+            'SME': 'SME-01',
+            'PERSONAL': 'PER-01',
+            'AGRI': 'AGR-01',
+        }
+        for old_code, canonical_code in legacy_code_map.items():
+            old_prod = LoanProduct.objects.filter(code=old_code).first()
+            canonical_prod = product_objs.get(canonical_code)
+            if old_prod and canonical_prod:
+                LoanApplication.objects.filter(product=old_prod).update(product=canonical_prod)
+                old_prod.delete()
+
+        # Delete any orphan products not in official 6 products
+        valid_codes = [p['code'] for p in products_data]
+        for extra_prod in LoanProduct.objects.exclude(code__in=valid_codes):
+            if not extra_prod.applications.exists():
+                extra_prod.delete()
 
         p_sme = product_objs['SME-01']
         p_personal = product_objs['PER-01']

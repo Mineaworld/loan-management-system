@@ -673,6 +673,9 @@
       margin-bottom: 1.25rem;
       position: relative;
       animation: alertSlideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: opacity 0.35s ease, transform 0.35s ease, max-height 0.35s ease, margin 0.35s ease, padding 0.35s ease;
+      overflow: hidden;
+      box-sizing: border-box;
     }
 
     @keyframes alertSlideDown {
@@ -684,6 +687,20 @@
         opacity: 1;
         transform: translateY(0);
       }
+    }
+
+    .custom-alert.alert-dismissing {
+      opacity: 0 !important;
+      transform: translateY(-8px) scale(0.98) !important;
+      max-height: 0 !important;
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+      border-top-width: 0 !important;
+      border-bottom-width: 0 !important;
+      pointer-events: none !important;
+      transition: opacity 0.35s ease, transform 0.35s ease, max-height 0.35s ease, margin 0.35s ease, padding 0.35s ease !important;
     }
 
     .custom-alert .alert-icon {
@@ -701,21 +718,23 @@
 
     .custom-alert .btn-close {
       position: absolute;
-      top: 0.75rem;
+      top: 0.65rem;
       right: 0.75rem;
-      width: 1.15rem;
-      height: 1.15rem;
+      width: 1.5rem;
+      height: 1.5rem;
       padding: 0;
-      background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23991b1b'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e") center/0.65rem auto no-repeat !important;
+      background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%2364748b'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e") center/0.75rem auto no-repeat !important;
       border: none !important;
       box-shadow: none !important;
       opacity: 0.55;
-      transition: opacity 0.15s ease;
+      transition: opacity 0.15s ease, transform 0.15s ease;
       cursor: pointer;
+      z-index: 2;
     }
 
     .custom-alert .btn-close:hover {
       opacity: 0.95;
+      transform: scale(1.1);
     }
 
     .custom-alert.alert-danger,
@@ -730,6 +749,10 @@
     .custom-alert.alert-error .alert-icon {
       color: #dc2626 !important;
     }
+    .custom-alert.alert-danger .btn-close,
+    .custom-alert.alert-error .btn-close {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23991b1b'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e") !important;
+    }
 
     .custom-alert.alert-warning {
       background-color: #fffbeb !important;
@@ -740,6 +763,9 @@
     }
     .custom-alert.alert-warning .alert-icon {
       color: #d97706 !important;
+    }
+    .custom-alert.alert-warning .btn-close {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%2392400e'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e") !important;
     }
 
     .custom-alert.alert-success {
@@ -752,6 +778,9 @@
     .custom-alert.alert-success .alert-icon {
       color: #16a34a !important;
     }
+    .custom-alert.alert-success .btn-close {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23166534'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e") !important;
+    }
 
     .custom-alert.alert-info {
       background-color: #eff6ff !important;
@@ -762,6 +791,9 @@
     }
     .custom-alert.alert-info .alert-icon {
       color: #2563eb !important;
+    }
+    .custom-alert.alert-info .btn-close {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%231e40af'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e") !important;
     }
 
     /* Red Input Highlights on Error - Crisp, No SVG Icon Collision */
@@ -791,12 +823,12 @@
     </a>
 
     <nav class="sidebar-nav">
-      <button type="button" class="nav-item-btn active" onclick="switchNav('sec-overview', this)">
+      <button type="button" class="nav-item-btn {% if not active_section or active_section == 'sec-overview' %}active{% endif %}" onclick="switchNav('sec-overview', this)">
         <i class="bi bi-grid-1x2"></i>
         <span data-i18n="nav_overview">ទិដ្ឋភាពទូទៅ</span>
       </button>
 
-      <button type="button" class="nav-item-btn" onclick="switchNav('sec-applications', this)">
+      <button type="button" class="nav-item-btn {% if active_section == 'sec-applications' %}active{% endif %}" onclick="switchNav('sec-applications', this)">
         <i class="bi bi-file-earmark-check"></i>
         <span data-i18n="nav_applications">ពាក្យស្នើសុំ</span>
         {% if pending_count %}
@@ -804,23 +836,23 @@
         {% endif %}
       </button>
 
-      <button type="button" class="nav-item-btn" onclick="switchNav('sec-loans', this)">
+      <button type="button" class="nav-item-btn {% if active_section == 'sec-loans' %}active{% endif %}" onclick="switchNav('sec-loans', this)">
         <i class="bi bi-wallet2"></i>
         <span data-i18n="nav_portfolio">ផលប័ត្រឥណទាន</span>
       </button>
 
-      <button type="button" class="nav-item-btn" onclick="switchNav('sec-repayments', this)">
+      <button type="button" class="nav-item-btn {% if active_section == 'sec-repayments' %}active{% endif %}" onclick="switchNav('sec-repayments', this)">
         <i class="bi bi-receipt"></i>
         <span data-i18n="nav_repayments">ការបង់ប្រាក់</span>
       </button>
 
-      <button type="button" class="nav-item-btn" onclick="switchNav('sec-reports', this)">
+      <button type="button" class="nav-item-btn {% if active_section == 'sec-reports' %}active{% endif %}" onclick="switchNav('sec-reports', this)">
         <i class="bi bi-file-earmark-bar-graph"></i>
         <span data-i18n="nav_reports">របាយការណ៍</span>
       </button>
 
       {% if request.user.is_admin_user %}
-      <button type="button" class="nav-item-btn" onclick="switchNav('sec-staff', this)">
+      <button type="button" class="nav-item-btn {% if active_section == 'sec-staff' %}active{% endif %}" onclick="switchNav('sec-staff', this)">
         <i class="bi bi-person-gear"></i>
         <span data-i18n="nav_staff_management">បុគ្គលិក & តួនាទី</span>
         {% if total_staff_count %}
@@ -850,7 +882,7 @@
     
     <header class="top-header">
       <div class="header-title-box">
-        <h1 id="pageTitle" data-i18n="page_overview">ទិដ្ឋភាពទូទៅនៃការគ្រប់គ្រង</h1>
+        <h1 id="pageTitle" data-i18n="{% if active_section == 'sec-applications' %}page_applications{% elif active_section == 'sec-loans' %}page_portfolio{% elif active_section == 'sec-repayments' %}page_repayments{% elif active_section == 'sec-reports' %}page_reports{% elif active_section == 'sec-staff' %}page_staff_management{% else %}page_overview{% endif %}">{% if active_section == 'sec-applications' %}បញ្ជីពាក្យស្នើសុំឥណទាន{% elif active_section == 'sec-loans' %}ផលប័ត្រឥណទាន{% elif active_section == 'sec-repayments' %}ផ្ទៀងផ្ទាត់ការទូទាត់ប្រាក់{% elif active_section == 'sec-reports' %}របាយការណ៍ស្ថាប័ន{% elif active_section == 'sec-staff' %}បុគ្គលិក និងតួនាទី{% else %}ទិដ្ឋភាពទូទៅនៃការគ្រប់គ្រង{% endif %}</h1>
       </div>
 
       <div class="header-actions">
@@ -904,7 +936,7 @@
         </div>
       {% endif %}
 
-      <section id="sec-overview" class="view-section active">
+      <section id="sec-overview" class="view-section {% if not active_section or active_section == 'sec-overview' %}active{% endif %}">
         
         <div class="row g-3 mb-4">
           <div class="col-12 col-sm-6 col-xl-3">
@@ -924,7 +956,7 @@
           <div class="col-12 col-sm-6 col-xl-3">
             <div class="kpi-card">
               <div class="kpi-label" data-i18n="kpi_recovery">អត្រាសងត្រឡប់</div>
-              <div class="kpi-value text-success font-monospace">98.2%</div>
+              <div class="kpi-value text-success font-monospace">{{ delinquency_data.collection_rate|default:"100.0" }}%</div>
               <div class="kpi-foot text-success"><i class="bi bi-graph-up-arrow me-1"></i><span data-i18n="kpi_foot_recovery">កម្រិតស្តង់ដារធនាគារជាតិ NBC</span></div>
             </div>
           </div>
@@ -1033,7 +1065,7 @@
       </section>
 
       <!-- CBC Underwriting -->
-      <section id="sec-applications" class="view-section">
+      <section id="sec-applications" class="view-section {% if active_section == 'sec-applications' %}active{% endif %}">
         
         {% with first_app=applications.0 %}
         <div class="cbc-box" id="cbcBoxWidget">
@@ -1098,6 +1130,8 @@
                   {% csrf_token %}
                   <input type="hidden" name="application_id" id="cbcAppIdApprove" value="{{ first_app.id|default:'' }}">
                   <input type="hidden" name="action" value="APPROVE">
+                  <input type="hidden" name="tab" value="applications">
+                  <input type="hidden" name="scope" value="{{ current_scope }}">
                   <input type="hidden" name="remarks" class="remarks-carrier" value="">
                   <button type="submit" class="btn btn-sm btn-success w-100" id="cbcBtnApprove" {% if not first_app or first_app.status != 'SUBMITTED' and first_app.status != 'UNDER_REVIEW' %}disabled{% endif %}>
                     <i class="bi bi-check2"></i> <span data-i18n="btn_approve">អនុម័ត</span>
@@ -1108,6 +1142,8 @@
                   {% csrf_token %}
                   <input type="hidden" name="application_id" id="cbcAppIdReview" value="{{ first_app.id|default:'' }}">
                   <input type="hidden" name="action" value="REVIEW">
+                  <input type="hidden" name="tab" value="applications">
+                  <input type="hidden" name="scope" value="{{ current_scope }}">
                   <input type="hidden" name="remarks" class="remarks-carrier" value="">
                   <button type="submit" class="btn btn-sm btn-outline-warning text-dark w-100" id="cbcBtnReview" {% if not first_app or first_app.status != 'SUBMITTED' and first_app.status != 'UNDER_REVIEW' %}disabled{% endif %}>
                     <i class="bi bi-clock"></i> <span data-i18n="btn_review">កំពុងពិនិត្យ</span>
@@ -1118,6 +1154,8 @@
                   {% csrf_token %}
                   <input type="hidden" name="application_id" id="cbcAppIdReject" value="{{ first_app.id|default:'' }}">
                   <input type="hidden" name="action" value="REJECT">
+                  <input type="hidden" name="tab" value="applications">
+                  <input type="hidden" name="scope" value="{{ current_scope }}">
                   <input type="hidden" name="remarks" class="remarks-carrier" value="">
                   <button type="submit" class="btn btn-sm btn-outline-danger w-100" id="cbcBtnReject" {% if not first_app or first_app.status != 'SUBMITTED' and first_app.status != 'UNDER_REVIEW' %}disabled{% endif %}>
                     <i class="bi bi-x"></i> <span data-i18n="btn_reject">បដិសេធ</span>
@@ -1136,19 +1174,19 @@
         <div class="clean-card">
           <!-- Multi-Tab Queue Filtering (Coverage Model) -->
           <div class="d-flex align-items-center gap-2 mb-3 border-bottom pb-2 flex-wrap">
-            <a href="?scope=my_queue{% if selected_status != 'ALL' %}&status={{ selected_status }}{% endif %}{% if selected_branch != 'ALL' %}&branch={{ selected_branch }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" class="btn btn-sm {% if current_scope == 'my_queue' %}btn-primary{% else %}btn-outline-secondary{% endif %} d-inline-flex align-items-center gap-1.5" style="border-radius: 8px;">
+            <a href="?tab=applications&scope=my_queue{% if selected_status != 'ALL' %}&status={{ selected_status }}{% endif %}{% if selected_branch != 'ALL' %}&branch={{ selected_branch }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" class="btn btn-sm {% if current_scope == 'my_queue' %}btn-primary{% else %}btn-outline-secondary{% endif %} d-inline-flex align-items-center gap-1.5" style="border-radius: 8px;">
               <i class="bi bi-person-check-fill"></i>
               <span data-i18n="tab_my_queue">អតិថិជនទទួលបន្ទុក</span>
               <span class="badge {% if current_scope == 'my_queue' %}bg-white text-primary{% else %}bg-secondary{% endif %} rounded-pill font-monospace ms-1">{{ my_queue_count }}</span>
             </a>
 
-            <a href="?scope=unassigned{% if selected_status != 'ALL' %}&status={{ selected_status }}{% endif %}{% if selected_branch != 'ALL' %}&branch={{ selected_branch }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" class="btn btn-sm {% if current_scope == 'unassigned' %}btn-primary{% else %}btn-outline-secondary{% endif %} d-inline-flex align-items-center gap-1.5" style="border-radius: 8px;">
+            <a href="?tab=applications&scope=unassigned{% if selected_status != 'ALL' %}&status={{ selected_status }}{% endif %}{% if selected_branch != 'ALL' %}&branch={{ selected_branch }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" class="btn btn-sm {% if current_scope == 'unassigned' %}btn-primary{% else %}btn-outline-secondary{% endif %} d-inline-flex align-items-center gap-1.5" style="border-radius: 8px;">
               <i class="bi bi-inbox-fill"></i>
               <span data-i18n="tab_unassigned">មិនទាន់ចាត់តាំង</span>
               <span class="badge {% if current_scope == 'unassigned' %}bg-white text-primary{% else %}bg-warning text-dark{% endif %} rounded-pill font-monospace ms-1">{{ unassigned_count }}</span>
             </a>
 
-            <a href="?scope=all{% if selected_status != 'ALL' %}&status={{ selected_status }}{% endif %}{% if selected_branch != 'ALL' %}&branch={{ selected_branch }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" class="btn btn-sm {% if current_scope == 'all' %}btn-primary{% else %}btn-outline-secondary{% endif %} d-inline-flex align-items-center gap-1.5" style="border-radius: 8px;">
+            <a href="?tab=applications&scope=all{% if selected_status != 'ALL' %}&status={{ selected_status }}{% endif %}{% if selected_branch != 'ALL' %}&branch={{ selected_branch }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" class="btn btn-sm {% if current_scope == 'all' %}btn-primary{% else %}btn-outline-secondary{% endif %} d-inline-flex align-items-center gap-1.5" style="border-radius: 8px;">
               <i class="bi bi-building"></i>
               <span data-i18n="tab_all_branch">ទូទាំងសាខា</span>
               <span class="badge {% if current_scope == 'all' %}bg-white text-primary{% else %}bg-secondary{% endif %} rounded-pill font-monospace ms-1">{{ all_queue_count }}</span>
@@ -1281,6 +1319,8 @@
                             {% csrf_token %}
                             <input type="hidden" name="application_id" value="{{ app.id }}">
                             <input type="hidden" name="action" value="CLAIM">
+                            <input type="hidden" name="tab" value="applications">
+                            <input type="hidden" name="scope" value="{{ current_scope }}">
                             <button type="submit" class="btn btn-sm btn-primary py-1 px-2" style="font-size:0.75rem;" title="Claim Application">
                               <i class="bi bi-hand-index-thumb me-1"></i><span data-i18n="btn_claim">ទទួលបន្ទុក</span>
                             </button>
@@ -1291,6 +1331,8 @@
                             {% csrf_token %}
                             <input type="hidden" name="application_id" value="{{ app.id }}">
                             <input type="hidden" name="action" value="APPROVE">
+                            <input type="hidden" name="tab" value="applications">
+                            <input type="hidden" name="scope" value="{{ current_scope }}">
                             <button type="submit" class="btn-act btn-act-success py-1 px-2" title="Approve">
                               <i class="bi bi-check-lg"></i>
                             </button>
@@ -1299,6 +1341,8 @@
                             {% csrf_token %}
                             <input type="hidden" name="application_id" value="{{ app.id }}">
                             <input type="hidden" name="action" value="REJECT">
+                            <input type="hidden" name="tab" value="applications">
+                            <input type="hidden" name="scope" value="{{ current_scope }}">
                             <button type="submit" class="btn-act btn-act-danger py-1 px-2" title="Reject">
                               <i class="bi bi-x-lg"></i>
                             </button>
@@ -1323,7 +1367,7 @@
 
       </section>
 
-      <section id="sec-loans" class="view-section">
+      <section id="sec-loans" class="view-section {% if active_section == 'sec-loans' %}active{% endif %}">
         <div class="clean-card">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
@@ -1373,7 +1417,7 @@
         </div>
       </section>
 
-      <section id="sec-repayments" class="view-section">
+      <section id="sec-repayments" class="view-section {% if active_section == 'sec-repayments' %}active{% endif %}">
         <div class="clean-card">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
@@ -1422,6 +1466,7 @@
                             {% csrf_token %}
                             <input type="hidden" name="receipt_id" value="{{ r.id }}">
                             <input type="hidden" name="action" value="VERIFY_RECEIPT">
+                            <input type="hidden" name="tab" value="repayments">
                             <button type="submit" class="btn btn-success btn-sm py-0 px-2" style="font-size:0.75rem;" title="Verify & Confirm">
                               <i class="bi bi-check-circle"></i> <span data-i18n="btn_verify">ផ្ទៀងផ្ទាត់</span>
                             </button>
@@ -1448,7 +1493,7 @@
         </div>
       </section>
 
-      <section id="sec-reports" class="view-section">
+      <section id="sec-reports" class="view-section {% if active_section == 'sec-reports' %}active{% endif %}">
         <div class="row g-3 mb-4">
           <div class="col-6 col-lg-3">
             <div class="clean-card h-100">
@@ -1543,7 +1588,7 @@
       </section>
 
       {% if request.user.is_admin_user %}
-      <section id="sec-staff" class="view-section">
+      <section id="sec-staff" class="view-section {% if active_section == 'sec-staff' %}active{% endif %}">
         
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
           <div>
@@ -1740,6 +1785,8 @@
           {% csrf_token %}
           <input type="hidden" name="application_id" id="disburseAppId" value="">
           <input type="hidden" name="action" value="DISBURSE">
+          <input type="hidden" name="tab" value="applications">
+          <input type="hidden" name="scope" value="{{ current_scope }}">
           <div class="modal-body p-4">
             <div class="mb-3">
               <div class="text-muted small" data-i18n="lbl_app_no">លេខពាក្យស្នើសុំ:</div>
@@ -1792,6 +1839,7 @@
           {% csrf_token %}
           <input type="hidden" name="receipt_id" id="rejectReceiptId" value="">
           <input type="hidden" name="action" value="REJECT_RECEIPT">
+          <input type="hidden" name="tab" value="repayments">
           <div class="modal-body p-4">
             <div class="mb-3">
               <div class="text-muted small" data-i18n="lbl_tx_ref">លេខយោងប្រតិបត្តិការ:</div>
@@ -1888,7 +1936,11 @@
               </div>
               <div class="col-md-4">
                 <label class="form-label small fw-semibold text-dark" data-i18n="lbl_branch">សាខាប្រតិបត្តិការ</label>
-                <input type="text" name="branch" class="form-control form-control-sm" value="Head Office - Phnom Penh">
+                <select name="branch" class="form-select form-select-sm">
+                  {% for b in branches %}
+                    <option value="{{ b.code }}">{{ b.name_km }} ({{ b.name_en }})</option>
+                  {% endfor %}
+                </select>
               </div>
               <div class="col-md-4">
                 <label class="form-label small fw-semibold text-dark" data-i18n="lbl_department">នាយកដ្ឋាន</label>
@@ -1971,7 +2023,11 @@
               </div>
               <div class="col-md-4">
                 <label class="form-label small fw-semibold text-dark" data-i18n="lbl_branch">សាខាប្រតិបត្តិការ</label>
-                <input type="text" id="editBranch" name="branch" class="form-control form-control-sm">
+                <select id="editBranch" name="branch" class="form-select form-select-sm">
+                  {% for b in branches %}
+                    <option value="{{ b.code }}">{{ b.name_km }} ({{ b.name_en }})</option>
+                  {% endfor %}
+                </select>
               </div>
               <div class="col-md-4">
                 <label class="form-label small fw-semibold text-dark" data-i18n="lbl_department">នាយកដ្ឋាន</label>
@@ -2476,6 +2532,103 @@
       applyLang();
     }
 
+    function dismissCustomAlert(alertEl) {
+      if (!alertEl || alertEl.classList.contains('alert-dismissing')) return;
+
+      if (alertEl._autoDismissTimeout) {
+        clearTimeout(alertEl._autoDismissTimeout);
+        alertEl._autoDismissTimeout = null;
+      }
+
+      // Step 1: Capture and lock starting height before applying collapse classes
+      const currentHeight = alertEl.offsetHeight;
+      alertEl.style.maxHeight = currentHeight + 'px';
+      alertEl.style.pointerEvents = 'none';
+
+      // Step 2: Force layout reflow so starting height is locked by browser
+      void alertEl.offsetHeight;
+
+      // Step 3: Trigger the transition via next frame to ensure clean start state
+      requestAnimationFrame(() => {
+        alertEl.classList.add('alert-dismissing');
+      });
+
+      // Step 4: Remove from DOM after transition completes
+      setTimeout(() => {
+        const parent = alertEl.parentElement;
+        alertEl.remove();
+        if (parent && parent.classList.contains('messages-container')) {
+          if (!parent.querySelector('.custom-alert')) {
+            parent.remove();
+          }
+        }
+      }, 370);
+    }
+
+    function setupCustomAlert(alertEl, duration = 5000) {
+      if (!alertEl || alertEl.dataset.alertDismissInitialized === 'true') return;
+      alertEl.dataset.alertDismissInitialized = 'true';
+
+      let remaining = duration;
+      let timerStart = Date.now();
+      let timerId = null;
+
+      function startTimer() {
+        timerStart = Date.now();
+        timerId = setTimeout(() => {
+          dismissCustomAlert(alertEl);
+        }, remaining);
+        alertEl._autoDismissTimeout = timerId;
+      }
+
+      function pauseTimer() {
+        if (timerId) {
+          clearTimeout(timerId);
+          timerId = null;
+          alertEl._autoDismissTimeout = null;
+          const elapsed = Date.now() - timerStart;
+          remaining = Math.max(1000, remaining - elapsed);
+        }
+      }
+
+      alertEl.addEventListener('mouseenter', pauseTimer);
+      alertEl.addEventListener('mouseleave', () => {
+        if (!alertEl.classList.contains('alert-dismissing')) {
+          startTimer();
+        }
+      });
+
+      const closeBtn = alertEl.querySelector('.btn-close, [data-bs-dismiss="alert"]');
+      if (closeBtn) {
+        closeBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dismissCustomAlert(alertEl);
+        });
+      }
+
+      startTimer();
+    }
+
+    function initCustomAlerts() {
+      document.querySelectorAll('.custom-alert:not(.alert-dismissing)').forEach(el => {
+        setupCustomAlert(el, 5000);
+      });
+    }
+
+    // Delegated capture listener ensures [x] always closes any alert immediately
+    document.addEventListener('click', function(e) {
+      const closeBtn = e.target.closest('.custom-alert .btn-close, .custom-alert [data-bs-dismiss="alert"]');
+      if (closeBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        const alertEl = closeBtn.closest('.custom-alert');
+        if (alertEl) {
+          dismissCustomAlert(alertEl);
+        }
+      }
+    }, true);
+
     function formatBilingualAlerts() {
       document.querySelectorAll('.custom-alert .alert-text').forEach(el => {
         const raw = el.getAttribute('data-raw-msg') || el.textContent.trim();
@@ -2604,6 +2757,13 @@
         heading.setAttribute('data-i18n', titleKey);
         heading.textContent = I18N[currentLang][titleKey];
       }
+
+      const tabName = secId.replace('sec-', '');
+      try {
+        const url = new URL(window.location);
+        url.searchParams.set('tab', tabName);
+        window.history.replaceState(null, '', url.toString());
+      } catch (e) {}
     }
 
     function selectBranchFilter(code) {
@@ -2936,7 +3096,7 @@
             document.getElementById('editPhone').value = u.phone_number || '';
             document.getElementById('editRole').value = u.role;
             document.getElementById('editEmployeeId').value = u.employee_id || '';
-            document.getElementById('editBranch').value = u.branch || '';
+            document.getElementById('editBranch').value = u.branch_code || u.branch || '';
             document.getElementById('editDepartment').value = u.department || '';
             document.getElementById('editNewPassword').value = '';
 
@@ -3110,10 +3270,10 @@
         new Chart(portCtx, {
           type: 'doughnut',
           data: {
-            labels: ['SME Business Loan', 'Personal Loan', 'Agriculture Loan'],
+            labels: {{ chart_labels_json|safe }},
             datasets: [{
-              data: [55, 25, 20],
-              backgroundColor: ['#1d4ed8', '#16a34a', '#d97706'],
+              data: {{ chart_counts_json|safe }},
+              backgroundColor: ['#1d4ed8', '#16a34a', '#d97706', '#9333ea', '#0891b2', '#e11d48'],
               borderWidth: 0
             }]
           },
@@ -3134,6 +3294,7 @@
     });
 
     applyLang();
+    initCustomAlerts();
   </script>
   {% endlocalize %}
 </body>
